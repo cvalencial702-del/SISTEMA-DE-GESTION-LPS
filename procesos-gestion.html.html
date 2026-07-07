@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Gestión de Procesos · SIG HSEQ Colombia · LPS Grupo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+:root{--navy:#0A2540;--navy2:#0F3A63;--blue:#1598FF;--blue-dk:#0B6FCC;--sky:#EAF5FF;--orange:#F5821F;--green:#1E9E5A;--slate:#5B6B7C;--line:#E3E9F0;--ok:#16A34A;--warn:#D97706;--danger:#DC2626;--r:14px;--sh:0 6px 20px rgba(10,37,64,.08);}
+*{box-sizing:border-box;}html,body{margin:0;background:#F6F8FB;color:#0F1B2A;font-family:'Inter',-apple-system,sans-serif;}
+h1,h2,h3,h4{font-family:'Space Grotesk','Inter',sans-serif;margin:0;letter-spacing:-.01em;}
+button{font-family:inherit;cursor:pointer;}a{color:inherit;text-decoration:none;}
+
+/* ===== LAYOUT ===== */
+.app{display:grid;grid-template-columns:270px 1fr;min-height:100vh;}
+.sidebar{background:linear-gradient(180deg,var(--navy),var(--navy2));color:#fff;padding:0;overflow-y:auto;position:relative;}
+.sidebar::before{content:'';position:absolute;inset:0;opacity:.1;pointer-events:none;background:repeating-linear-gradient(115deg,rgba(255,255,255,.4) 0 1px,transparent 1px 46px);}
+.sb-top{padding:20px 18px 14px;position:relative;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-top .logo{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.sb-top .logo-box{width:40px;height:40px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;padding:5px;}
+.sb-top .logo-box img{width:100%;height:100%;object-fit:contain;}
+.sb-top .brand{font-weight:700;font-size:14px;}
+.sb-top .brand-sub{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#9FC1E0;margin-top:2px;}
+.sb-back{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#9FC1E0;padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;width:100%;}
+.sb-back:hover{background:rgba(255,255,255,.08);color:#fff;}
+
+.sb-group{padding:14px 0 0;position:relative;}
+.sb-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;color:#7FA5C9;padding:0 18px;margin-bottom:6px;}
+.sb-item{width:100%;display:flex;align-items:center;gap:10px;text-align:left;padding:9px 18px;border:none;background:transparent;color:#CFE0F0;font-size:12.5px;font-weight:600;transition:.12s;position:relative;}
+.sb-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+.sb-item.active{background:var(--blue);color:#fff;}
+.sb-item .ic{width:18px;text-align:center;font-size:14px;}
+.sb-item .nm{flex:1;line-height:1.3;}
+.sb-item .cnt{font-size:10px;background:rgba(255,255,255,.15);padding:1px 7px;border-radius:10px;}
+
+.sb-nivel{margin-bottom:4px;}
+.sb-nivel-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:8.5px;font-weight:800;letter-spacing:.06em;margin:0 18px 4px;}
+.sb-nivel-tag.n1{background:rgba(29,99,201,.7);color:#D6E8FC;}
+.sb-nivel-tag.n2{background:rgba(30,158,90,.7);color:#D0F2E0;}
+.sb-nivel-tag.n3{background:rgba(245,130,31,.7);color:#FFEDD5;}
+
+/* ===== MAIN ===== */
+.main{padding:24px 30px;overflow-y:auto;}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.eyebrow{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:700;}
+.page-title{font-size:24px;margin-top:4px;color:var(--navy);}
+.page-sub{color:var(--slate);font-size:13px;margin-top:4px;max-width:560px;}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:18px;}
+.tab{border:none;background:transparent;padding:10px 18px;font-size:13px;font-weight:600;color:var(--slate);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;}
+.tab:hover{color:var(--blue);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.tab-view{display:none;animation:fadeV .25s ease;}
+.tab-view.active{display:block;}
+@keyframes fadeV{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* ===== CARDS ===== */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border-left:4px solid var(--blue);}
+.kpi.c2{border-left-color:var(--green);}.kpi.c3{border-left-color:var(--orange);}.kpi.c4{border-left-color:var(--danger);}
+.kpi .kl{font-size:10px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.kpi .kv{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--navy);margin-top:3px;}
+.kpi .ks{font-size:10.5px;color:var(--slate);margin-top:2px;}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:16px;}
+.panel h4{font-size:14px;margin-bottom:2px;}
+.panel .ps{font-size:11.5px;color:var(--slate);margin-bottom:12px;}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--slate);border-bottom:1px solid var(--line);padding:8px;background:var(--sky);}
+tbody td{padding:10px 8px;border-bottom:1px solid var(--line);}
+tbody tr:hover{background:var(--sky);}
+.badge{padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700;}
+.badge.ok{background:#E4F7EA;color:var(--ok);}.badge.blue{background:var(--sky);color:var(--blue);}.badge.warn{background:#FEF3E0;color:var(--warn);}.badge.gray{background:#EEF1F5;color:var(--slate);}.badge.danger{background:#FBE7E7;color:var(--danger);}
+
+.btn{border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+.btn-p{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(21,152,255,.3);}.btn-p:hover{background:var(--blue-dk);}
+.btn-g{background:#fff;border:1px solid var(--line);color:var(--navy);}.btn-g:hover{border-color:var(--blue);color:var(--blue);}
+.row-btn{border:1px solid var(--line);background:#fff;cursor:pointer;font-size:11px;padding:4px 8px;border-radius:6px;margin-left:2px;}
+.row-btn:hover{border-color:var(--blue);background:var(--sky);}
+
+/* Forms */
+.fg{display:grid;gap:10px;margin-bottom:12px;}
+.fg.c4{grid-template-columns:repeat(4,1fr);}
+.fg.c3{grid-template-columns:repeat(3,1fr);}
+.fg.c2{grid-template-columns:1fr 1fr;}
+.fg.c1{grid-template-columns:1fr;}
+label{font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:3px;}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;background:#fff;}
+textarea{resize:vertical;min-height:50px;}
+
+.progress{height:8px;background:var(--sky);border-radius:8px;overflow:hidden;margin-top:8px;}
+.progress>div{height:100%;border-radius:8px;}
+
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.chart-box{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh);}
+.chart-box h4{font-size:12px;margin-bottom:2px;}
+.chart-box .cs{font-size:10px;color:var(--slate);margin-bottom:10px;}
+
+.empty{text-align:center;padding:40px 20px;color:var(--slate);}
+.empty .eic{font-size:30px;margin-bottom:8px;}
+
+@media(max-width:900px){.app{grid-template-columns:1fr;}.sidebar{display:none;}.kpi-row{grid-template-columns:1fr 1fr;}.chart-grid{grid-template-columns:1fr;}.fg.c4,.fg.c3{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="sb-top">
+    <div class="logo">
+      <div class="logo-box"><img src="logo-lps.png" alt="LPS"></div>
+      <div><div class="brand">Gestión de Procesos</div><div class="brand-sub">SIG HSEQ Colombia</div></div>
+    </div>
+    <a class="sb-back" href="#" onclick="event.preventDefault(); volverAlSistema();">← Volver al Mapa de Procesos</a>
+  </div>
+  <div id="sidebarNav"></div>
+</aside>
+
+<div class="main" id="mainArea">
+  <div class="page-head">
+    <div>
+      <div class="eyebrow" id="crumb">Sistema de Gestión · LPS Grupo</div>
+      <h1 class="page-title" id="pTitle">Seleccione un proceso</h1>
+      <div class="page-sub" id="pSub">Haga clic en cualquier proceso del panel izquierdo para ver su información detallada.</div>
+    </div>
+  </div>
+  <div id="processContent">
+    <div class="empty"><div class="eic">🧭</div>Seleccione un proceso del panel izquierdo para comenzar.</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* =========================================================
+   DATA — Procesos del SIG
+========================================================= */
+const NIVELES = [
+  {id:'n1',tag:'NIVEL 1',label:'Gerenciales / Estratégicos',cls:'n1',color:'#1D63C9',
+    procesos:[
+      {id:'direccion-estrategica',ic:'🎯',name:'Dirección Estratégica',desc:'Define la visión, misión, política integrada y objetivos del SIG.'},
+      {id:'planeacion-control',ic:'📈',name:'Planeación y Control',desc:'Planifica, monitorea y controla el desempeño del SIG.'},
+      {id:'gestion-riesgos',ic:'🛡️',name:'Gestión de Riesgos y Oportunidades',desc:'Identifica, evalúa y controla riesgos y oportunidades del SIG.'},
+      {id:'alianzas-corporativas',ic:'🤝',name:'Gestión de Alianzas',desc:'Gestiona relaciones y alianzas para generar valor compartido.'},
+    ]},
+  {id:'n2',tag:'NIVEL 2',label:'Misionales',cls:'n2',color:'#1E9E5A',
+    procesos:[
+      {id:'gestion-comercial',ic:'👥',name:'Gestión Comercial',desc:'Comprende necesidades del cliente y construye relaciones de confianza.'},
+      {id:'diseno-soluciones',ic:'📝',name:'Diseño de Soluciones',desc:'Diseña propuestas innovadoras que generan valor.'},
+      {id:'ejecucion-proyectos',ic:'⚙️',name:'Ejecución de Proyectos',desc:'Ejecuta con calidad y eficiencia los proyectos y servicios contratados.'},
+      {id:'entrega-valor',ic:'✅',name:'Entrega de Valor',desc:'Entrega resultados que superan las expectativas de los clientes.'},
+      {id:'fidelizacion',ic:'📊',name:'Fidelización de Clientes',desc:'Promueve relaciones a largo plazo y crecimiento conjunto.'},
+    ]},
+  {id:'n3',tag:'NIVEL 3',label:'Operativos / de Soporte',cls:'n3',color:'#F5821F',
+    procesos:[
+      {id:'talento-humano',ic:'👥',name:'Gestión del Talento Humano',desc:'Atrae, desarrolla y retiene el talento.'},
+      {id:'financiera',ic:'💲',name:'Gestión Financiera',desc:'Administra recursos financieros con sostenibilidad.'},
+      {id:'compras',ic:'🛒',name:'Gestión de Compras',desc:'Suministro con calidad, costo y oportunidad.'},
+      {id:'tic',ic:'💻',name:'Gestión de TIC',desc:'Soluciones tecnológicas seguras e innovadoras.'},
+      {id:'documental',ic:'📋',name:'Gestión Documental',desc:'Información segura, íntegra y accesible.'},
+      {id:'legal',ic:'⚖️',name:'Gestión Legal',desc:'Cumplimiento normativo y protección de intereses.'},
+      {id:'sig',ic:'⚙️',name:'Sistemas Integrados de Gestión',desc:'Administra el SIG y asegura la mejora continua.'},
+    ]}
+];
+
+const TIPOS_DOC = ['Procedimiento','Formato','Manual','Instructivo','Política','Registro','Plan','Programa'];
+
+/* Documentos e indicadores por proceso */
+let procData = {};
+function initProcData(){
+  NIVELES.forEach(n=>n.procesos.forEach(p=>{
+    if(!procData[p.id]) procData[p.id] = {
+      docs:[{nombre:'Caracterización del proceso '+p.name,tipo:'Manual',codigo:p.id.substring(0,3).toUpperCase()+'-CA-01',version:'1.0',estado:'Vigente',fileUrl:null,fileName:null}],
+      indicadores:[{nombre:'Cumplimiento del proceso '+p.name,meta:90,resultado:Math.floor(Math.random()*25+70),frecuencia:'Trimestral',responsable:'Líder de proceso'}],
+      riesgos:[{desc:'Incumplimiento de plazos en '+p.name,probabilidad:'Media',impacto:'Alto',control:'Seguimiento semanal'}],
+      acciones:[],
+    };
+  }));
+}
+initProcData();
+
+// Enriquecer proceso de Talento Humano
+procData['talento-humano'] = {
+  docs:[
+    {nombre:'Caracterización del proceso Gestión del Talento Humano',tipo:'Manual',codigo:'TH-CA-01',version:'2.0',estado:'Vigente',fileUrl:null,fileName:null},
+    {nombre:'Procedimiento de Selección y Contratación',tipo:'Procedimiento',codigo:'TH-PR-01',version:'1.4',estado:'Vigente',fileUrl:null,fileName:null},
+    {nombre:'Procedimiento de Inducción y Reinducción',tipo:'Procedimiento',codigo:'TH-PR-02',version:'1.2',estado:'Vigente',fileUrl:null,fileName:null},
+    {nombre:'Plan Anual de Formación y Capacitación',tipo:'Plan',codigo:'TH-PL-01',version:'3.0',estado:'Vigente',fileUrl:null,fileName:null},
+    {nombre:'Formato de Evaluación de Desempeño',tipo:'Formato',codigo:'TH-FO-01',version:'1.1',estado:'Vigente',fileUrl:null,fileName:null},
+    {nombre:'Programa de Bienestar Laboral',tipo:'Programa',codigo:'TH-PG-01',version:'1.0',estado:'En revisión',fileUrl:null,fileName:null},
+    {nombre:'Matriz de Competencias por Cargo',tipo:'Registro',codigo:'TH-RE-01',version:'2.1',estado:'Vigente',fileUrl:null,fileName:null},
+    {nombre:'Procedimiento de Evaluación Sociodemográfica',tipo:'Procedimiento',codigo:'TH-PR-03',version:'1.0',estado:'Vigente',fileUrl:null,fileName:null},
+  ],
+  indicadores:[
+    {nombre:'Rotación de personal',meta:10,resultado:8,frecuencia:'Trimestral',responsable:'Coord. Talento Humano'},
+    {nombre:'Cobertura del plan de formación',meta:90,resultado:85,frecuencia:'Semestral',responsable:'Coord. Talento Humano'},
+    {nombre:'Cumplimiento evaluación de desempeño',meta:95,resultado:92,frecuencia:'Anual',responsable:'Dir. Talento Humano'},
+    {nombre:'Satisfacción del clima laboral',meta:80,resultado:78,frecuencia:'Anual',responsable:'Dir. Talento Humano'},
+    {nombre:'Cobertura de inducción',meta:100,resultado:100,frecuencia:'Mensual',responsable:'Coord. Talento Humano'},
+  ],
+  riesgos:[
+    {desc:'Alta rotación de personal clave en proyectos',probabilidad:'Media',impacto:'Alto',control:'Programa de retención y plan de carrera'},
+    {desc:'Incumplimiento de requisitos legales de SST',probabilidad:'Baja',impacto:'Alto',control:'Auditorías internas y matriz legal actualizada'},
+    {desc:'Brechas de competencias en personal operativo',probabilidad:'Media',impacto:'Medio',control:'Plan de formación y evaluación de desempeño'},
+  ],
+  acciones:[
+    {desc:'Implementar encuesta de clima laboral semestral',tipo:'Mejora',resp:'Dir. Talento Humano',fecha:'2026-06-30',estado:'En curso'},
+    {desc:'Actualizar perfiles de cargo y matriz de competencias',tipo:'Correctiva',resp:'Coord. Talento Humano',fecha:'2026-03-31',estado:'Cerrada'},
+  ],
+};
+
+
+let currentProcess = null;
+let editingDocIdx = null;
+
+/* =========================================================
+   SIDEBAR RENDER
+========================================================= */
+function renderSidebar(){
+  document.getElementById('sidebarNav').innerHTML = NIVELES.map(n=>`
+    <div class="sb-group">
+      <div class="sb-nivel"><span class="sb-nivel-tag ${n.cls}">${n.tag}</span></div>
+      <div class="sb-label">${n.label}</div>
+      ${n.procesos.map(p=>`
+        <button class="sb-item ${currentProcess===p.id?'active':''}" onclick="${p.link?'window.open(&quot;'+p.link+'&quot;,&quot;_blank&quot;)':'selectProcess(&quot;'+p.id+'&quot;)'}">
+          <span class="ic">${p.ic}</span>
+          <span class="nm">${p.name}</span>
+          <span class="cnt">${(procData[p.id]?.docs||[]).length}</span>
+        </button>`).join('')}
+    </div>`).join('');
+}
+
+/* =========================================================
+   PROCESS VIEW
+========================================================= */
+function findProcess(id){
+  for(const n of NIVELES) for(const p of n.procesos) if(p.id===id) return {proc:p,nivel:n};
+  return null;
+}
+
+function selectProcess(id){
+
+  currentProcess = id;
+  renderSidebar();
+  const {proc,nivel} = findProcess(id);
+  const d = procData[id];
+  document.getElementById('crumb').textContent = nivel.tag + ' · ' + nivel.label;
+  document.getElementById('pTitle').textContent = proc.ic + ' ' + proc.name;
+  document.getElementById('pSub').textContent = proc.desc;
+
+  const totalDocs = d.docs.length;
+  const vigentes = d.docs.filter(x=>x.estado==='Vigente').length;
+  const inds = d.indicadores;
+  const enMeta = inds.filter(x=>x.resultado>=x.meta).length;
+  const avgRes = inds.length ? Math.round(inds.reduce((s,x)=>s+x.resultado,0)/inds.length) : 0;
+  const riesgos = d.riesgos.length;
+
+  const btnTH = id === 'talento-humano' ? '<div style="margin-bottom:16px;"><a href="talento-humano.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;background:#1598FF;color:#fff;text-decoration:none;box-shadow:0 4px 14px rgba(21,152,255,.3);">📊 Abrir Fichas de Empleado y Perfil Sociodemográfico</a></div>' : '';
+
+  document.getElementById('processContent').innerHTML = `
+    <div class="kpi-row">
+      <div class="kpi"><div class="kl">Documentos</div><div class="kv">${totalDocs}</div><div class="ks">${vigentes} vigentes</div></div>
+      <div class="kpi c2"><div class="kl">Indicadores</div><div class="kv">${inds.length}</div><div class="ks">${enMeta}/${inds.length} en meta</div></div>
+      <div class="kpi c3"><div class="kl">Cumplimiento</div><div class="kv">${avgRes}%</div>
+        <div class="progress"><div style="width:${avgRes}%;background:${avgRes>=85?'var(--ok)':avgRes>=70?'var(--warn)':'var(--danger)'}"></div></div></div>
+      <div class="kpi c4"><div class="kl">Riesgos</div><div class="kv">${riesgos}</div><div class="ks">Identificados</div></div>
+    </div>
+
+    ${btnTH}
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this,'tab-docs')">📄 Documentos</button>
+      <button class="tab" onclick="switchTab(this,'tab-ind')">📊 Indicadores</button>
+      <button class="tab" onclick="switchTab(this,'tab-risk')">🛡️ Riesgos</button>
+      <button class="tab" onclick="switchTab(this,'tab-actions')">✅ Acciones de Mejora</button>
+    </div>
+
+    <div class="tab-view active" id="tab-docs">${renderDocsTab(id)}</div>
+    <div class="tab-view" id="tab-ind">${renderIndTab(id)}</div>
+    <div class="tab-view" id="tab-risk">${renderRiskTab(id)}</div>
+    <div class="tab-view" id="tab-actions">${renderActionsTab(id)}</div>
+
+    <div class="chart-grid">
+      <div class="chart-box"><h4>Indicadores vs. Meta</h4><div class="cs">Resultado alcanzado vs. meta establecida</div><canvas id="chInd"></canvas></div>
+      <div class="chart-box"><h4>Documentos por tipo</h4><div class="cs">Distribución de la documentación del proceso</div><canvas id="chDocs"></canvas></div>
+    </div>
+  `;
+  renderCharts(id);
+}
+
+function switchTab(btn, tabId){
+  btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+/* =========================================================
+   TAB: DOCUMENTOS
+========================================================= */
+function renderDocsTab(id){
+  const docs = procData[id].docs;
+  const estadoPill = e => `<span class="badge ${e==='Vigente'?'ok':e==='En revisión'?'warn':'gray'}">${e}</span>`;
+  return `
+    <div class="panel">
+      <h4>Documentación del proceso</h4>
+      <div class="ps">Procedimientos, formatos, manuales e instructivos.</div>
+      <table>
+        <thead><tr><th>Documento</th><th>Tipo</th><th>Código</th><th>Versión</th><th>Estado</th><th>Archivo</th><th style="width:160px;"></th></tr></thead>
+        <tbody>${docs.map((d,i)=>`
+          <tr>
+            <td>${d.nombre}</td>
+            <td><span class="badge blue">${d.tipo}</span></td>
+            <td>${d.codigo}</td>
+            <td>v${d.version}</td>
+            <td>${estadoPill(d.estado)}</td>
+            <td>${d.fileUrl?`<button class="row-btn" onclick="window.open('${d.fileUrl}','_blank')">👁</button>`:'<span style="color:var(--slate);font-size:10px;">—</span>'}</td>
+            <td><button class="row-btn" onclick="editDoc('${id}',${i})">✏️ Editar</button><button class="row-btn" onclick="delDoc('${id}',${i})">🗑</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div id="docForm-${id}" style="display:none;margin-top:14px;border:1.5px dashed var(--line);border-radius:12px;padding:16px;">
+        <div class="fg c4">
+          <div><label>Nombre</label><input id="dn_${id}" placeholder="Nombre del documento"></div>
+          <div><label>Tipo</label><select id="dt_${id}">${TIPOS_DOC.map(t=>`<option>${t}</option>`).join('')}</select></div>
+          <div><label>Código</label><input id="dc_${id}" placeholder="COD-XX-01"></div>
+          <div><label>Estado</label><select id="ds_${id}"><option>Vigente</option><option>En revisión</option><option>Obsoleto</option></select></div>
+        </div>
+        <div class="fg c3">
+          <div><label>Versión</label><input id="dv_${id}" placeholder="1.0"></div>
+          <div><label>Archivo (PDF, Word)</label><input type="file" id="df_${id}"></div>
+          <div style="display:flex;gap:8px;align-items:end;">
+            <button class="btn btn-p" id="dSave_${id}" onclick="saveDoc('${id}')">💾 Guardar</button>
+            <button class="btn btn-g" onclick="cancelDoc('${id}')">Cancelar</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;"><button class="btn btn-p" onclick="showDocForm('${id}')">＋ Nuevo documento</button></div>
+    </div>`;
+}
+
+function showDocForm(id){document.getElementById('docForm-'+id).style.display='block';}
+function cancelDoc(id){
+  document.getElementById('docForm-'+id).style.display='none';
+  editingDocIdx=null;
+  ['dn_','dc_','dv_'].forEach(p=>{const el=document.getElementById(p+id);if(el)el.value='';});
+  const sf=document.getElementById('df_'+id);if(sf)sf.value='';
+  const sb=document.getElementById('dSave_'+id);if(sb)sb.textContent='💾 Guardar';
+}
+function saveDoc(id){
+  const nombre=document.getElementById('dn_'+id).value.trim();
+  if(!nombre){alert('Ingrese el nombre del documento');return;}
+  const fileInput=document.getElementById('df_'+id);
+  const file=fileInput?.files[0]||null;
+  const datos={nombre,tipo:document.getElementById('dt_'+id).value,codigo:document.getElementById('dc_'+id).value.trim()||'—',version:document.getElementById('dv_'+id).value.trim()||'1.0',estado:document.getElementById('ds_'+id).value,fileUrl:file?URL.createObjectURL(file):null,fileName:file?file.name:null};
+  if(editingDocIdx!==null){
+    const prev=procData[id].docs[editingDocIdx];
+    if(!file){datos.fileUrl=prev.fileUrl;datos.fileName=prev.fileName;}
+    procData[id].docs[editingDocIdx]=datos;
+  } else procData[id].docs.push(datos);
+  cancelDoc(id);selectProcess(id);
+}
+function editDoc(id,i){
+  const d=procData[id].docs[i];
+  showDocForm(id);editingDocIdx=i;
+  document.getElementById('dn_'+id).value=d.nombre;
+  document.getElementById('dt_'+id).value=d.tipo;
+  document.getElementById('dc_'+id).value=d.codigo;
+  document.getElementById('dv_'+id).value=d.version;
+  document.getElementById('ds_'+id).value=d.estado;
+  document.getElementById('dSave_'+id).textContent='💾 Guardar cambios';
+}
+function delDoc(id,i){if(!confirm('¿Eliminar?'))return;procData[id].docs.splice(i,1);selectProcess(id);}
+
+/* =========================================================
+   TAB: INDICADORES
+========================================================= */
+function renderIndTab(id){
+  const inds=procData[id].indicadores;
+  return `<div class="panel"><h4>Indicadores de gestión</h4><div class="ps">Seguimiento del desempeño del proceso.</div>
+    <table><thead><tr><th>Indicador</th><th>Meta</th><th>Resultado</th><th>Cumplimiento</th><th>Frecuencia</th><th>Responsable</th><th style="width:100px;"></th></tr></thead>
+    <tbody>${inds.map((x,i)=>{
+      const pct=Math.min(Math.round(x.resultado/x.meta*100),100);
+      const cls=x.resultado>=x.meta?'ok':(x.resultado>=x.meta*.8?'warn':'danger');
+      return `<tr><td>${x.nombre}</td><td>${x.meta}%</td><td>${x.resultado}%</td>
+        <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress" style="flex:1;"><div style="width:${pct}%;background:var(--${cls});"></div></div><span class="badge ${cls}">${pct}%</span></div></td>
+        <td>${x.frecuencia}</td><td>${x.responsable}</td>
+        <td><button class="row-btn" onclick="editInd('${id}',${i})">✏️</button><button class="row-btn" onclick="delInd('${id}',${i})">🗑</button></td></tr>`;
+    }).join('')}</tbody></table>
+    <div id="indForm-${id}" style="display:none;margin-top:14px;border:1.5px dashed var(--line);border-radius:12px;padding:16px;">
+      <div class="fg c3">
+        <div><label>Nombre del indicador</label><input id="in_${id}" placeholder="Ej. Cumplimiento de plazos"></div>
+        <div><label>Meta (%)</label><input type="number" id="im_${id}" value="90" min="0" max="100"></div>
+        <div><label>Resultado actual (%)</label><input type="number" id="ir_${id}" value="75" min="0" max="100"></div>
+      </div>
+      <div class="fg c3">
+        <div><label>Frecuencia</label><select id="if_${id}"><option>Mensual</option><option>Trimestral</option><option>Semestral</option><option>Anual</option></select></div>
+        <div><label>Responsable</label><input id="ip_${id}" placeholder="Nombre / cargo"></div>
+        <div style="display:flex;gap:8px;align-items:end;">
+          <button class="btn btn-p" id="iSave_${id}" onclick="saveInd('${id}')">💾 Guardar</button>
+          <button class="btn btn-g" onclick="cancelInd('${id}')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;"><button class="btn btn-p" onclick="showIndForm('${id}')">＋ Nuevo indicador</button></div>
+  </div>`;
+}
+let editingIndIdx=null;
+function showIndForm(id){document.getElementById('indForm-'+id).style.display='block';}
+function cancelInd(id){document.getElementById('indForm-'+id).style.display='none';editingIndIdx=null;document.getElementById('iSave_'+id).textContent='💾 Guardar';}
+function saveInd(id){
+  const nombre=document.getElementById('in_'+id).value.trim();if(!nombre){alert('Nombre requerido');return;}
+  const datos={nombre,meta:Number(document.getElementById('im_'+id).value)||90,resultado:Number(document.getElementById('ir_'+id).value)||0,frecuencia:document.getElementById('if_'+id).value,responsable:document.getElementById('ip_'+id).value.trim()||'—'};
+  if(editingIndIdx!==null)procData[id].indicadores[editingIndIdx]=datos;else procData[id].indicadores.push(datos);
+  cancelInd(id);selectProcess(id);
+}
+function editInd(id,i){
+  const x=procData[id].indicadores[i];showIndForm(id);editingIndIdx=i;
+  document.getElementById('in_'+id).value=x.nombre;document.getElementById('im_'+id).value=x.meta;
+  document.getElementById('ir_'+id).value=x.resultado;document.getElementById('if_'+id).value=x.frecuencia;
+  document.getElementById('ip_'+id).value=x.responsable;document.getElementById('iSave_'+id).textContent='💾 Guardar cambios';
+}
+function delInd(id,i){procData[id].indicadores.splice(i,1);selectProcess(id);}
+
+/* =========================================================
+   TAB: RIESGOS
+========================================================= */
+function renderRiskTab(id){
+  const rs=procData[id].riesgos;
+  const probPill=p=>`<span class="badge ${p==='Alta'?'danger':p==='Media'?'warn':'ok'}">${p}</span>`;
+  return `<div class="panel"><h4>Matriz de riesgos del proceso</h4><div class="ps">Riesgos identificados y controles asociados.</div>
+    <table><thead><tr><th>Descripción</th><th>Probabilidad</th><th>Impacto</th><th>Control</th><th style="width:80px;"></th></tr></thead>
+    <tbody>${rs.map((r,i)=>`<tr><td>${r.desc}</td><td>${probPill(r.probabilidad)}</td><td>${probPill(r.impacto)}</td><td>${r.control}</td>
+      <td><button class="row-btn" onclick="delRisk('${id}',${i})">🗑</button></td></tr>`).join('')}</tbody></table>
+    <div id="riskForm-${id}" style="display:none;margin-top:14px;border:1.5px dashed var(--line);border-radius:12px;padding:16px;">
+      <div class="fg c4">
+        <div><label>Descripción del riesgo</label><input id="rd_${id}" placeholder="Describa el riesgo"></div>
+        <div><label>Probabilidad</label><select id="rp_${id}"><option>Baja</option><option>Media</option><option>Alta</option></select></div>
+        <div><label>Impacto</label><select id="ri_${id}"><option>Bajo</option><option>Medio</option><option>Alto</option></select></div>
+        <div><label>Control</label><input id="rc_${id}" placeholder="Medida de control"></div>
+      </div>
+      <div style="margin-top:8px;"><button class="btn btn-p" onclick="saveRisk('${id}')">💾 Guardar riesgo</button> <button class="btn btn-g" onclick="document.getElementById('riskForm-'+currentProcess).style.display='none'">Cancelar</button></div>
+    </div>
+    <div style="margin-top:12px;"><button class="btn btn-p" onclick="document.getElementById('riskForm-${id}').style.display='block'">＋ Nuevo riesgo</button></div>
+  </div>`;
+}
+function saveRisk(id){
+  const desc=document.getElementById('rd_'+id).value.trim();if(!desc){alert('Descripción requerida');return;}
+  procData[id].riesgos.push({desc,probabilidad:document.getElementById('rp_'+id).value,impacto:document.getElementById('ri_'+id).value,control:document.getElementById('rc_'+id).value.trim()||'—'});
+  selectProcess(id);
+}
+function delRisk(id,i){procData[id].riesgos.splice(i,1);selectProcess(id);}
+
+/* =========================================================
+   TAB: ACCIONES DE MEJORA
+========================================================= */
+function renderActionsTab(id){
+  const ac=procData[id].acciones;
+  return `<div class="panel"><h4>Plan de acciones de mejora</h4><div class="ps">Acciones correctivas, preventivas y de mejora del proceso.</div>
+    <table><thead><tr><th>Acción</th><th>Tipo</th><th>Responsable</th><th>Fecha límite</th><th>Estado</th><th style="width:80px;"></th></tr></thead>
+    <tbody>${ac.length?ac.map((a,i)=>`<tr><td>${a.desc}</td><td><span class="badge blue">${a.tipo}</span></td><td>${a.resp}</td><td>${a.fecha||'—'}</td>
+      <td><span class="badge ${a.estado==='Cerrada'?'ok':a.estado==='En curso'?'warn':'blue'}">${a.estado}</span></td>
+      <td><button class="row-btn" onclick="delAction('${id}',${i})">🗑</button></td></tr>`).join('')
+      :'<tr><td colspan="6" style="text-align:center;color:var(--slate);">Sin acciones registradas</td></tr>'}</tbody></table>
+    <div id="actForm-${id}" style="display:none;margin-top:14px;border:1.5px dashed var(--line);border-radius:12px;padding:16px;">
+      <div class="fg c3">
+        <div><label>Descripción de la acción</label><input id="ad_${id}" placeholder="Describa la acción"></div>
+        <div><label>Tipo</label><select id="at_${id}"><option>Correctiva</option><option>Preventiva</option><option>Mejora</option></select></div>
+        <div><label>Responsable</label><input id="ar_${id}" placeholder="Nombre / cargo"></div>
+      </div>
+      <div class="fg c3">
+        <div><label>Fecha límite</label><input type="date" id="af_${id}"></div>
+        <div><label>Estado</label><select id="as_${id}"><option>Abierta</option><option>En curso</option><option>Cerrada</option></select></div>
+        <div style="display:flex;gap:8px;align-items:end;"><button class="btn btn-p" onclick="saveAction('${id}')">💾 Guardar</button><button class="btn btn-g" onclick="document.getElementById('actForm-'+currentProcess).style.display='none'">Cancelar</button></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;"><button class="btn btn-p" onclick="document.getElementById('actForm-${id}').style.display='block'">＋ Nueva acción</button></div>
+  </div>`;
+}
+function saveAction(id){
+  const desc=document.getElementById('ad_'+id).value.trim();if(!desc){alert('Descripción requerida');return;}
+  procData[id].acciones.push({desc,tipo:document.getElementById('at_'+id).value,resp:document.getElementById('ar_'+id).value.trim()||'—',fecha:document.getElementById('af_'+id).value,estado:document.getElementById('as_'+id).value});
+  selectProcess(id);
+}
+function delAction(id,i){procData[id].acciones.splice(i,1);selectProcess(id);}
+
+/* =========================================================
+   CHARTS
+========================================================= */
+let ch1,ch2;
+function renderCharts(id){
+  const d=procData[id];
+  // Indicadores vs Meta
+  const ctx1=document.getElementById('chInd');
+  if(ch1)ch1.destroy();
+  ch1=new Chart(ctx1,{type:'bar',data:{labels:d.indicadores.map(x=>x.nombre.substring(0,25)),datasets:[
+    {label:'Meta',data:d.indicadores.map(x=>x.meta),backgroundColor:'#E3EEFB',borderColor:'#1598FF',borderWidth:1,borderRadius:4,maxBarThickness:24},
+    {label:'Resultado',data:d.indicadores.map(x=>x.resultado),backgroundColor:'rgba(21,152,255,.7)',borderRadius:4,maxBarThickness:24}
+  ]},options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{beginAtZero:true,max:100,grid:{color:'#EAEFF5'}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+  // Docs por tipo
+  const tipos={};d.docs.forEach(x=>{tipos[x.tipo]=(tipos[x.tipo]||0)+1;});
+  const ctx2=document.getElementById('chDocs');
+  if(ch2)ch2.destroy();
+  ch2=new Chart(ctx2,{type:'doughnut',data:{labels:Object.keys(tipos),datasets:[{data:Object.values(tipos),backgroundColor:['#1598FF','#F5821F','#1E9E5A','#6C5CE7','#E84393','#00B894','#FDCB6E','#636E72'],borderWidth:0}]},
+    options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},cutout:'62%'}});
+}
+
+function volverAlSistema(){
+  window.location.href = 'sig-hseq-2026.html';
+}
+
+/* INIT */
+renderSidebar();
+// Auto-select from URL hash or default
+const hashProc = window.location.hash.replace('#','');
+const validProc = NIVELES.some(n=>n.procesos.some(p=>p.id===hashProc));
+selectProcess(validProc ? hashProc : 'direccion-estrategica');
+</script>
+</body>
+</html>
