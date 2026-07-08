@@ -376,38 +376,47 @@ function collectEmpleado(){
 }
 
 async function loadEmpleados(){
-  const rows = await db.getAll('empleados', 'apellidos');
-  empleados = rows.map(fromDbRow);
-  document.getElementById('sbCount').textContent = empleados.length;
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(!sb) return;
+    const {data,error} = await sb.from('empleados').select('*').order('apellidos');
+    if(!error && data){
+      empleados = data.map(fromDbRow);
+      document.getElementById('sbCount').textContent = empleados.length;
+    }
+  } catch(e){ console.warn('Error cargando empleados:', e); }
 }
 
 async function saveEmpleado(){
   const e=collectEmpleado();
   if(!e.cedula||!e.apellidos||!e.nombres){alert('Cédula, apellidos y nombres son obligatorios');return;}
-  const row = toDbRow(e);
 
-  if(editingIdx!==null && empleados[editingIdx]._dbId){
-    await db.update('empleados', empleados[editingIdx]._dbId, row);
-    // Guardar familiares
-    await db.remove('familiares', empleados[editingIdx]._dbId);
-    for(const f of familiares){
-      await db.insert('familiares', {empleado_id: empleados[editingIdx]._dbId, nombre:f.nombre, documento:f.doc, parentesco:f.parentesco, telefono:f.tel});
-    }
-    editingIdx=null;
-    document.getElementById('btnSaveEmp').textContent='💾 Guardar Registro';
-    document.getElementById('formTitle').textContent='📝 Nueva Ficha de Empleado';
-  } else {
-    const inserted = await db.insert('empleados', row);
-    if(inserted){
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    const row = toDbRow(e);
+
+    if(editingIdx!==null && empleados[editingIdx]._dbId && sb){
+      await sb.from('empleados').update(row).eq('id', empleados[editingIdx]._dbId);
+      // Borrar familiares antiguos por empleado_id
+      await sb.from('familiares').delete().eq('empleado_id', empleados[editingIdx]._dbId);
       for(const f of familiares){
-        await db.insert('familiares', {empleado_id: inserted.id, nombre:f.nombre, documento:f.doc, parentesco:f.parentesco, telefono:f.tel});
+        await sb.from('familiares').insert({empleado_id: empleados[editingIdx]._dbId, nombre:f.nombre, documento:f.doc, parentesco:f.parentesco, telefono:f.tel});
+      }
+    } else if(sb) {
+      const {data,error} = await sb.from('empleados').insert(row).select();
+      if(!error && data && data[0]){
+        for(const f of familiares){
+          await sb.from('familiares').insert({empleado_id: data[0].id, nombre:f.nombre, documento:f.doc, parentesco:f.parentesco, telefono:f.tel});
+        }
       }
     }
-  }
+  } catch(err){ console.warn('Error Supabase:', err); }
+
+  editingIdx=null;
   familiares = [];
   renderFamiliares();
   resetForm();
-  await loadEmpleados();
+  try{ await loadEmpleados(); }catch(e){}
   renderDashboard();
   renderListado();
   switchTHView('listado');
@@ -442,20 +451,26 @@ async function editEmpleado(i){
 
 async function delEmpleado(i){
   if(!confirm('¿Eliminar el registro de '+empleados[i].nombres+'?'))return;
-  if(empleados[i]._dbId){
-    await db.remove('empleados', empleados[i]._dbId);
-  }
-  await loadEmpleados();
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(sb && empleados[i]._dbId){
+      await sb.from('empleados').delete().eq('id', empleados[i]._dbId);
+    }
+  }catch(e){}
+  try{ await loadEmpleados(); }catch(e){}
   renderDashboard();
   renderListado();
 }
 
 async function toggleEstadoEmp(i){
   const newEstado = empleados[i].estado==='Activo' ? 'Inactivo' : 'Activo';
-  if(empleados[i]._dbId){
-    await db.update('empleados', empleados[i]._dbId, {estado: newEstado});
-  }
-  await loadEmpleados();
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(sb && empleados[i]._dbId){
+      await sb.from('empleados').update({estado:newEstado}).eq('id', empleados[i]._dbId);
+    }
+  }catch(e){}
+  try{ await loadEmpleados(); }catch(e){}
   renderListado();
   renderDashboard();
 }
