@@ -181,6 +181,7 @@ textarea{resize:vertical;min-height:50px;}
         <div><label>Número de hijos</label><input type="number" id="f_hijos" value="0" min="0"></div>
         <div><label>Correo electrónico</label><input type="email" id="f_correo" placeholder="correo@ejemplo.com"></div>
         <div><label>Teléfono celular</label><input id="f_celular" placeholder="300 000 0000"></div>
+        <div><label>Medio de transporte</label><select id="f_transporte" onchange="document.getElementById('f_transporteOtro').style.display=this.value==='Otro'?'block':'none'"><option>Transporte público</option><option>Carro</option><option>Moto</option><option>Patineta</option><option>Bicicleta</option><option>A pie</option><option>Otro</option></select><input id="f_transporteOtro" placeholder="¿Cuál?" style="display:none;margin-top:6px;"></div>
       </div>
     </div>
 
@@ -318,13 +319,13 @@ let currentTab = 'todos';
 let charts = {};
 let familiares = [];
 
-const FIELDS = ['cedula','expedicion','fechaExp','apellidos','nombres','genero','nacimiento','lugarNac','sangre','civil','hijos','correo','celular','direccion','fijo','cargo','area','contrato','ingreso','sede','estado','empresaAnt','empresaDir','empresaTel','profesion','instruccion','titulo','posgrado','eps','pension','cesantias','emergNombre','emergParent','emergCel','camisa','pantalon','botas','chaqueta','banco','tipoCuenta','numCuenta'];
+const FIELDS = ['cedula','expedicion','fechaExp','apellidos','nombres','genero','nacimiento','lugarNac','sangre','civil','hijos','correo','celular','transporte','transporteOtro','direccion','fijo','cargo','area','contrato','ingreso','sede','estado','empresaAnt','empresaDir','empresaTel','profesion','instruccion','titulo','posgrado','eps','pension','cesantias','emergNombre','emergParent','emergCel','camisa','pantalon','botas','chaqueta','banco','tipoCuenta','numCuenta'];
 
 const FIELD_MAP = {
   cedula:'cedula', expedicion:'expedicion', fechaExp:'fecha_expedicion',
   apellidos:'apellidos', nombres:'nombres', genero:'genero',
   nacimiento:'fecha_nacimiento', lugarNac:'lugar_nacimiento', sangre:'tipo_sangre',
-  civil:'estado_civil', hijos:'hijos', correo:'correo', celular:'celular',
+  civil:'estado_civil', hijos:'hijos', correo:'correo', celular:'celular', transporte:'medio_transporte', transporteOtro:'medio_transporte_otro',
   direccion:'direccion', fijo:'telefono_fijo', cargo:'cargo', area:'area',
   contrato:'tipo_contrato', ingreso:'fecha_ingreso', sede:'sede', estado:'estado',
   empresaAnt:'empresa_anterior', empresaDir:'empresa_anterior_dir', empresaTel:'empresa_anterior_tel',
