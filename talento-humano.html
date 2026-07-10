@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Gestión del Talento Humano · LPS Grupo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+:root{--navy:#0A2540;--blue:#1598FF;--blue-dark:#0B6FCC;--sky:#EAF5FF;--orange:#F5821F;--green:#1E9E5A;--slate:#5B6B7C;--line:#E3E9F0;--ok:#16A34A;--warn:#D97706;--danger:#DC2626;--radius:14px;--shadow:0 6px 20px rgba(10,37,64,.08);}
+*{box-sizing:border-box;} html,body{margin:0;background:#F6F8FB;color:#0F1B2A;font-family:'Inter',-apple-system,sans-serif;}
+h1,h2,h3,h4{font-family:'Space Grotesk','Inter',sans-serif;margin:0;}
+button{font-family:inherit;cursor:pointer;}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 30px;background:#fff;border-bottom:1px solid var(--line);}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand img{height:36px;}
+.brand-txt{font-weight:700;font-size:14px;color:var(--navy);}
+.brand-sub{font-size:10px;color:var(--slate);letter-spacing:.1em;text-transform:uppercase;}
+.topnav{display:flex;gap:6px;}
+.topnav a{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;color:var(--slate);text-decoration:none;border:1.5px solid transparent;}
+.topnav a:hover,.topnav a.active{color:var(--blue);background:var(--sky);border-color:var(--blue);}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--slate);text-decoration:none;padding:6px 14px;border-radius:8px;border:1px solid var(--line);background:#fff;}
+.back-btn:hover{border-color:var(--blue);color:var(--blue);}
+
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 56px);}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:20px 0;overflow-y:auto;}
+.sb-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--slate);font-weight:700;padding:0 20px;margin:16px 0 8px;}
+.sb-btn{width:100%;text-align:left;border:none;background:transparent;padding:10px 20px;font-size:13px;color:var(--slate);font-weight:600;display:flex;align-items:center;gap:10px;}
+.sb-btn:hover{background:var(--sky);color:var(--blue);}
+.sb-btn.active{background:var(--blue);color:#fff;border-radius:0;}
+.sb-btn .ic{width:18px;text-align:center;}
+.sb-count{margin-left:auto;font-size:11px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:10px;}
+
+.main{padding:24px 30px;overflow-y:auto;}
+.view{display:none;} .view.active{display:block;animation:fadeV .25s ease;}
+@keyframes fadeV{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--blue);}
+.kpi.orange{border-left-color:var(--orange);} .kpi.green{border-left-color:var(--green);} .kpi.red{border-left-color:var(--danger);}
+.kpi .label{font-size:10.5px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.kpi .val{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--navy);margin-top:4px;}
+.kpi .sub{font-size:11px;color:var(--slate);margin-top:3px;}
+
+.charts-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.charts-row.two{grid-template-columns:1fr 1fr;}
+.chart-box{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);}
+.chart-box h4{font-size:12px;color:var(--navy);margin-bottom:2px;}
+.chart-box .chart-sub{font-size:10px;color:var(--slate);margin-bottom:10px;}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:22px;}
+.panel h3{font-size:16px;margin-bottom:4px;}
+.panel .panel-sub{font-size:12px;color:var(--slate);margin-bottom:14px;}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--slate);border-bottom:1px solid var(--line);padding:8px 8px;background:var(--sky);}
+tbody td{padding:10px 8px;border-bottom:1px solid var(--line);}
+tbody tr:hover{background:var(--sky);}
+.badge{padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700;}
+.badge.ok{background:#E4F7EA;color:var(--ok);} .badge.blue{background:var(--sky);color:var(--blue);} .badge.warn{background:#FEF3E0;color:var(--warn);}
+
+.btn{border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(21,152,255,.3);}
+.btn-primary:hover{background:var(--blue-dark);}
+.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--navy);}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
+.btn-sm{padding:5px 10px;font-size:11.5px;border-radius:7px;}
+.row-btn{border:1px solid var(--line);background:#fff;cursor:pointer;font-size:11.5px;padding:4px 8px;border-radius:7px;margin-left:3px;}
+.row-btn:hover{border-color:var(--blue);background:var(--sky);}
+
+.form-section{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;}
+.form-section-bar{background:var(--navy);color:#fff;font-size:11px;font-weight:700;letter-spacing:.05em;padding:10px 16px;display:flex;align-items:center;gap:8px;}
+.form-section-inner{padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.form-section-inner.c3{grid-template-columns:repeat(3,1fr);}
+.form-section-inner.c2{grid-template-columns:1fr 1fr;}
+.form-section-inner.c1{grid-template-columns:1fr;}
+label{font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:4px;}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;background:#fff;}
+textarea{resize:vertical;min-height:50px;}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+
+.search-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.search-bar input{flex:1;min-width:200px;}
+.search-bar select{width:160px;}
+
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid var(--line);padding-bottom:0;}
+.tab-btn{border:none;background:transparent;padding:10px 18px;font-size:13px;font-weight:600;color:var(--slate);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;}
+.tab-btn:hover{color:var(--blue);}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* ===== Modal Ficha Empleado ===== */
+.ficha-bg{display:none;position:fixed;inset:0;background:rgba(10,20,35,.6);backdrop-filter:blur(3px);z-index:100;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto;}
+.ficha-bg.open{display:flex;}
+.ficha-modal{background:#fff;border-radius:16px;width:100%;max-width:700px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.3);}
+.ficha-header{background:linear-gradient(135deg,var(--navy),var(--navy2,#0F3A63));color:#fff;padding:24px 28px;display:flex;align-items:center;gap:18px;}
+.ficha-avatar{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.15);border:2.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;font-family:'Space Grotesk',sans-serif;flex-shrink:0;}
+.ficha-header h3{font-size:18px;color:#fff;margin-bottom:2px;}
+.ficha-header .fh-sub{font-size:11.5px;color:#B0C9E4;margin-top:2px;}
+.ficha-header .fh-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:800;margin-top:6px;}
+.ficha-header .fh-badge.ok{background:var(--ok);color:#fff;}
+.ficha-header .fh-badge.warn{background:var(--warn);color:#fff;}
+.ficha-header .fh-badge.blue{background:var(--blue);color:#fff;}
+.ficha-body{padding:24px 28px;max-height:65vh;overflow-y:auto;}
+.ficha-section{margin-bottom:20px;}
+.ficha-section h5{font-size:11px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:6px;border-bottom:1.5px solid var(--line);}
+.ficha-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.ficha-grid.c2{grid-template-columns:1fr 1fr;}
+.ficha-cell{border:1px solid var(--line);border-radius:8px;padding:8px 12px;}
+.ficha-cell .fc-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);margin-bottom:2px;}
+.ficha-cell .fc-value{font-size:13px;font-weight:700;color:var(--navy);}
+.ficha-cell.alert{border-color:var(--warn);background:#FFFBF0;}
+.ficha-cell.alert .fc-label{color:var(--danger);}
+.ficha-cell.highlight{background:#FFFFF0;border-color:#E8D44D;}
+.ficha-footer{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-top:1px solid var(--line);background:#FBFCFE;font-size:11px;color:var(--slate);}
+
+/* ===== Modal de acceso ===== */
+.lock-bg{display:none;position:fixed;inset:0;background:rgba(10,20,35,.7);backdrop-filter:blur(4px);z-index:200;place-items:center;}
+.lock-bg.open{display:grid;}
+.lock-box{background:#fff;border-radius:18px;padding:36px;text-align:center;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.lock-box h3{font-size:18px;color:#0A2540;margin-bottom:6px;}
+.lock-box p{font-size:13px;color:#5B6B7C;margin-bottom:18px;}
+.lock-box input{width:100%;border:2px solid #E3E9F0;border-radius:10px;padding:12px 16px;font-size:15px;text-align:center;letter-spacing:3px;font-weight:700;font-family:inherit;margin-bottom:14px;}
+.lock-box input:focus{outline:none;border-color:#1598FF;box-shadow:0 0 0 4px rgba(21,152,255,.15);}
+.lock-box .lock-btn{width:100%;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:700;background:#1598FF;color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(21,152,255,.3);}
+.lock-box .lock-btn:hover{background:#0B6FCC;}
+.lock-box .lock-err{color:#DC2626;font-size:12px;font-weight:700;margin-top:8px;display:none;}
+.lock-box .lock-icon{font-size:40px;margin-bottom:10px;}
+
+@media(max-width:900px)
+/* ===== Modal de acceso ===== */
+.lock-bg{display:none;position:fixed;inset:0;background:rgba(10,20,35,.7);backdrop-filter:blur(4px);z-index:200;place-items:center;}
+.lock-bg.open{display:grid;}
+.lock-box{background:#fff;border-radius:18px;padding:36px;text-align:center;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.lock-box h3{font-size:18px;color:#0A2540;margin-bottom:6px;}
+.lock-box p{font-size:13px;color:#5B6B7C;margin-bottom:18px;}
+.lock-box input{width:100%;border:2px solid #E3E9F0;border-radius:10px;padding:12px 16px;font-size:15px;text-align:center;letter-spacing:3px;font-weight:700;font-family:inherit;margin-bottom:14px;}
+.lock-box input:focus{outline:none;border-color:#1598FF;box-shadow:0 0 0 4px rgba(21,152,255,.15);}
+.lock-box .lock-btn{width:100%;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:700;background:#1598FF;color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(21,152,255,.3);}
+.lock-box .lock-btn:hover{background:#0B6FCC;}
+.lock-box .lock-err{color:#DC2626;font-size:12px;font-weight:700;margin-top:8px;display:none;}
+.lock-box .lock-icon{font-size:40px;margin-bottom:10px;}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}.kpi-grid{grid-template-columns:repeat(2,1fr);}.charts-row{grid-template-columns:1fr;}.form-section-inner{grid-template-columns:1fr 1fr;}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+let _sb=null;
+function getSupabase(){if(!_sb){try{_sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){}}return _sb;}
+</script>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">
+    <img src="logo-lps.png" alt="LPS Grupo">
+    <div><div class="brand-txt">Gestión del Talento Humano</div><div class="brand-sub">SIG HSEQ Colombia · Grupo LPS</div></div>
+  </div>
+  <nav class="topnav">
+    <a href="#" class="active" onclick="event.preventDefault();switchTHView('dashboard')">Perfil Sociodemográfico</a>
+    <a href="#" onclick="event.preventDefault();switchTHView('registro')">Ficha de Empleado</a>
+    <a href="#" onclick="event.preventDefault();switchTHView('listado')">Base de Personal</a>
+  </nav>
+  <a class="back-btn" href="#" onclick="event.preventDefault(); window.location.href='index.html';">← Volver al Mapa de Procesos</a>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Módulo</div>
+  <button class="sb-btn active" onclick="switchTHView('dashboard')"><span class="ic">📊</span> Perfil Sociodemográfico</button>
+  <button class="sb-btn" onclick="switchTHView('registro')"><span class="ic">📝</span> Ficha de Empleado</button>
+  <button class="sb-btn" onclick="switchTHView('listado')"><span class="ic">👥</span> Base de Personal <span class="sb-count" id="sbCount">0</span></button>
+  <div class="sb-title" style="margin-top:26px;">Análisis rápido</div>
+  <div style="padding:0 20px;font-size:11px;color:var(--slate);line-height:1.6;">
+    Los KPIs y gráficos se actualizan automáticamente con cada registro.
+  </div>
+</aside>
+
+<div class="main">
+
+<!-- VISTA 1: DASHBOARD SOCIODEMOGRÁFICO -->
+<div class="view active" id="v-dashboard">
+  <h2 style="font-size:22px;color:var(--navy);margin-bottom:4px;">Perfil Sociodemográfico</h2>
+  <p style="font-size:12.5px;color:var(--slate);margin-bottom:18px;">Análisis automático actualizado con cada registro de personal.</p>
+  <div class="kpi-grid" id="kpiArea"></div>
+  <div class="charts-row" id="chartsRow1"></div>
+  <div class="charts-row two" id="chartsRow2"></div>
+  <div class="charts-row" id="chartsRow3"></div>
+</div>
+
+<!-- VISTA 2: FICHA DE EMPLEADO -->
+<div class="view" id="v-registro">
+  <div class="panel">
+    <h3 id="formTitle">📝 Nueva Ficha de Empleado</h3>
+    <div class="panel-sub">Complete todos los campos. Los datos alimentan el perfil sociodemográfico automáticamente.</div>
+
+    <div class="form-section"><div class="form-section-bar">📌 INFORMACIÓN GENERAL</div>
+      <div class="form-section-inner">
+        <div><label>Número de cédula</label><input id="f_cedula" placeholder="Ej. 79223669"></div>
+        <div><label>Lugar de expedición</label><input id="f_expedicion" placeholder="Ej. Soacha"></div>
+        <div><label>Fecha de expedición</label><input type="date" id="f_fechaExp"></div>
+        <div><label>Apellidos</label><input id="f_apellidos" placeholder="Valencia Lopez"></div>
+        <div><label>Nombres</label><input id="f_nombres" placeholder="Carlos Augusto"></div>
+        <div><label>Género</label><select id="f_genero"><option>Masculino</option><option>Femenino</option><option>Otro</option></select></div>
+        <div><label>Fecha de nacimiento</label><input type="date" id="f_nacimiento"></div>
+        <div><label>Lugar de nacimiento</label><input id="f_lugarNac" placeholder="Dpto / Ciudad"></div>
+        <div><label>Tipo de sangre</label><select id="f_sangre"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
+        <div><label>Estado civil</label><select id="f_civil"><option>Soltero/a</option><option>Casado/a</option><option>Unión libre</option><option>Divorciado/a</option><option>Viudo/a</option></select></div>
+        <div><label>Número de hijos</label><input type="number" id="f_hijos" value="0" min="0"></div>
+        <div><label>Correo electrónico</label><input type="email" id="f_correo" placeholder="correo@ejemplo.com"></div>
+        <div><label>Teléfono celular</label><input id="f_celular" placeholder="300 000 0000"></div>
+        <div><label>Medio de transporte</label><select id="f_transporte" onchange="document.getElementById('f_transporteOtro').style.display=this.value==='Otro'?'block':'none'"><option>Transporte público</option><option>Carro</option><option>Moto</option><option>Patineta</option><option>Bicicleta</option><option>A pie</option><option>Otro</option></select><input id="f_transporteOtro" placeholder="¿Cuál?" style="display:none;margin-top:6px;"></div>
+        <div><label>Modalidad de trabajo</label><select id="f_modalidad" onchange="document.getElementById('f_modalidadOtra').style.display=this.value==='Otra'?'block':'none'"><option>Presencial</option><option>Teletrabajo</option><option>Híbrido</option><option>Otra</option></select><input id="f_modalidadOtra" placeholder="¿Cuál?" style="display:none;margin-top:6px;"></div>
+        <div><label>Fecha de ingreso</label><input type="date" id="f_ingreso"></div>
+        <div><label>Fecha de retiro</label><input type="date" id="f_retiro"></div>
+        <div><label>Estrato socioeconómico</label><select id="f_estrato"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+        <div><label>Turno de trabajo</label><select id="f_turno"><option>Diurno</option><option>Nocturno</option><option>Rotativo</option><option>Mixto</option></select></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🏥 SALUD Y ALERTAS MÉDICAS</div>
+      <div class="form-section-inner c2">
+        <div><label>Alergias / Condiciones médicas</label><input id="f_alergias" placeholder="Ej. Penicilina, Polvo, Ninguna"></div>
+        <div><label>Prescripción médica o restricciones</label><input id="f_prescripcion" placeholder="Ej. Uso de lentes, restricción de alturas"></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🏠 DIRECCIÓN Y CONTACTO</div>
+      <div class="form-section-inner c2">
+        <div><label>Dirección y barrio</label><input id="f_direccion" placeholder="Calle / Carrera / Barrio"></div>
+        <div><label>Teléfono fijo</label><input id="f_fijo" placeholder="N/A"></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">💼 ÚLTIMA EMPRESA DONDE LABORÓ</div>
+      <div class="form-section-inner c3">
+        <div style="grid-column:1/-1;"><label style="font-size:11px; color:#5B6B7C;">Información de la última empresa donde laboró (si aplica)</label></div>
+        <div style="grid-column:1/-1;"><label style="font-size:11px; color:#5B6B7C;">📋 Última empresa donde laboró (si aplica)</label></div>
+        <div><label>Nombre de la empresa</label><input id="f_empresaAnt" placeholder="Razón social"></div>
+        <div><label>Dirección de la empresa</label><input id="f_empresaDir" placeholder="Dirección"></div>
+        <div><label>Teléfono de contacto</label><input id="f_empresaTel" placeholder="Teléfono"></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🎓 FORMACIÓN ACADÉMICA</div>
+      <div class="form-section-inner c3">
+        <div><label>Nivel de instrucción</label><select id="f_instruccion"><option>Bachiller</option><option>Técnico</option><option>Tecnólogo</option><option>Universitario</option><option>Especialización</option><option>Maestría</option><option>Doctorado</option></select></div>
+        <div><label>Título obtenido</label><input id="f_titulo" placeholder="Ej. Ing. Industrial"></div>
+        <div><label>Posgrado / Especialización</label><input id="f_posgrado" placeholder="Ej. Esp. en SST"></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🏥 SEGURIDAD SOCIAL</div>
+      <div class="form-section-inner c3">
+        <div><label>EPS</label><input id="f_eps" placeholder="Ej. Sura"></div>
+        <div><label>Fondo de pensiones</label><input id="f_pension" placeholder="Ej. Porvenir"></div>
+        <div><label>Fondo de cesantías</label><input id="f_cesantias" placeholder="Ej. Porvenir"></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">👨‍👩‍👧‍👦 GRUPO FAMILIAR</div>
+      <div class="form-section-inner c1">
+        <div>
+          <p style="font-size:12px; color:#5B6B7C; margin:0 0 10px;">Registre los miembros del grupo familiar del empleado.</p>
+          <table style="width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:10px;">
+            <thead><tr><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Nombre completo</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Documento de identidad</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Parentesco</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Teléfono</th><th style="width:40px;border-bottom:1px solid #E3E9F0;"></th></tr></thead>
+            <tbody id="familiaBody"></tbody>
+          </table>
+          <div style="display:grid; grid-template-columns:1.3fr 1fr 1fr 1fr auto; gap:8px; align-items:end;">
+            <div><label>Nombre completo</label><input id="fam_nombre" placeholder="Nombre completo"></div>
+            <div><label>Documento de identidad</label><input id="fam_doc" placeholder="CC / TI / RC"></div>
+            <div><label>Parentesco</label><select id="fam_parentesco"><option>Cónyuge</option><option>Hijo/a</option><option>Padre</option><option>Madre</option><option>Hermano/a</option><option>Otro</option></select></div>
+            <div><label>Teléfono</label><input id="fam_tel" placeholder="300 000 0000"></div>
+            <button class="btn btn-primary" style="padding:8px 14px;" onclick="addFamiliar()">＋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🚨 CONTACTOS DE EMERGENCIA</div>
+      <div class="form-section-inner c1">
+        <div>
+          <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:10px;">
+            <thead><tr><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Nombre</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Parentesco</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Teléfono</th><th style="width:40px;border-bottom:1px solid #E3E9F0;"></th></tr></thead>
+            <tbody id="emergBody"><tr><td colspan="4" style="text-align:center;color:#5B6B7C;padding:12px;font-size:12px;">Sin contactos registrados</td></tr></tbody>
+          </table>
+          <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:8px;align-items:end;">
+            <div><label>Nombre completo</label><input id="emerg_nombre" placeholder="Nombre completo"></div>
+            <div><label>Parentesco</label><input id="emerg_parent" placeholder="Ej. Madre"></div>
+            <div><label>Teléfono</label><input id="emerg_tel" placeholder="300 000 0000"></div>
+            <button class="btn btn-primary" style="padding:8px 14px;" onclick="addEmergencia()">＋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">👕 DOTACIÓN Y OTROS</div>
+      <div class="form-section-inner">
+        <div><label>Talla camisa</label><select id="f_camisa"><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></div>
+        <div><label>Talla pantalón</label><input id="f_pantalon" placeholder="Ej. 30"></div>
+        <div><label>Talla botas</label><input id="f_botas" placeholder="Ej. 41"></div>
+        <div><label>Talla chaqueta</label><select id="f_chaqueta"><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🏦 INFORMACIÓN BANCARIA</div>
+      <div class="form-section-inner c3">
+        <div><label>Institución bancaria</label><input id="f_banco" placeholder="Ej. Bancolombia"></div>
+        <div><label>Tipo de cuenta</label><select id="f_tipoCuenta"><option>Cuenta de ahorros</option><option>Cuenta corriente</option></select></div>
+        <div><label>Número de cuenta</label><input id="f_numCuenta" placeholder="Número"></div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="resetForm()">Cancelar</button>
+      <button class="btn btn-ghost" onclick="previewFicha()">👁 Vista Previa PDF</button>
+      <button class="btn btn-primary" id="btnSaveEmp" onclick="saveEmpleado()">💾 Guardar Registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- VISTA 3: BASE DE PERSONAL -->
+<div class="view" id="v-listado">
+  <div class="panel">
+    <h3>👥 Base de Personal</h3>
+    <div class="panel-sub">Mostrando <span id="totalCount">0</span> de <span id="totalAll">0</span> registros</div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="setTab(this,'todos')">Todos</button>
+      <button class="tab-btn" onclick="setTab(this,'activos')">Activos</button>
+      <button class="tab-btn" onclick="setTab(this,'inactivos')">Inactivos</button>
+    </div>
+    <div class="search-bar">
+      <input id="searchInput" placeholder="🔍 Buscar por nombre, cédula, cargo, área, EPS..." oninput="renderListado()">
+      <select id="filterArea" onchange="renderListado()"><option value="">Todas las áreas</option></select>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Nombre</th><th>Sexo</th><th>Edad</th><th>Años</th><th>Estado</th><th>Ficha</th><th style="width:160px;"></th></tr></thead>
+        <tbody id="empBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- MODAL FICHA EMPLEADO -->
+<div class="ficha-bg" id="fichaModal" onclick="if(event.target===this)closeFichaModal()">
+  <div class="ficha-modal">
+    <div class="ficha-header" id="fichaHeader"></div>
+    <div class="ficha-body" id="fichaBody"></div>
+    <div class="ficha-footer">
+      <span id="fichaFooterLeft"></span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-g" onclick="closeFichaModal()">Cerrar X</button>
+        <button class="btn btn-p" id="fichaDownloadBtn">Descargar PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+let empleados = [];
+let editingIdx = null;
+let currentTab = 'todos';
+let charts = {};
+let familiares = [];
+
+const FIELDS = ['cedula','expedicion','fechaExp','apellidos','nombres','genero','nacimiento','lugarNac','sangre','civil','hijos','correo','celular','transporte','transporteOtro','modalidad','modalidadOtra','ingreso','retiro','estrato','turno','alergias','prescripcion','direccion','fijo','cargo','area','contrato','sede','estado','empresaAnt','empresaDir','empresaTel','profesion','instruccion','titulo','posgrado','eps','pension','cesantias','emergNombre','emergParent','emergCel','camisa','pantalon','botas','chaqueta','banco','tipoCuenta','numCuenta'];
+
+const FIELD_MAP = {
+  cedula:'cedula', expedicion:'expedicion', fechaExp:'fecha_expedicion',
+  apellidos:'apellidos', nombres:'nombres', genero:'genero',
+  nacimiento:'fecha_nacimiento', lugarNac:'lugar_nacimiento', sangre:'tipo_sangre',
+  civil:'estado_civil', hijos:'hijos', correo:'correo', celular:'celular', transporte:'medio_transporte', transporteOtro:'medio_transporte_otro', modalidad:'modalidad_trabajo', modalidadOtra:'modalidad_trabajo_otra', ingreso:'fecha_ingreso', retiro:'fecha_retiro', estrato:'estrato', turno:'turno_trabajo', alergias:'alergias', prescripcion:'prescripcion_medica',
+  direccion:'direccion', fijo:'telefono_fijo', cargo:'cargo', area:'area',
+  contrato:'tipo_contrato', ingreso:'fecha_ingreso', sede:'sede', estado:'estado',
+  empresaAnt:'empresa_anterior', empresaDir:'empresa_anterior_dir', empresaTel:'empresa_anterior_tel',
+  profesion:'profesion', instruccion:'instruccion', titulo:'titulo', posgrado:'posgrado',
+  eps:'eps', pension:'fondo_pension', cesantias:'fondo_cesantias',
+  emergNombre:'emergencia_nombre', emergParent:'emergencia_parentesco', emergCel:'emergencia_celular',
+  camisa:'talla_camisa', pantalon:'talla_pantalon', botas:'talla_botas', chaqueta:'talla_chaqueta',
+  banco:'banco', tipoCuenta:'tipo_cuenta', numCuenta:'numero_cuenta'
+};
+
+function toDbRow(e) {
+  const row = {};
+  const DATE_COLS = ['fecha_expedicion','fecha_nacimiento','fecha_ingreso'];
+  FIELDS.forEach(f => {
+    if(!FIELD_MAP[f]) return;
+    let val = e[f];
+    const col = FIELD_MAP[f];
+    if(!val || val === '' || val === 'undefined') val = null;
+    if(['fecha_expedicion','fecha_nacimiento','fecha_ingreso','fecha_retiro'].includes(col) && !val) val = null;
+    row[col] = val;
+  });
+  row.hijos = Number(e.hijos) || 0;
+  if(!row.estado) row.estado = 'Activo';
+  return row;
+}
+
+function fromDbRow(row) {
+  const e = { _dbId: row.id };
+  FIELDS.forEach(f => { e[f] = row[FIELD_MAP[f]] || ''; });
+  e.hijos = row.hijos || 0;
+  return e;
+}
+
+const ACCESS_KEY = 'LPS-TH';
+let isUnlocked = false;
+let pendingView = null;
+
+function switchTHView(id){
+  // Perfil Sociodemográfico: acceso libre
+  if(id === 'dashboard'){
+    activateView(id);
+    return;
+  }
+  // Ficha y Base de Personal: requieren clave
+  if(!isUnlocked){
+    pendingView = id;
+    document.getElementById('lockModal').classList.add('open');
+    document.getElementById('lockInput').value = '';
+    document.getElementById('lockErr').style.display = 'none';
+    setTimeout(()=>document.getElementById('lockInput').focus(), 200);
+    return;
+  }
+  activateView(id);
+}
+
+async function activateView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('v-'+id).classList.add('active');
+  document.querySelectorAll('.topnav a').forEach(a=>a.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  const names={dashboard:0,registro:1,listado:2};
+  document.querySelectorAll('.topnav a')[names[id]].classList.add('active');
+  document.querySelectorAll('.sb-btn')[names[id]].classList.add('active');
+  // Recargar datos frescos desde Supabase al cambiar de pestaña
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(sb){
+      const {data} = await sb.from('empleados').select('*').order('apellidos');
+      if(data){ empleados = data.map(fromDbRow); document.getElementById('sbCount').textContent = empleados.length; }
+    }
+  }catch(e){}
+  if(id==='dashboard') renderDashboard();
+  if(id==='listado') renderListado();
+}
+
+function checkAccess(){
+  const val = document.getElementById('lockInput').value.trim();
+  if(val === ACCESS_KEY){
+    isUnlocked = true;
+    document.getElementById('lockModal').classList.remove('open');
+    if(pendingView) activateView(pendingView);
+    pendingView = null;
+  } else {
+    document.getElementById('lockErr').style.display = 'block';
+    document.getElementById('lockInput').value = '';
+    document.getElementById('lockInput').focus();
+  }
+}
+
+function getVal(id){const el=document.getElementById('f_'+id);return el?el.value.trim():'';}
+function setVal(id,v){const el=document.getElementById('f_'+id);if(el)el.value=v||'';}
+
+function collectEmpleado(){
+  const e={};
+  FIELDS.forEach(f=>e[f]=getVal(f));
+  e.hijos=Number(e.hijos)||0;
+  return e;
+}
+
+async function loadEmpleados(){
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(!sb) return;
+    const {data,error} = await sb.from('empleados').select('*').order('apellidos');
+    if(!error && data){
+      empleados = data.map(fromDbRow);
+      document.getElementById('sbCount').textContent = empleados.length;
+    }
+  } catch(e){ console.warn('Error cargando empleados:', e); }
+}
+
+async function saveEmpleado(){
+  const e=collectEmpleado();
+  if(!e.cedula||!e.apellidos||!e.nombres){alert('Cédula, apellidos y nombres son obligatorios');return;}
+
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    const row = toDbRow(e);
+
+    if(editingIdx!==null && empleados[editingIdx]._dbId && sb){
+      await sb.from('empleados').update(row).eq('id', empleados[editingIdx]._dbId);
+      // Borrar familiares antiguos por empleado_id
+      await sb.from('familiares').delete().eq('empleado_id', empleados[editingIdx]._dbId);
+      for(const f of familiares){
+        await sb.from('familiares').insert({empleado_id: empleados[editingIdx]._dbId, nombre:f.nombre, documento:f.doc, parentesco:f.parentesco, telefono:f.tel});
+      }
+      await sb.from('contactos_emergencia').delete().eq('empleado_id', empleados[editingIdx]._dbId);
+      for(const c of emergencias){
+        await sb.from('contactos_emergencia').insert({empleado_id: empleados[editingIdx]._dbId, nombre:c.nombre, parentesco:c.parentesco, telefono:c.tel});
+      }
+    } else if(sb) {
+      const {data,error} = await sb.from('empleados').insert(row).select();
+      if(!error && data && data[0]){
+        for(const f of familiares){
+          await sb.from('familiares').insert({empleado_id: data[0].id, nombre:f.nombre, documento:f.doc, parentesco:f.parentesco, telefono:f.tel});
+        }
+        for(const c of emergencias){
+          await sb.from('contactos_emergencia').insert({empleado_id: data[0].id, nombre:c.nombre, parentesco:c.parentesco, telefono:c.tel});
+        }
+      }
+    }
+  } catch(err){
+    console.error('Error guardando:', err);
+    alert('Error al guardar: ' + (err.message || JSON.stringify(err)));
+    return;
+  }
+
+  editingIdx=null;
+  familiares = [];
+  renderFamiliares();
+  resetForm();
+  try{ await loadEmpleados(); }catch(e){}
+  renderDashboard();
+  renderListado();
+  alert('✅ Registro guardado correctamente');
+  switchTHView('listado');
+}
+
+function resetForm(){
+  FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);if(!el)return;if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';});
+  const h=document.getElementById('f_hijos');if(h)h.value='0';
+  editingIdx=null;
+  familiares=[];
+  renderFamiliares();
+  emergencias=[];
+  renderEmergencias();
+  document.getElementById('btnSaveEmp').textContent='💾 Guardar Registro';
+  document.getElementById('formTitle').textContent='📝 Nueva Ficha de Empleado';
+}
+
+async function editEmpleado(i){
+  const e=empleados[i];
+  FIELDS.forEach(f=>setVal(f,e[f]));
+  editingIdx=i;
+  familiares = [];
+  try {
+    const sb = getSupabase();
+    if(sb && e._dbId){
+      const {data} = await sb.from('familiares').select('*').eq('empleado_id', e._dbId);
+      if(data) familiares = data.map(f=>({nombre:f.nombre, doc:f.documento, parentesco:f.parentesco, tel:f.telefono}));
+      const {data:ems} = await sb.from('contactos_emergencia').select('*').eq('empleado_id', e._dbId);
+      if(ems) emergencias = ems.map(c=>({nombre:c.nombre, parentesco:c.parentesco, tel:c.telefono}));
+    }
+  } catch(e){}
+  renderEmergencias();
+  renderFamiliares();
+  document.getElementById('btnSaveEmp').textContent='💾 Guardar Cambios';
+  document.getElementById('formTitle').textContent='✏️ Editar Ficha — '+e.nombres+' '+e.apellidos;
+  switchTHView('registro');
+}
+
+async function delEmpleado(i){
+  if(!confirm('¿Eliminar el registro de '+empleados[i].nombres+'?'))return;
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(sb && empleados[i]._dbId){
+      await sb.from('empleados').delete().eq('id', empleados[i]._dbId);
+    }
+  }catch(e){}
+  try{ await loadEmpleados(); }catch(e){}
+  renderDashboard();
+  renderListado();
+}
+
+async function toggleEstadoEmp(i){
+  const newEstado = empleados[i].estado==='Activo' ? 'Inactivo' : 'Activo';
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(sb && empleados[i]._dbId){
+      await sb.from('empleados').update({estado:newEstado}).eq('id', empleados[i]._dbId);
+    }
+  }catch(e){}
+  try{ await loadEmpleados(); }catch(e){}
+  renderListado();
+  renderDashboard();
+}
+
+function calcEdad(fn){
+  if(!fn)return 0;
+  const d=new Date(fn),hoy=new Date();
+  let a=hoy.getFullYear()-d.getFullYear();
+  if(hoy.getMonth()<d.getMonth()||(hoy.getMonth()===d.getMonth()&&hoy.getDate()<d.getDate()))a--;
+  return a;
+}
+function calcAntig(fi){
+  if(!fi)return 0;
+  return ((new Date()-new Date(fi))/31557600000).toFixed(1);
+}
+
+// ===== FAMILIARES =====
+function addFamiliar(){
+  const nombre = document.getElementById('fam_nombre').value.trim();
+  if(!nombre){ alert('Ingrese el nombre del familiar'); return; }
+  familiares.push({
+    nombre,
+    doc: document.getElementById('fam_doc').value.trim() || '—',
+    parentesco: document.getElementById('fam_parentesco').value,
+    tel: document.getElementById('fam_tel').value.trim() || '—',
+  });
+  document.getElementById('fam_nombre').value='';
+  document.getElementById('fam_doc').value='';
+  document.getElementById('fam_tel').value='';
+  renderFamiliares();
+}
+function removeFamiliar(i){ familiares.splice(i,1); renderFamiliares(); }
+function renderFamiliares(){
+  const body = document.getElementById('familiaBody');
+  if(!body) return;
+  body.innerHTML = familiares.length ? familiares.map((f,i)=>`
+    <tr>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${f.nombre}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${f.doc}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${f.parentesco}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${f.tel}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;"><button style="border:none;background:transparent;cursor:pointer;font-size:13px;" onclick="removeFamiliar(${i})">🗑</button></td>
+    </tr>`).join('') : '<tr><td colspan="5" style="padding:12px 8px;color:#5B6B7C;text-align:center;font-size:12px;">Sin familiares registrados</td></tr>';
+}
+
+// ===== FICHA PDF =====
+function buildFichaPDF(e){
+  const edad=calcEdad(e.nacimiento);
+  const antig=calcAntig(e.ingreso);
+  const iniciales=((e.nombres||'')[0]||'')+((e.apellidos||'')[0]||'');
+  const cls=e.estado==='Activo'?'#16A34A':'#D97706';
+  const cargoTxt=[e.cargo,e.area].filter(Boolean).join(' | ')||e.instruccion||'—';
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Ficha ${e.nombres} ${e.apellidos}</title>
+<style>
+body{font-family:Arial,sans-serif;color:#0F1B2A;margin:0;font-size:11.5px;}
+.hdr{background:linear-gradient(135deg,#0A2540,#0F3A63);color:#fff;padding:22px 28px;display:flex;align-items:center;gap:16px;}
+.av{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;}
+.hdr h1{font-size:16px;margin:0;} .hdr .s{font-size:10px;color:#B0C9E4;margin-top:2px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:9px;font-weight:800;color:#fff;background:${cls};margin-top:4px;}
+.body{padding:22px 28px;}
+h2{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#0A2540;margin:16px 0 8px;padding-bottom:5px;border-bottom:1.5px solid #E3E9F0;}
+.g{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:4px;} .g.c2{grid-template-columns:1fr 1fr;}
+.c{border:1px solid #E3E9F0;border-radius:5px;padding:6px 9px;}
+.c .l{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#1598FF;margin-bottom:1px;}
+.c .v{font-size:11.5px;font-weight:700;color:#0A2540;}
+.c.a{border-color:#D97706;background:#FFFBF0;} .c.a .l{color:#DC2626;}
+.ft{padding:10px 28px;border-top:1px solid #E3E9F0;font-size:8.5px;color:#5B6B7C;display:flex;justify-content:space-between;}
+table{width:100%;border-collapse:collapse;margin:4px 0;} th{background:#EAF5FF;text-align:left;padding:5px 7px;border:1px solid #C9DEF2;font-size:9px;} td{padding:5px 7px;border:1px solid #DDE7F0;font-size:10.5px;}
+</style></head><body>
+<div class="hdr"><div class="av">${iniciales.toUpperCase()}</div><div><h1>${(e.nombres||'').toUpperCase()} ${(e.apellidos||'').toUpperCase()}</h1><div class="s">${cargoTxt}</div><div class="s">CC: ${e.cedula} | Exp: ${e.expedicion||'—'} ${e.fechaExp||''}</div><span class="badge">${(e.estado||'ACTIVO').toUpperCase()}</span></div></div>
+<div class="body">
+
+<h2>Datos Personales</h2>
+<div class="g"><div class="c"><div class="l">Sexo</div><div class="v">${e.genero||'—'}</div></div><div class="c"><div class="l">Fecha de nacimiento</div><div class="v">${e.nacimiento||'—'}</div></div><div class="c"><div class="l">Edad</div><div class="v">${edad} años</div></div></div>
+<div class="g"><div class="c"><div class="l">Estado civil</div><div class="v">${e.civil||'—'}</div></div><div class="c"><div class="l">Tipo de sangre</div><div class="v">${e.sangre||'—'}</div></div><div class="c"><div class="l">Personas a cargo</div><div class="v">${e.hijos||0}</div></div></div>
+<div class="g"><div class="c"><div class="l">Lugar nacimiento</div><div class="v">${e.lugarNac||'—'}</div></div><div class="c"><div class="l">Correo</div><div class="v">${e.correo||'—'}</div></div><div class="c"><div class="l">Celular</div><div class="v">${e.celular||'—'}</div></div></div>
+
+<h2>Información Laboral</h2>
+<div class="g"><div class="c"><div class="l">EPS</div><div class="v">${e.eps||'—'}</div></div><div class="c"><div class="l">Escolaridad</div><div class="v">${e.instruccion||'—'}</div></div><div class="c"><div class="l">Fecha de ingreso</div><div class="v">${e.ingreso||'—'}</div></div></div>
+<div class="g"><div class="c"><div class="l">Tiempo en empresa</div><div class="v">${antig} años</div></div><div class="c"><div class="l">Turno de trabajo</div><div class="v">${e.turno||'Diurno'}</div></div><div class="c"><div class="l">Fecha de retiro</div><div class="v">${e.retiro||'N/A'}</div></div></div>
+<div class="g"><div class="c"><div class="l">Título</div><div class="v">${e.titulo||'—'}</div></div><div class="c"><div class="l">Posgrado</div><div class="v">${e.posgrado||'—'}</div></div><div class="c"><div class="l">Modalidad</div><div class="v">${e.modalidad||'—'}</div></div></div>
+
+<h2>Salud y Alertas Médicas</h2>
+<div class="g c2"><div class="c a"><div class="l">Alergias / Condiciones</div><div class="v">${e.alergias||'Ninguna'}</div></div><div class="c"><div class="l">EPS / Aseguradora</div><div class="v">${e.eps||'—'}</div></div></div>
+${e.prescripcion?'<div class="g c2"><div class="c"><div class="l">Prescripción médica</div><div class="v">'+e.prescripcion+'</div></div></div>':''}
+
+<h2>Última Empresa donde Laboró</h2>
+<div class="g"><div class="c"><div class="l">Empresa</div><div class="v">${e.empresaAnt||'—'}</div></div><div class="c"><div class="l">Dirección</div><div class="v">${e.empresaDir||'—'}</div></div><div class="c"><div class="l">Teléfono</div><div class="v">${e.empresaTel||'—'}</div></div></div>
+
+<h2>Grupo Familiar</h2>
+<table><tr><th>Nombre</th><th>Documento</th><th>Parentesco</th><th>Teléfono</th></tr>${familiares.length?familiares.map(f=>'<tr><td>'+f.nombre+'</td><td>'+f.doc+'</td><td>'+f.parentesco+'</td><td>'+f.tel+'</td></tr>').join(''):'<tr><td colspan="4">Sin familiares registrados</td></tr>'}</table>
+
+<h2>Contactos de Emergencia</h2>
+<table><tr><th>Nombre</th><th>Parentesco</th><th>Teléfono</th></tr>${emergencias.length?emergencias.map(c=>'<tr><td>'+c.nombre+'</td><td>'+c.parentesco+'</td><td>'+c.tel+'</td></tr>').join(''):'<tr><td colspan="3">'+(e.emergNombre?e.emergNombre+' ('+e.emergParent+') — '+e.emergCel:'Sin contactos')+'</td></tr>'}</table>
+
+<h2>Seguridad Social</h2>
+<div class="g"><div class="c"><div class="l">Pensiones</div><div class="v">${e.pension||'—'}</div></div><div class="c"><div class="l">Cesantías</div><div class="v">${e.cesantias||'—'}</div></div><div class="c"><div class="l">Estrato</div><div class="v">${e.estrato||'—'}</div></div></div>
+
+<h2>Residencia y Movilidad</h2>
+<div class="g"><div class="c"><div class="l">Dirección</div><div class="v">${e.direccion||'—'}</div></div><div class="c"><div class="l">Medio de transporte</div><div class="v">${e.transporte||'—'}</div></div><div class="c"><div class="l">Teléfono fijo</div><div class="v">${e.fijo||'—'}</div></div></div>
+
+<h2>Dotación</h2>
+<div class="g"><div class="c"><div class="l">Camisa</div><div class="v">${e.camisa||'—'}</div></div><div class="c"><div class="l">Pantalón</div><div class="v">${e.pantalon||'—'}</div></div><div class="c"><div class="l">Botas</div><div class="v">${e.botas||'—'}</div></div></div>
+<div class="g"><div class="c"><div class="l">Chaqueta</div><div class="v">${e.chaqueta||'—'}</div></div><div class="c"><div class="l"></div><div class="v"></div></div><div class="c"><div class="l"></div><div class="v"></div></div></div>
+
+<h2>Información Bancaria</h2>
+<div class="g"><div class="c"><div class="l">Banco</div><div class="v">${e.banco||'—'}</div></div><div class="c"><div class="l">Tipo de cuenta</div><div class="v">${e.tipoCuenta||'—'}</div></div><div class="c"><div class="l">N° cuenta</div><div class="v">${e.numCuenta||'—'}</div></div></div>
+
+</div>
+<div class="ft"><span>Ficha individual · Grupo LPS · SIG HSEQ Colombia</span><span>Generado: ${new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'})}</span></div>
+<script>window.print();<\/script></body></html>`;
+}
+
+function previewFicha(){
+  const e=collectEmpleado();
+  const w=window.open('','_blank');
+  w.document.write(buildFichaPDF(e));
+  w.document.close();
+}
+async function pdfEmpleado(i){
+  const e=empleados[i];
+  // Cargar familiares y emergencias desde Supabase
+  try{
+    const sb=getSupabase();
+    if(sb && e._dbId){
+      const [{data:fams},{data:ems}] = await Promise.all([
+        sb.from('familiares').select('*').eq('empleado_id',e._dbId),
+        sb.from('contactos_emergencia').select('*').eq('empleado_id',e._dbId)
+      ]);
+      if(fams) familiares=fams.map(f=>({nombre:f.nombre,doc:f.documento||'—',parentesco:f.parentesco||'—',tel:f.telefono||'—'}));
+      if(ems) emergencias=ems.map(c=>({nombre:c.nombre,parentesco:c.parentesco||'—',tel:c.telefono||'—'}));
+    }
+  }catch(ex){}
+  const w=window.open('','_blank');
+  w.document.write(buildFichaPDF(e));
+  w.document.close();
+}
+
+// ===== FICHA MODAL =====
+function closeFichaModal(){document.getElementById('fichaModal').classList.remove('open');}
+async function showFichaModal(i){
+  const e=empleados[i];
+  const edad=calcEdad(e.nacimiento);
+  const antig=calcAntig(e.ingreso);
+  const iniciales=(e.nombres[0]||'')+(e.apellidos[0]||'');
+  const cls=e.estado==='Activo'?'ok':(e.estado==='Inactivo'?'warn':'blue');
+  const cargoTxt = [e.cargo, e.area].filter(Boolean).join(' | ') || e.instruccion || '—';
+  const contratoTxt = [e.contrato, e.modalidad].filter(Boolean).join(' | ') || '—';
+  document.getElementById('fichaHeader').innerHTML=`<div class="ficha-avatar">${iniciales.toUpperCase()}</div><div><h3>${(e.nombres||'').toUpperCase()} ${(e.apellidos||'').toUpperCase()}</h3><div class="fh-sub">${cargoTxt}</div><div class="fh-sub">CC: ${e.cedula} | ${contratoTxt}</div><span class="fh-badge ${cls}">${(e.estado||'ACTIVO').toUpperCase()}</span></div>`;
+  document.getElementById('fichaBody').innerHTML=`
+    <div class="ficha-section"><h5>Datos Personales</h5>
+      <div class="ficha-grid"><div class="ficha-cell"><div class="fc-label">Sexo</div><div class="fc-value">${e.genero||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Fecha de nacimiento</div><div class="fc-value">${e.nacimiento||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Edad</div><div class="fc-value">${edad} años</div></div></div>
+      <div class="ficha-grid" style="margin-top:8px;"><div class="ficha-cell"><div class="fc-label">Estado civil</div><div class="fc-value">${e.civil||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Tipo de sangre</div><div class="fc-value">${e.sangre||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Personas a cargo</div><div class="fc-value">${e.hijos||'0'}</div></div></div>
+    </div>
+    <div class="ficha-section"><h5>Información Laboral</h5>
+      <div class="ficha-grid"><div class="ficha-cell"><div class="fc-label">EPS</div><div class="fc-value">${e.eps||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Escolaridad</div><div class="fc-value">${e.instruccion||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Fecha de ingreso</div><div class="fc-value">${e.ingreso||'—'}</div></div></div>
+      <div class="ficha-grid" style="margin-top:8px;"><div class="ficha-cell"><div class="fc-label">Tiempo en empresa</div><div class="fc-value">${antig} años</div></div><div class="ficha-cell"><div class="fc-label">Turno de trabajo</div><div class="fc-value">${e.turno||'Diurno'}</div></div><div class="ficha-cell"><div class="fc-label">Fecha de retiro</div><div class="fc-value">${e.retiro||'N/A'}</div></div></div>
+    </div>
+    <div class="ficha-section"><h5>Salud y Alertas Médicas</h5>
+      <div class="ficha-grid c2"><div class="ficha-cell alert"><div class="fc-label">Alergias / Condiciones</div><div class="fc-value">${e.alergias||'Ninguna'}</div></div><div class="ficha-cell"><div class="fc-label">Prescripción médica o restricciones</div><div class="fc-value">${e.prescripcion||'Ninguna'}</div></div></div>
+    </div>
+    <div class="ficha-section"><h5>Contacto de Emergencia</h5><div id="fichaEmergencias"></div></div>
+
+    `;
+
+  // Cargar contactos de emergencia
+  const elEmerg=document.getElementById('fichaEmergencias');
+  try{
+    const sb=getSupabase();
+    if(sb && e._dbId){
+      const{data}=await sb.from('contactos_emergencia').select('*').eq('empleado_id',e._dbId);
+      if(data && data.length>0){
+        elEmerg.innerHTML=data.map(c=>'<div class="ficha-grid c2" style="margin-bottom:6px;"><div class="ficha-cell alert"><div class="fc-label">Teléfono de emergencia</div><div class="fc-value">'+(c.telefono||'—')+'</div></div><div class="ficha-cell"><div class="fc-label">A quién avisar</div><div class="fc-value">'+(c.nombre||'—')+' ('+(c.parentesco||'—')+')</div></div></div>').join('');
+      } else if(e.emergNombre || e.emergCel){
+        elEmerg.innerHTML='<div class="ficha-grid c2"><div class="ficha-cell alert"><div class="fc-label">Teléfono de emergencia</div><div class="fc-value">'+(e.emergCel||'—')+'</div></div><div class="ficha-cell"><div class="fc-label">A quién avisar</div><div class="fc-value">'+(e.emergNombre||'—')+' ('+(e.emergParent||'—')+')</div></div></div>';
+      } else {
+        elEmerg.innerHTML='<div style="color:#5B6B7C;font-size:12px;padding:8px;">Sin contactos de emergencia registrados</div>';
+      }
+    }
+  }catch(ex){
+    if(e.emergNombre || e.emergCel){
+      elEmerg.innerHTML='<div class="ficha-grid c2"><div class="ficha-cell alert"><div class="fc-label">Teléfono de emergencia</div><div class="fc-value">'+(e.emergCel||'—')+'</div></div><div class="ficha-cell"><div class="fc-label">A quién avisar</div><div class="fc-value">'+(e.emergNombre||'—')+' ('+(e.emergParent||'—')+')</div></div></div>';
+    }
+  }
+
+  document.getElementById('fichaFooterLeft').textContent='Ficha individual · Grupo LPS — Generado: '+new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('fichaDownloadBtn').onclick=()=>pdfEmpleado(i);
+  document.getElementById('fichaModal').classList.add('open');
+}
+
+// ===== LISTADO =====
+function setTab(btn,tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');currentTab=tab;renderListado();
+}
+
+function renderListado(){
+  const q=(document.getElementById('searchInput').value||'').toLowerCase();
+  const fa=document.getElementById('filterArea').value;
+  let list=empleados.map((e,i)=>({...e,_i:i}));
+  if(currentTab==='activos')list=list.filter(e=>e.estado==='Activo');
+  if(currentTab==='inactivos')list=list.filter(e=>e.estado!=='Activo');
+  if(fa)list=list.filter(e=>e.area===fa);
+  if(q)list=list.filter(e=>(e.nombres+' '+e.apellidos+' '+e.cedula+' '+e.cargo+' '+e.area+' '+e.eps).toLowerCase().includes(q));
+  document.getElementById('totalCount').textContent=list.length;
+  document.getElementById('totalAll').textContent=empleados.length;
+  document.getElementById('sbCount').textContent=empleados.length;
+  const body=document.getElementById('empBody');
+  body.innerHTML=list.length?list.map(e=>{
+    const cls=e.estado==='Activo'?'ok':(e.estado==='Inactivo'?'warn':'blue');
+    const edad=calcEdad(e.nacimiento);
+    const antig=calcAntig(e.ingreso);
+    const sexo=e.genero==='Masculino'?'M':(e.genero==='Femenino'?'F':'—');
+    const toggleTxt=e.estado==='Activo'?'→ Inact':'→ Activ';
+    const toggleCls=e.estado==='Activo'?'warn':'ok';
+    return `<tr><td><strong>${(e.apellidos||'').toUpperCase()}, ${(e.nombres||'').toUpperCase()}</strong></td><td>${e.cargo||'—'}</td><td>${e.area||'—'}</td><td style="text-align:center;">${sexo}</td><td style="text-align:center;">${edad}</td><td style="text-align:center;">${antig}</td><td><span class="badge ${cls}">${(e.estado||'ACTIVO').toUpperCase()}</span></td><td><button class="row-btn" onclick="showFichaModal(${e._i})">Ficha</button></td><td style="white-space:nowrap;"><button class="row-btn" style="color:var(--${toggleCls});" onclick="toggleEstadoEmp(${e._i})">${toggleTxt}</button><button class="row-btn" onclick="editEmpleado(${e._i})">Ed</button><button class="row-btn" style="color:var(--danger);" onclick="delEmpleado(${e._i})">X</button></td></tr>`;
+  }).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--slate);padding:30px;">Sin registros. Use "Ficha de Empleado" para agregar personal.</td></tr>';
+  const areas=[...new Set(empleados.map(e=>e.area).filter(Boolean))].sort();
+  const sel=document.getElementById('filterArea');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Todas las áreas</option>'+areas.map(a=>`<option ${a===cur?'selected':''}>${a}</option>`).join('');
+}
+
+// ===== DASHBOARD =====
+function renderDashboard(){
+  const activos=empleados.filter(e=>e.estado==='Activo');
+  const inactivos=empleados.filter(e=>e.estado!=='Activo');
+  const n=activos.length;
+  const edades=activos.map(e=>calcEdad(e.nacimiento)).filter(a=>a>0);
+  const avgEdad=edades.length?Math.round(edades.reduce((s,a)=>s+a,0)/edades.length*10)/10:0;
+  const mujeres=activos.filter(e=>e.genero==='Femenino').length;
+  const pctMuj=n?Math.round(mujeres/n*100):0;
+  const antigs=activos.map(e=>Number(calcAntig(e.ingreso))).filter(a=>a>0);
+  const avgAntig=antigs.length?Math.round(antigs.reduce((s,a)=>s+a,0)/antigs.length*10)/10:0;
+
+  document.getElementById('kpiArea').innerHTML=`
+    <div class="kpi"><div class="label">Personal activo</div><div class="val">${n}</div><div class="sub">Empleados</div></div>
+    <div class="kpi orange"><div class="label">Edad promedio</div><div class="val">${avgEdad}</div><div class="sub">Años</div></div>
+    <div class="kpi green"><div class="label">% Mujeres</div><div class="val">${pctMuj}%</div><div class="sub">${mujeres} de ${n}</div></div>
+    <div class="kpi red"><div class="label">Antigüedad promedio</div><div class="val">${avgAntig}</div><div class="sub">Años</div></div>`;
+
+  // Análisis automático
+  const mayorEdad = activos.length ? activos.reduce((a,b)=>calcEdad(a.nacimiento)>calcEdad(b.nacimiento)?a:b) : null;
+  const masAntiguo = activos.length ? activos.filter(e=>e.ingreso).reduce((a,b)=>new Date(a.ingreso)<new Date(b.ingreso)?a:b, activos.filter(e=>e.ingreso)[0]) : null;
+  const areaMax = Object.entries(count(activos,'area')).sort((a,b)=>b[1]-a[1])[0];
+
+  let analisis = '<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:18px;box-shadow:0 4px 16px rgba(10,37,64,.06);">';
+  analisis += '<h4 style="font-size:14px;color:#0A2540;margin-bottom:8px;">📋 Análisis automático de personal activo</h4>';
+  analisis += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:12.5px;color:#5B6B7C;line-height:1.6;">';
+  analisis += '<div>👥 <b>Total activos:</b> '+n+' | <b>Inactivos:</b> '+inactivos.length+'</div>';
+  analisis += '<div>👫 <b>Hombres:</b> '+activos.filter(e=>e.genero==='Masculino').length+' | <b>Mujeres:</b> '+mujeres+'</div>';
+  if(areaMax) analisis += '<div>🏢 <b>Área principal:</b> '+areaMax[0]+' ('+areaMax[1]+')</div>';
+  if(mayorEdad) analisis += '<div>🎂 <b>Mayor edad:</b> '+mayorEdad.nombres+' '+mayorEdad.apellidos+' ('+calcEdad(mayorEdad.nacimiento)+' años)</div>';
+  if(masAntiguo) analisis += '<div>⏳ <b>Más antiguo:</b> '+(masAntiguo.nombres||'')+' '+(masAntiguo.apellidos||'')+' ('+calcAntig(masAntiguo.ingreso)+' años)</div>';
+  analisis += '<div>📊 <b>Promedio hijos:</b> '+(n?Math.round(activos.reduce((s,e)=>s+(e.hijos||0),0)/n*10)/10:0)+'</div>';
+  analisis += '</div></div>';
+
+  // Insertar análisis después de KPIs
+  document.getElementById('kpiArea').insertAdjacentHTML('afterend', '<div id="analisisAuto">'+analisis+'</div>');
+  const prevAnalisis = document.querySelectorAll('#analisisAuto');
+  if(prevAnalisis.length > 1) prevAnalisis[0].remove();
+
+  const count2=(arr,field)=>{const m={};arr.forEach(e=>{const k=e[field]||'Sin dato';m[k]=(m[k]||0)+1;});return m;};
+  const genero=count2(activos,'genero'), civil=count2(activos,'civil');
+  const instruccion=count2(activos,'instruccion'), area=count2(activos,'area');
+  const contrato=count2(activos,'contrato'), sede=count2(activos,'sede');
+  const transporte=count2(activos,'transporte'), modalidad=count2(activos,'modalidad');
+  const estrato=count2(activos,'estrato');
+
+  const edadRangos={'18-25':0,'26-35':0,'36-45':0,'46-55':0,'56+':0};
+  edades.forEach(a=>{if(a<=25)edadRangos['18-25']++;else if(a<=35)edadRangos['26-35']++;else if(a<=45)edadRangos['36-45']++;else if(a<=55)edadRangos['46-55']++;else edadRangos['56+']++;});
+
+  const antigRangos={'<1 año':0,'1-3 años':0,'3-5 años':0,'5-10 años':0,'10+ años':0};
+  antigs.forEach(a=>{if(a<1)antigRangos['<1 año']++;else if(a<=3)antigRangos['1-3 años']++;else if(a<=5)antigRangos['3-5 años']++;else if(a<=10)antigRangos['5-10 años']++;else antigRangos['10+ años']++;});
+
+  const palette=['#1598FF','#F5821F','#1E9E5A','#6C5CE7','#E84393','#00B894','#FDCB6E','#636E72','#D63031','#0984E3'];
+
+  function rc(cId, cData){
+    let h='';cData.forEach((c,i)=>{h+=`<div class="chart-box"><h4>${c.title}</h4><div class="chart-sub">${c.sub||''}</div><canvas id="ch_${cId}_${i}" height="${c.type==='doughnut'?180:160}"></canvas></div>`;});
+    document.getElementById(cId).innerHTML=h;
+    cData.forEach((c,i)=>{const ctx=document.getElementById('ch_'+cId+'_'+i);if(charts[cId+'_'+i])charts[cId+'_'+i].destroy();
+      charts[cId+'_'+i]=new Chart(ctx,{type:c.type,data:{labels:Object.keys(c.data),datasets:[{data:Object.values(c.data),backgroundColor:c.type==='doughnut'?palette:palette.slice(0,Object.keys(c.data).length).map(cl=>cl+'CC'),borderColor:c.type==='bar'?palette.slice(0,Object.keys(c.data).length):undefined,borderWidth:c.type==='doughnut'?0:1,borderRadius:c.type==='bar'?4:0,maxBarThickness:28}]},options:{plugins:{legend:{display:c.type==='doughnut',position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:c.type==='bar'?{y:{beginAtZero:true,grid:{color:'#EAEFF5'}},x:{grid:{display:false},ticks:{font:{size:9}}}}:undefined,cutout:c.type==='doughnut'?'60%':undefined}});
+    });
+  }
+
+  rc('chartsRow1',[
+    {title:'Distribución por Género',sub:'Personal activo',type:'doughnut',data:genero},
+    {title:'Distribución por Edad',sub:'Rangos etarios',type:'bar',data:edadRangos},
+    {title:'Estado Civil',sub:'Composición',type:'doughnut',data:civil}
+  ]);
+  rc('chartsRow2',[
+    {title:'Nivel de Escolaridad',sub:'Formación académica',type:'doughnut',data:instruccion},
+    {title:'Tiempo en la Organización',sub:'Antigüedad agrupada',type:'bar',data:antigRangos}
+  ]);
+  rc('chartsRow3',[
+    {title:'Modalidad de Trabajo',sub:'Distribución',type:'doughnut',data:modalidad},
+    {title:'Medio de Transporte',sub:'Cómo se desplazan',type:'doughnut',data:transporte},
+    {title:'Estrato Socioeconómico',sub:'Distribución',type:'bar',data:estrato}
+  ]);
+}
+
+function count(arr,field){const m={};arr.forEach(e=>{const k=e[field]||'Sin dato';m[k]=(m[k]||0)+1;});return m;}
+
+renderFamiliares();
+
+// ===== CONTACTOS DE EMERGENCIA (tabla dinámica) =====
+let emergencias = [];
+function addEmergencia(){
+  const n=document.getElementById('emerg_nombre').value.trim();
+  if(!n){alert('Ingrese nombre del contacto');return;}
+  emergencias.push({nombre:n, parentesco:document.getElementById('emerg_parent').value.trim()||'—', tel:document.getElementById('emerg_tel').value.trim()||'—'});
+  document.getElementById('emerg_nombre').value='';document.getElementById('emerg_parent').value='';document.getElementById('emerg_tel').value='';
+  renderEmergencias();
+}
+function removeEmergencia(i){emergencias.splice(i,1);renderEmergencias();}
+function renderEmergencias(){
+  const b=document.getElementById('emergBody');
+  if(!b)return;
+  b.innerHTML=emergencias.length?emergencias.map((c,i)=>`<tr><td style="padding:8px;border-bottom:1px solid #E3E9F0;">${c.nombre}</td><td style="padding:8px;border-bottom:1px solid #E3E9F0;">${c.parentesco}</td><td style="padding:8px;border-bottom:1px solid #E3E9F0;">${c.tel}</td><td style="padding:8px;border-bottom:1px solid #E3E9F0;"><button style="border:none;background:transparent;cursor:pointer;font-size:13px;" onclick="removeEmergencia(${i})">🗑</button></td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#5B6B7C;padding:12px;font-size:12px;">Sin contactos registrados</td></tr>';
+}
+renderEmergencias();
+
+// ===== INICIALIZACIÓN DESDE SUPABASE =====
+</script>
+
+<!-- MODAL DE ACCESO -->
+<div class="lock-bg" id="lockModal">
+  <div class="lock-box">
+    <div class="lock-icon">🔐</div>
+    <h3>Acceso restringido</h3>
+    <p>Ingrese la clave para acceder a este módulo</p>
+    <input type="password" id="lockInput" placeholder="••••••" maxlength="10" onkeydown="if(event.key==='Enter')checkAccess()">
+    <button class="lock-btn" onclick="checkAccess()">Ingresar</button>
+    <div class="lock-err" id="lockErr">⚠️ Clave incorrecta</div>
+  </div>
+</div>
+
+</body>
+</html>
