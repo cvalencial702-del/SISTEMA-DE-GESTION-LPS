@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selección y Evaluación de Proveedores · SIG HSEQ · LPS Grupo</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+let _sb=null;
+function getSupabase(){if(!_sb){try{_sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){}}return _sb;}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{--navy:#0A2540;--blue:#1598FF;--sky:#EAF5FF;--green:#16A34A;--orange:#F5821F;--warn:#D97706;--danger:#DC2626;--slate:#5B6B7C;--line:#E3E9F0;--r:14px;--sh:0 6px 20px rgba(10,37,64,.08);}
+*{box-sizing:border-box;}body{margin:0;background:#F6F8FB;font-family:'Inter',-apple-system,sans-serif;color:#0F1B2A;}
+h1,h2,h3,h4{font-family:'Space Grotesk','Inter',sans-serif;margin:0;}
+button{font-family:inherit;cursor:pointer;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 30px;background:#fff;border-bottom:1px solid var(--line);}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;color:var(--navy);}
+.brand img{height:36px;}
+.brand small{font-size:10px;color:var(--slate);display:block;letter-spacing:.1em;text-transform:uppercase;}
+.back{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;color:var(--slate);text-decoration:none;border:1px solid var(--line);}
+.back:hover{border-color:var(--blue);color:var(--blue);}
+.wrap{max-width:1200px;margin:24px auto;padding:0 24px 60px;}
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:18px;}
+.tab{border:none;background:transparent;padding:10px 18px;font-size:13px;font-weight:600;color:var(--slate);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;}
+.tab:hover{color:var(--blue);} .tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.view{display:none;} .view.active{display:block;}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:16px;}
+.panel h3{font-size:16px;margin-bottom:4px;} .panel .ps{font-size:12px;color:var(--slate);margin-bottom:14px;}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border-left:4px solid var(--blue);}
+.kpi.c2{border-left-color:var(--green);}.kpi.c3{border-left-color:var(--orange);}.kpi.c4{border-left-color:var(--danger);}
+.kpi .kl{font-size:10px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.kpi .kv{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--navy);margin-top:3px;}
+.kpi .ks{font-size:10.5px;color:var(--slate);margin-top:2px;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--slate);border-bottom:1px solid var(--line);padding:8px;background:var(--sky);}
+tbody td{padding:10px 8px;border-bottom:1px solid var(--line);}
+tbody tr:hover{background:var(--sky);}
+.badge{padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700;}
+.badge.ok{background:#E4F7EA;color:var(--green);}.badge.warn{background:#FEF3E0;color:var(--warn);}.badge.danger{background:#FBE7E7;color:var(--danger);}.badge.blue{background:var(--sky);color:var(--blue);}
+.btn{border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+.btn-p{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(21,152,255,.3);}.btn-p:hover{background:#0B6FCC;}
+.btn-g{background:#fff;border:1px solid var(--line);color:var(--navy);}.btn-g:hover{border-color:var(--blue);color:var(--blue);}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:7px;border:1px solid var(--line);background:#fff;cursor:pointer;margin:0 2px;}
+.btn-sm:hover{border-color:var(--blue);background:var(--sky);}
+.fg{display:grid;gap:10px;margin-bottom:12px;}.fg.c4{grid-template-columns:repeat(4,1fr);}.fg.c3{grid-template-columns:repeat(3,1fr);}.fg.c2{grid-template-columns:1fr 1fr;}.fg.c1{grid-template-columns:1fr;}
+label{font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:3px;}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;}
+.progress{height:10px;background:#E8ECF0;border-radius:8px;overflow:hidden;}.progress>div{height:100%;border-radius:8px;transition:width .3s;}
+.req-section{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden;}
+.req-header{padding:12px 16px;background:var(--sky);display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:700;font-size:13px;color:var(--navy);}
+.req-header .pct{font-size:12px;padding:3px 10px;border-radius:20px;font-weight:700;}
+.req-body{padding:0;max-height:0;overflow:hidden;transition:max-height .3s;}.req-body.open{max-height:2000px;padding:14px 16px;}
+.req-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F0F3F6;font-size:12.5px;}
+.req-item:last-child{border-bottom:none;}
+.req-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;}
+.req-item .req-txt{flex:1;}
+.req-item .req-obs{width:180px;font-size:11px;}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.chart-box{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh);}
+@media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr;}.fg.c4,.fg.c3{grid-template-columns:1fr 1fr;}.chart-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><img src="logo-lps.png" alt="LPS" onerror="this.style.display='none'"><div>Selección y Evaluación de Proveedores<small>SIG HSEQ Colombia · Grupo LPS</small></div></div>
+  <a class="back" href="index.html">← Volver al Sistema</a>
+</div>
+<div class="wrap">
+  <div class="kpi-row" id="kpis"></div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'v-proveedores')">📋 Proveedores</button>
+    <button class="tab" onclick="switchTab(this,'v-seleccion')">✅ Selección (Pre-servicio)</button>
+    <button class="tab" onclick="switchTab(this,'v-evaluacion')">📊 Desempeño (Post-servicio)</button>
+    <button class="tab" onclick="switchTab(this,'v-indicadores')">📈 Indicadores</button>
+    <button class="tab" onclick="switchTab(this,'v-plan')">📝 Plan de Acción</button>
+    <button class="tab" onclick="switchTab(this,'v-admin')">⚙️ Requisitos</button>
+  </div>
+
+  <!-- TAB 1: PROVEEDORES -->
+  <div class="view active" id="v-proveedores">
+    <div class="panel"><h3>Directorio de Proveedores</h3><div class="ps">Proveedores registrados en el sistema.</div>
+      <table><thead><tr><th>Empresa</th><th>NIT</th><th>Servicio</th><th>Actividad</th><th>Estado</th><th></th></tr></thead><tbody id="provBody"></tbody></table>
+      <div id="provForm" style="display:none;margin-top:14px;border:1.5px dashed var(--line);border-radius:12px;padding:16px;">
+        <div class="fg c4">
+          <div><label>Razón social *</label><input id="pNombre" placeholder="Nombre empresa"></div>
+          <div><label>NIT</label><input id="pNit" placeholder="900.000.000-0"></div>
+          <div><label>Servicio</label><input id="pServicio" placeholder="Tipo de servicio"></div>
+          <div><label>Tipo de actividad</label><select id="pActividad"><option value="">Seleccione...</option><option>IPS de salud</option><option>Transporte de personal</option><option>Trabajo en alturas</option><option>Espacios confinados</option><option>Trabajo en caliente</option><option>Trabajo eléctrico</option><option>Maquinaria amarilla</option><option>Dotación y EPP</option><option>Fumigación y control plagas</option><option>Disposición de residuos</option><option>Obra civil</option><option>Telecomunicaciones</option><option>Energías renovables</option><option>Consultoría</option><option>Otro</option></select></div>
+        </div>
+        <div class="fg c4">
+          <div><label>Contacto</label><input id="pContacto" placeholder="Nombre contacto"></div>
+          <div><label>Teléfono</label><input id="pTel" placeholder="300 000 0000"></div>
+          <div><label>Email</label><input id="pEmail" placeholder="correo@empresa.com"></div>
+          <div style="display:flex;gap:8px;align-items:end;"><button class="btn btn-p" onclick="saveProv()">💾 Guardar</button><button class="btn btn-g" onclick="cancelProv()">Cancelar</button></div>
+        </div>
+      </div>
+      <div style="margin-top:12px;"><button class="btn btn-p" onclick="document.getElementById('provForm').style.display='block'">＋ Nuevo proveedor</button></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SELECCIÓN -->
+  <div class="view" id="v-seleccion">
+    <div class="panel"><h3>Selección de Proveedor (Pre-servicio)</h3><div class="ps">Evalúe el cumplimiento de requisitos <strong>antes de contratar</strong> al proveedor.</div>
+      <div style="margin-bottom:16px;">
+        <label>Proveedor a evaluar</label><select id="selProv" onchange="loadSeleccion()" style="max-width:500px;"><option value="">Seleccione proveedor...</option></select>
+      </div>
+      <div id="selReqs"></div>
+      <div id="selResumen" style="display:none;margin-top:16px;padding:16px;border:2px solid var(--line);border-radius:12px;background:#FAFBFD;">
+        <h4 style="margin-bottom:10px;">📊 Resumen de Evaluación</h4>
+        <div class="fg c4" id="selBars"></div>
+        <div class="fg c2" style="margin-top:12px;">
+          <div><label>Estado</label><select id="selEstado"><option>Aprobado</option><option>Aprobado con observaciones</option><option>No aprobado</option></select></div>
+          <div><label>Observaciones</label><input id="selObs" placeholder="Observaciones generales"></div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;">
+          <button class="btn btn-p" onclick="saveSeleccion()">💾 Guardar evaluación</button>
+          <button class="btn btn-g" onclick="previewSelPDF()">📄 Vista previa PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: EVALUACIÓN DE DESEMPEÑO (post-servicio) -->
+  <div class="view" id="v-evaluacion">
+    <div class="panel"><h3>📊 Evaluación de Desempeño</h3><div class="ps">Evalúe el desempeño del proveedor <strong>después de prestar el servicio</strong>.</div>
+      <div class="fg c2" style="margin-bottom:16px;">
+        <div><label>Proveedor evaluado</label><select id="edProv"><option value="">Seleccione proveedor...</option></select></div>
+        <div><label>Periodo evaluado</label><input id="edPeriodo" placeholder="Ej. Enero - Junio 2026"></div>
+      </div>
+      <div id="edReqs"></div>
+      <div id="edResumen" style="display:none;margin-top:16px;padding:16px;border:2px solid var(--line);border-radius:12px;background:#FAFBFD;">
+        <h4 style="margin-bottom:10px;">📊 Resumen de Desempeño</h4>
+        <div class="fg c4" id="edBars"></div>
+        <div class="fg c2" style="margin-top:12px;">
+          <div><label>Calificación</label><select id="edEstado"><option>Excelente</option><option>Bueno</option><option>Aceptable</option><option>Deficiente</option></select></div>
+          <div><label>Observaciones / Plan de mejora</label><input id="edObs" placeholder="Observaciones y compromisos"></div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;">
+          <button class="btn btn-p" onclick="saveEvalDesemp()">💾 Guardar evaluación</button>
+          <button class="btn btn-g" onclick="previewEvalPDF()">📄 Vista previa PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px;"><h3>Historial de Evaluaciones</h3><div class="ps">Selección (pre-servicio) y Desempeño (post-servicio).</div>
+      <table><thead><tr><th>Proveedor</th><th>Tipo</th><th>Fecha</th><th>Cumplimiento</th><th>Calidad servicio</th><th>SST</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody id="evalBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- TAB 4: INDICADORES -->
+  <div class="view" id="v-indicadores">
+    <div class="chart-grid"><div class="chart-box"><h4>Cumplimiento por categoría</h4><canvas id="chCat" height="200"></canvas></div><div class="chart-box"><h4>Proveedores por estado</h4><canvas id="chEst" height="200"></canvas></div></div>
+  </div>
+  <!-- TAB: PLAN DE ACCIÓN -->
+  <div class="view" id="v-plan">
+    <div class="panel"><h3>📝 Plan de Acción y Seguimiento</h3><div class="ps">Registre acciones correctivas, preventivas y de mejora para proveedores.</div>
+      <div class="fg c2" style="margin-bottom:14px;">
+        <div><label>Buscar proveedor</label><select id="planProv" onchange="loadPlanAccion()"><option value="">Todos los proveedores</option></select></div>
+        <div><label>Filtrar estado</label><select id="planFiltro" onchange="loadPlanAccion()"><option value="">Todos</option><option>Abierta</option><option>En curso</option><option>Cerrada</option><option>Vencida</option></select></div>
+      </div>
+      <table><thead><tr><th>Proveedor</th><th>Acción</th><th>Responsable</th><th>Fecha límite</th><th>Criticidad</th><th>Estado</th><th>Seguimiento</th><th></th></tr></thead><tbody id="planBody"></tbody></table>
+      <div style="margin-top:14px;border:1.5px dashed var(--line);border-radius:12px;padding:16px;" id="planForm">
+        <h4 style="margin-bottom:10px;">＋ Nueva acción</h4>
+        <div class="fg c3">
+          <div><label>Proveedor</label><select id="paProv"><option value="">Seleccione...</option></select></div>
+          <div><label>Acción / Hallazgo</label><input id="paAccion" placeholder="Describa la acción"></div>
+          <div><label>Responsable</label><input id="paResp" placeholder="Nombre"></div>
+        </div>
+        <div class="fg c4">
+          <div><label>Fecha límite</label><input type="date" id="paFecha"></div>
+          <div><label>Criticidad</label><select id="paCrit"><option>Alta</option><option>Media</option><option>Baja</option></select></div>
+          <div><label>Estado</label><select id="paEstado"><option>Abierta</option><option>En curso</option><option>Cerrada</option></select></div>
+          <div style="display:flex;align-items:end;"><button class="btn btn-p" onclick="savePlanAccion()">💾 Guardar</button></div>
+        </div>
+        <div class="fg c1" style="margin-top:8px;">
+          <div><label>Seguimiento / Observaciones</label><textarea id="paSeg" placeholder="Registre avances, compromisos o novedades del seguimiento" style="min-height:50px;"></textarea></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: ADMINISTRACIÓN DE REQUISITOS -->
+  <div class="view" id="v-admin">
+    <div class="panel"><h3>⚙️ Administración de Requisitos</h3><div class="ps">Agregue o elimine requisitos del catálogo. Clave de administrador requerida.</div>
+      <div class="fg c3" style="margin-bottom:14px;">
+        <div><label>Categoría</label><select id="admCat"><option value="COMERCIAL">Comercial</option><option value="CALIDAD">Calidad</option><option value="SST">SST / Ambiente</option></select></div>
+        <div><label>Actividad (solo para SST específico)</label><select id="admAct"><option value="">General (aplica a todos)</option><option>IPS de salud</option><option>Transporte de personal</option><option>Trabajo en alturas</option><option>Espacios confinados</option><option>Trabajo en caliente</option><option>Trabajo eléctrico</option><option>Maquinaria amarilla</option><option>Dotación y EPP</option><option>Fumigación y control plagas</option><option>Disposición de residuos</option><option>Obra civil</option><option>Telecomunicaciones</option><option>Energías renovables</option><option>Consultoría</option></select></div>
+        <div><label>Filtrar</label><button class="btn btn-p" style="width:100%;" onclick="loadReqAdmin()">🔍 Cargar requisitos</button></div>
+      </div>
+      <table><thead><tr><th>#</th><th>Requisito</th><th>Categoría</th><th>Actividad</th><th style="width:60px;"></th></tr></thead><tbody id="admBody"></tbody></table>
+      <div style="margin-top:14px;border:1.5px dashed var(--line);border-radius:12px;padding:16px;">
+        <div class="fg c2">
+          <div><label>Nuevo requisito</label><input id="admReq" placeholder="Describa el requisito"></div>
+          <div style="display:flex;gap:8px;align-items:end;"><button class="btn btn-p" onclick="addReqAdmin()">＋ Agregar requisito</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const REQUISITOS = {
+  COMERCIAL: [
+    'Certificado de existencia y representación legal (Cámara de Comercio)',
+    'RUT actualizado',
+    'Fotocopia cédula del representante legal',
+    'Certificación bancaria vigente',
+    'Estados financieros del último año',
+    'Referencias comerciales (mínimo 2)',
+    'Póliza de responsabilidad civil',
+    'Certificado de antecedentes disciplinarios'
+  ],
+  CALIDAD: [
+    'Certificación ISO 9001 o equivalente',
+    'Procedimientos documentados del servicio',
+    'Plan de calidad para el servicio contratado',
+    'Registro de quejas y acciones correctivas',
+    'Hojas de vida del personal técnico',
+    'Certificados de calibración de equipos'
+  ],
+  SST: [
+    'Documento SG-SST implementado',
+    'Matriz de identificación de peligros y valoración de riesgos',
+    'Plan de emergencias',
+    'Programa de capacitación en SST',
+    'Afiliaciones a seguridad social del personal (EPS, ARL, AFP)',
+    'Certificado de aptitud médica ocupacional del personal',
+    'Matriz de EPP por cargo',
+    'Política de SST firmada',
+    'Indicadores de accidentalidad del último año',
+    'Licencia de SST del responsable',
+    'Plan de gestión ambiental'
+  ]
+};
+
+const REQUISITOS_ACTIVIDAD = {
+  'IPS de salud': ['Habilitación ante Secretaría de Salud','Registro REPS vigente','Médicos con tarjeta profesional','Equipos biomédicos calibrados','Protocolo de manejo de residuos biológicos','Licencia de funcionamiento','Programa de vigilancia epidemiológica'],
+  'Transporte de personal': ['Tarjetas de operación vigentes','SOAT y revisión técnico-mecánica','Plan estratégico de seguridad vial (PESV)','Licencias de conducción categoría requerida','Póliza de responsabilidad civil contractual','GPS y sistemas de monitoreo','Protocolo de alcohol y drogas para conductores'],
+  'Trabajo en alturas': ['Certificación de competencia laboral del personal','Coordinador de trabajo en alturas certificado','Plan de rescate documentado','Certificados de inspección de equipos (arnés, línea de vida)','Permisos de trabajo en alturas','ARL con cobertura de riesgo V','Programa de protección contra caídas'],
+  'Espacios confinados': ['Procedimiento de entrada a espacios confinados','Equipos de monitoreo atmosférico calibrados','Personal certificado como vigía y entrante','Equipos de rescate y plan de emergencia','Permisos de trabajo en espacios confinados','Equipos SCBA disponibles'],
+  'Trabajo en caliente': ['Permisos de trabajo en caliente','Extintores disponibles en zona de trabajo','Personal certificado en soldadura','Inspección de equipos de soldadura/corte','Procedimiento de prevención de incendios','Vigilancia contra incendios post-trabajo'],
+  'Trabajo eléctrico': ['Matrícula profesional del electricista','Certificación CONTE/RETIE','Procedimiento de bloqueo y etiquetado (LOTO)','Equipos de medición calibrados','EPP dieléctrico certificado','Análisis de riesgo eléctrico por actividad'],
+  'Maquinaria amarilla': ['Certificado de operador de maquinaria','Inspección preoperacional de equipos','Seguros y pólizas vigentes','Plan de mantenimiento preventivo','Señalización y demarcación de zonas','Protocolo de izaje de cargas si aplica'],
+  'Dotación y EPP': ['Fichas técnicas de productos','Certificaciones de calidad (NTC, ANSI, EN)','Registro INVIMA si aplica','Garantía de productos','Trazabilidad de lotes','Muestras para evaluación técnica'],
+  'Fumigación y control plagas': ['Concepto sanitario favorable','Licencia ambiental para manejo de plaguicidas','Fichas de seguridad (SDS) de productos','Personal con certificación de aplicador','Seguro de responsabilidad civil','Programa de rotación de productos','Registro ICA si aplica'],
+  'Disposición de residuos': ['Licencia ambiental vigente','Certificados de disposición final','Vehículos con kit ambiental','Plan de contingencia ambiental','Registros ante autoridad ambiental','Manifiestos de transporte de residuos','Certificación como gestor de residuos'],
+  'Obra civil': ['Licencia de construcción si aplica','Director de obra con matrícula profesional','Pólizas de cumplimiento y calidad','Plan de manejo de tránsito','Programa de manejo ambiental de obra'],
+  'Telecomunicaciones': ['Licencia de instalación de redes','Certificaciones del personal técnico','Protocolos de trabajo en postes y torres','Equipos de medición certificados'],
+  'Energías renovables': ['Certificación RETIE para instalaciones','Personal certificado en paneles/inversores','Garantía de equipos y componentes','Plan de mantenimiento post-instalación'],
+  'Consultoría': ['Hojas de vida de consultores','Experiencia certificada en proyectos similares','Metodología de trabajo documentada','Entregables y cronograma definidos']
+};
+
+let proveedores=[], evaluaciones=[];
+
+function switchTab(btn,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='v-indicadores') renderIndicadores();
+  if(id==='v-evaluacion'){ loadEvalDesemp(); renderEvaluaciones(); }
+  if(id==='v-plan'){ initPlanSelects(); loadPlanAccion(); }
+}
+
+// ===== PROVEEDORES =====
+async function loadProveedores(){
+  try{
+    const{data}=await getSupabase().from('proveedores').select('*').order('nombre');
+    proveedores=data||[];
+  }catch(e){proveedores=[];}
+  renderProveedores();
+  renderProvSelect();
+  renderKPIs();
+}
+
+function renderProveedores(){
+  const b=document.getElementById('provBody');
+  b.innerHTML=proveedores.length?proveedores.map((p,i)=>{
+    const est=p.estado||'Activo';
+    const estCls=est==='Activo'?'ok':est==='Pendiente'?'blue':est==='Rechazado'?'danger':'warn';
+    return `<tr><td><strong>${p.nombre}</strong><br><small style="color:var(--slate);">${p.contacto||''} ${p.telefono?'· '+p.telefono:''}</small></td><td>${p.nit||'—'}</td><td>${p.servicio||'—'}</td><td><span class="badge blue">${p.actividad_tipo||'—'}</span></td><td><span class="badge ${estCls}">${est}</span></td><td><button class="btn-sm" onclick="editProv('${p.id}')" title="Editar datos">✏️</button><button class="btn-sm" onclick="evalProv('${p.id}')" title="Evaluar">✅</button><button class="btn-sm" onclick="cambiarEstadoProv('${p.id}')" title="Cambiar estado">🔄</button><button class="btn-sm" onclick="delProv('${p.id}')" title="Eliminar">🗑</button></td></tr>`;
+  }).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--slate);padding:20px;">Sin proveedores registrados</td></tr>';
+}
+
+function renderProvSelect(){
+  const sel=document.getElementById('selProv');
+  sel.innerHTML='<option value="">Seleccione proveedor...</option>'+proveedores.map(p=>`<option value="${p.id}">${p.nombre} — ${p.actividad_tipo||p.servicio||''}</option>`).join('');
+}
+
+async function saveProv(){
+  const nombre=document.getElementById('pNombre').value.trim();
+  if(!nombre){alert('Razón social requerida');return;}
+  const row={nombre,nit:document.getElementById('pNit').value.trim()||null,servicio:document.getElementById('pServicio').value.trim()||null,actividad_tipo:document.getElementById('pActividad').value||null,contacto:document.getElementById('pContacto').value.trim()||null,telefono:document.getElementById('pTel').value.trim()||null,email:document.getElementById('pEmail').value.trim()||null};
+  try{
+    if(editingProvId){
+      await getSupabase().from('proveedores').update(row).eq('id',editingProvId);
+      alert('✅ Proveedor actualizado');
+    }else{
+      row.estado='Pendiente';
+      await getSupabase().from('proveedores').insert(row);
+      alert('✅ Proveedor registrado');
+    }
+    cancelProv(); await loadProveedores(); renderKPIs();
+  }catch(e){alert('Error: '+e.message);}
+}
+async function editProv(id){
+  const p=proveedores.find(x=>x.id===id);
+  if(!p)return;
+  document.getElementById('provForm').style.display='block';
+  document.getElementById('pNombre').value=p.nombre||'';
+  document.getElementById('pNit').value=p.nit||'';
+  document.getElementById('pServicio').value=p.servicio||'';
+  document.getElementById('pActividad').value=p.actividad_tipo||'';
+  document.getElementById('pContacto').value=p.contacto||'';
+  document.getElementById('pTel').value=p.telefono||'';
+  document.getElementById('pEmail').value=p.email||'';
+  // Cambiar botón a modo edición
+  editingProvId=id;
+  document.querySelector('#provForm .btn-p').textContent='💾 Guardar cambios';
+  window.scrollTo({top:document.getElementById('provForm').offsetTop-100,behavior:'smooth'});
+}
+
+async function cambiarEstadoProv(id){
+  const p=proveedores.find(x=>x.id===id);
+  if(!p)return;
+  const nuevoEstado=prompt('Estado actual: '+p.estado+'\nNuevo estado (Activo / Pendiente / En revisión / Rechazado / Inactivo):',p.estado);
+  if(!nuevoEstado)return;
+  try{
+    await getSupabase().from('proveedores').update({estado:nuevoEstado}).eq('id',id);
+    await loadProveedores();
+    alert('✅ Estado actualizado a: '+nuevoEstado);
+  }catch(e){alert('Error: '+e.message);}
+}
+
+let editingProvId=null;
+
+function cancelProv(){editingProvId=null;document.getElementById('provForm').style.display='none';document.querySelector('#provForm .btn-p').textContent='💾 Guardar';['pNombre','pNit','pServicio','pContacto','pTel','pEmail'].forEach(x=>document.getElementById(x).value='');document.getElementById('pActividad').selectedIndex=0;}
+async function delProv(id){if(!confirm('¿Eliminar proveedor?'))return;try{await getSupabase().from('proveedores').delete().eq('id',id);}catch(e){}await loadProveedores();}
+function evalProv(id){document.getElementById('selProv').value=id;switchTab(document.querySelectorAll('.tab')[1],'v-seleccion');loadSeleccion();}
+
+// ===== SELECCIÓN =====
+async function loadReqsFromDB(){
+  try{
+    const{data}=await getSupabase().from('requisitos_catalogo').select('*').eq('activo',true).order('orden');
+    if(data && data.length){
+      REQUISITOS.COMERCIAL=data.filter(r=>r.categoria==='COMERCIAL'&&!r.actividad).map(r=>r.requisito);
+      REQUISITOS.CALIDAD=data.filter(r=>r.categoria==='CALIDAD'&&!r.actividad).map(r=>r.requisito);
+      REQUISITOS.SST=data.filter(r=>r.categoria==='SST'&&!r.actividad).map(r=>r.requisito);
+      const acts=[...new Set(data.filter(r=>r.actividad).map(r=>r.actividad))];
+      acts.forEach(act=>{
+        const key=Object.keys(REQUISITOS_ACTIVIDAD).find(k=>act.toLowerCase().includes(k.toLowerCase()))||act;
+        REQUISITOS_ACTIVIDAD[act]=data.filter(r=>r.actividad===act).map(r=>r.requisito);
+      });
+    }
+  }catch(e){console.warn('Usando requisitos locales');}
+}
+
+function loadSeleccion(){
+  const provId=document.getElementById('selProv').value;
+  if(!provId){document.getElementById('selReqs').innerHTML='';document.getElementById('selResumen').style.display='none';return;}
+  const prov=proveedores.find(p=>p.id===provId);
+  const actividad=prov?.actividad_tipo||'';
+  const actReqs=REQUISITOS_ACTIVIDAD[actividad]||[];
+
+  const cats=[
+    {key:'COMERCIAL',title:'📋 Aspectos Comerciales',reqs:REQUISITOS.COMERCIAL,color:'#1598FF'},
+    {key:'CALIDAD',title:'⭐ Calidad',reqs:REQUISITOS.CALIDAD,color:'#F5821F'},
+    {key:'SST',title:'🛡️ Seguridad, Salud y Ambiente',reqs:REQUISITOS.SST,color:'#16A34A'},
+  ];
+  if(actReqs.length) cats.push({key:'ACTIVIDAD',title:'🔧 Requisitos específicos: '+actividad,reqs:actReqs,color:'#6C5CE7'});
+
+  let h='';
+  cats.forEach(cat=>{
+    h+=`<div class="req-section"><div class="req-header" style="border-left:4px solid ${cat.color};flex-wrap:wrap;gap:8px;"><span onclick="this.closest('.req-header').nextElementSibling.classList.toggle('open');updatePcts()" style="cursor:pointer;flex:1;">${cat.title} (${cat.reqs.length})</span><input id="evalr_${cat.key}" placeholder="👤 Evaluador" style="width:180px;padding:5px 8px;font-size:11px;border:1px solid rgba(0,0,0,.1);border-radius:6px;background:rgba(255,255,255,.8);" onclick="event.stopPropagation()"><span class="pct" id="pct_${cat.key}" style="background:${cat.color}20;color:${cat.color};">0%</span></div>`;
+    h+=`<div class="req-body open">`;
+    cat.reqs.forEach((r,i)=>{
+      h+=`<div class="req-item"><label style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--green);min-width:60px;"><input type="checkbox" id="chk_${cat.key}_${i}" onchange="updatePcts()" style="width:15px;height:15px;"> Cumple</label><label style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--slate);min-width:50px;"><input type="checkbox" id="na_${cat.key}_${i}" onchange="handleNA('${cat.key}',${i})" style="width:15px;height:15px;"> N/A</label><span class="req-txt" id="rtxt_${cat.key}_${i}">${r}</span><input class="req-obs" placeholder="Obs..." id="obs_${cat.key}_${i}" style="width:140px;"><button class="btn-sm" onclick="editReqSel('${cat.key}',${i})" title="Editar" style="font-size:10px;">✏️</button><button class="btn-sm" onclick="delReqSel('${cat.key}',${i})" title="Eliminar" style="font-size:10px;color:var(--danger);">✕</button></div>`;
+    });
+    h+=`</div></div>`;
+  });
+  document.getElementById('selReqs').innerHTML=h;
+  document.getElementById('selResumen').style.display='block';
+  updatePcts();
+}
+
+function editReqSel(catKey, i){
+  const el = document.getElementById('rtxt_'+catKey+'_'+i);
+  if(!el) return;
+  const current = el.textContent;
+  const nuevo = prompt('Modificar requisito:', current);
+  if(nuevo && nuevo.trim()){
+    el.textContent = nuevo.trim();
+    // Actualizar el array local
+    const cats = {COMERCIAL:REQUISITOS.COMERCIAL, CALIDAD:REQUISITOS.CALIDAD, SST:REQUISITOS.SST};
+    if(cats[catKey] && cats[catKey][i] !== undefined) cats[catKey][i] = nuevo.trim();
+    else if(catKey==='ACTIVIDAD' && REQUISITOS_ACTIVIDAD){
+      const prov=proveedores.find(p=>p.id===document.getElementById('selProv').value);
+      const act=prov?.actividad_tipo;
+      if(act && REQUISITOS_ACTIVIDAD[act]) REQUISITOS_ACTIVIDAD[act][i]=nuevo.trim();
+    }
+  }
+}
+
+function delReqSel(catKey, i){
+  if(!confirm('¿Eliminar este requisito de la evaluación actual?')) return;
+  const cats = {COMERCIAL:REQUISITOS.COMERCIAL, CALIDAD:REQUISITOS.CALIDAD, SST:REQUISITOS.SST};
+  if(cats[catKey]) cats[catKey].splice(i,1);
+  else if(catKey==='ACTIVIDAD'){
+    const prov=proveedores.find(p=>p.id===document.getElementById('selProv').value);
+    const act=prov?.actividad_tipo;
+    if(act && REQUISITOS_ACTIVIDAD[act]) REQUISITOS_ACTIVIDAD[act].splice(i,1);
+  }
+  loadSeleccion();
+}
+
+function editCritDesemp(catKey, i){
+  const el = document.getElementById('edrtxt_'+catKey+'_'+i);
+  if(!el) return;
+  const nuevo = prompt('Modificar criterio:', el.textContent);
+  if(nuevo && nuevo.trim()){
+    el.textContent = nuevo.trim();
+    if(CRITERIOS_DESEMP[catKey] && CRITERIOS_DESEMP[catKey][i] !== undefined) CRITERIOS_DESEMP[catKey][i] = nuevo.trim();
+  }
+}
+
+function delCritDesemp(catKey, i){
+  if(!confirm('¿Eliminar este criterio?')) return;
+  if(CRITERIOS_DESEMP[catKey]) CRITERIOS_DESEMP[catKey].splice(i,1);
+  renderEvalForm();
+}
+
+function handleNA(cat,i){
+  const na=document.getElementById('na_'+cat+'_'+i);
+  const chk=document.getElementById('chk_'+cat+'_'+i);
+  if(na&&na.checked&&chk){chk.checked=false;chk.disabled=true;}
+  else if(chk){chk.disabled=false;}
+  updatePcts();
+}
+
+function updatePcts(){
+  const cats=['COMERCIAL','CALIDAD','SST','ACTIVIDAD'];
+  const scores={};
+  cats.forEach(cat=>{
+    const checks=document.querySelectorAll(`[id^="chk_${cat}_"]`);
+    if(!checks.length)return;
+    let total=0, checked=0;
+    checks.forEach((c,i)=>{
+      const na=document.getElementById('na_'+cat+'_'+i);
+      if(na&&na.checked)return;
+      total++;
+      if(c.checked)checked++;
+    });
+    const pct=total>0?Math.round(checked/total*100):0;
+    scores[cat]=pct;
+    const el=document.getElementById('pct_'+cat);
+    if(el) el.textContent=pct+'%';
+  });
+  // Resumen
+  const vals=Object.values(scores);
+  const avg=vals.length?Math.round(vals.reduce((s,v)=>s+v,0)/vals.length):0;
+  const bars=document.getElementById('selBars');
+  bars.innerHTML=Object.entries(scores).map(([k,v])=>{
+    const color=v>=80?'var(--green)':v>=60?'var(--warn)':'var(--danger)';
+    return `<div><label>${k}</label><div style="display:flex;align-items:center;gap:8px;"><div class="progress" style="flex:1;"><div style="width:${v}%;background:${color};"></div></div><strong style="font-size:12px;">${v}%</strong></div></div>`;
+  }).join('')+`<div><label>TOTAL</label><div style="font-size:22px;font-weight:800;color:var(--navy);">${avg}%</div></div>`;
+  // Auto-set estado
+  const sel=document.getElementById('selEstado');
+  if(avg>=80)sel.value='Aprobado';else if(avg>=60)sel.value='Aprobado con observaciones';else sel.value='No aprobado';
+}
+
+async function saveSeleccion(){
+  const provId=document.getElementById('selProv').value;
+  if(!provId){alert('Seleccione proveedor');return;}
+  const cats=['COMERCIAL','CALIDAD','SST','ACTIVIDAD'];
+  const scores={};
+  cats.forEach(cat=>{
+    const checks=document.querySelectorAll(`[id^="chk_${cat}_"]`);
+    if(!checks.length)return;
+    let t=0,c=0;
+    checks.forEach((x,i)=>{
+      const na=document.getElementById('na_'+cat+'_'+i);
+      if(na&&na.checked)return;
+      t++;if(x.checked)c++;
+    });
+    scores[cat]=t>0?Math.round(c/t*100):0;
+  });
+  const avg=Object.values(scores);const total=avg.length?Math.round(avg.reduce((s,v)=>s+v,0)/avg.length):0;
+  const selEstado=document.getElementById('selEstado').value;
+  try{
+    const sb=getSupabase();
+    if(!sb){alert('Error: No hay conexión con Supabase');return;}
+    const{data,error}=await sb.from('evaluacion_proveedores').insert({proveedor_id:provId,tipo:'SELECCION',evaluador:'',puntaje_comercial:scores.COMERCIAL||0,puntaje_calidad:scores.CALIDAD||0,puntaje_sst:scores.SST||0,puntaje_actividad:scores.ACTIVIDAD||0,puntaje_total:total,estado:selEstado,observaciones:document.getElementById('selObs').value.trim()||null,actividad_tipo:proveedores.find(p=>p.id===provId)?.actividad_tipo||null}).select();
+    if(error){alert('Error BD: '+error.message);console.error(error);return;}
+    // Actualizar estado y calificación del proveedor
+    const nuevoEstado=selEstado==='Aprobado'?'Activo':selEstado==='No aprobado'?'Rechazado':'En revisión';
+    await sb.from('proveedores').update({estado:nuevoEstado,calificacion_seleccion:total}).eq('id',provId);
+    if(data&&data[0]){
+      const evalId=data[0].id;
+      cats.forEach(cat=>{
+        document.querySelectorAll(`[id^="chk_${cat}_"]`).forEach((chk,i)=>{
+          const obs=document.getElementById('obs_'+cat+'_'+i);
+          getSupabase().from('evaluacion_requisitos').insert({evaluacion_id:evalId,categoria:cat,requisito:chk.closest('.req-item').querySelector('.req-txt').textContent,cumple:chk.checked,observacion:obs?obs.value.trim():''});
+        });
+      });
+    }
+    alert('✅ Evaluación guardada — Estado del proveedor actualizado');await loadProveedores();await loadEvaluaciones();renderKPIs();
+  }catch(e){alert('Error: '+e.message);}
+}
+
+function previewSelPDF(){
+  const provId=document.getElementById('selProv').value;
+  const prov=proveedores.find(p=>p.id===provId);
+  if(!prov){alert('Seleccione proveedor');return;}
+  const cats=['COMERCIAL','CALIDAD','SST','ACTIVIDAD'];
+  let reqsHtml='';
+  cats.forEach(cat=>{
+    const checks=document.querySelectorAll(`[id^="chk_${cat}_"]`);
+    if(!checks.length)return;
+    let t=checks.length,c=0;
+    let rows='';
+    checks.forEach((chk,i)=>{
+      if(chk.checked)c++;
+      const obs=document.getElementById('obs_'+cat+'_'+i);
+      rows+=`<tr><td style="width:30px;text-align:center;">${chk.checked?'✅':'❌'}</td><td>${chk.closest('.req-item').querySelector('.req-txt').textContent}</td><td>${obs?obs.value:''}</td></tr>`;
+    });
+    const pct=Math.round(c/t*100);
+    reqsHtml+=`<h3 style="font-size:12px;margin:14px 0 6px;color:#0A2540;">${cat} — ${pct}%</h3><table style="width:100%;border-collapse:collapse;font-size:10.5px;"><tr style="background:#EAF5FF;"><th style="padding:5px;border:1px solid #D0DFF0;">✓</th><th style="padding:5px;border:1px solid #D0DFF0;">Requisito</th><th style="padding:5px;border:1px solid #D0DFF0;">Observación</th></tr>${rows}</table>`;
+  });
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Evaluación ${prov.nombre}</title><style>body{font-family:Arial,sans-serif;margin:20px;font-size:11px;color:#0F1B2A;}h1{font-size:16px;color:#0A2540;}h2{font-size:13px;color:#1598FF;}.hdr{background:#0A2540;color:#fff;padding:16px 20px;border-radius:8px;margin-bottom:16px;}.hdr h1{color:#fff;margin:0;}.hdr p{color:#B0C9E4;margin:4px 0 0;font-size:10px;}table{width:100%;}td,th{padding:5px 8px;border:1px solid #D0DFF0;text-align:left;}</style></head><body><div class="hdr"><h1>EVALUACIÓN DE PROVEEDOR</h1><p>${prov.nombre} — NIT: ${prov.nit||'—'} — ${prov.actividad_tipo||prov.servicio||'—'}</p><p>Evaluador: Ver por área — Fecha: ${new Date().toLocaleDateString('es-CO')}</p></div>${reqsHtml}<script>window.print();<\/script></body></html>`);
+  w.document.close();
+}
+
+// ===== EVALUACIONES =====
+async function loadEvaluaciones(){
+  try{
+    const{data}=await getSupabase().from('evaluacion_proveedores').select('*,proveedores(nombre)').order('created_at',{ascending:false});
+    evaluaciones=data||[];
+  }catch(e){evaluaciones=[];}
+  renderEvaluaciones();
+}
+
+function renderEvaluaciones(){
+  const b=document.getElementById('evalBody');
+  b.innerHTML=evaluaciones.length?evaluaciones.map(e=>{
+    const cls=e.estado==='Aprobado'||e.estado==='Excelente'?'ok':e.estado==='No aprobado'||e.estado==='Deficiente'?'danger':'warn';
+    const tipoLabel=e.tipo==='SELECCION'?'Pre-servicio':'Post-servicio';
+    const tipoCls=e.tipo==='SELECCION'?'blue':'ok';
+    return `<tr><td>${e.proveedores?.nombre||'—'}</td><td><span class="badge ${tipoCls}">${tipoLabel}</span></td><td>${e.fecha||'—'}</td><td>${e.puntaje_comercial}%</td><td>${e.puntaje_calidad}%</td><td>${e.puntaje_sst}%</td><td><strong>${e.puntaje_total}%</strong></td><td><span class="badge ${cls}">${e.estado}</span></td><td><button class="btn-sm" onclick="delEval('${e.id}')">🗑</button></td></tr>`;
+  }).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--slate);padding:20px;">Sin evaluaciones registradas</td></tr>';
+}
+async function delEval(id){if(!confirm('¿Eliminar?'))return;try{await getSupabase().from('evaluacion_proveedores').delete().eq('id',id);}catch(e){}await loadEvaluaciones();}
+
+// ===== PDF HISTORIAL =====
+async function pdfHistorial(evalId){
+  const ev=evaluaciones.find(e=>e.id===evalId);
+  if(!ev)return;
+  const provNombre=ev.proveedores?.nombre||'—';
+  const tipo=ev.tipo==='SELECCION'?'SELECCIÓN (PRE-SERVICIO)':'DESEMPEÑO (POST-SERVICIO)';
+  const labelsCom=ev.tipo==='SELECCION'?'Comercial':'Cumplimiento';
+  const labelsCal=ev.tipo==='SELECCION'?'Calidad':'Calidad Servicio';
+  const labelsSst='SST / Ambiente';
+  const labelsAct=ev.tipo==='SELECCION'?'Actividad específica':'Administrativo';
+
+  // Cargar requisitos detallados
+  let reqsHtml='';
+  try{
+    const{data}=await getSupabase().from('evaluacion_requisitos').select('*').eq('evaluacion_id',evalId);
+    if(data&&data.length){
+      const cats=[...new Set(data.map(r=>r.categoria))];
+      cats.forEach(cat=>{
+        const items=data.filter(r=>r.categoria===cat);
+        const cumple=items.filter(r=>r.cumple).length;
+        const total=items.length;
+        const pct=total>0?Math.round(cumple/total*100):0;
+        reqsHtml+='<h3 style="font-size:12px;margin:14px 0 6px;color:#0A2540;">'+cat+' — '+pct+'% ('+cumple+'/'+total+')</h3>';
+        reqsHtml+='<table style="width:100%;border-collapse:collapse;font-size:10.5px;"><tr style="background:#EAF5FF;"><th style="padding:5px;border:1px solid #D0DFF0;width:30px;">✓</th><th style="padding:5px;border:1px solid #D0DFF0;">Requisito</th><th style="padding:5px;border:1px solid #D0DFF0;">Observación</th></tr>';
+        items.forEach(r=>{
+          reqsHtml+='<tr><td style="text-align:center;padding:5px;border:1px solid #D0DFF0;">'+(r.cumple?'✅':'❌')+'</td><td style="padding:5px;border:1px solid #D0DFF0;">'+r.requisito+'</td><td style="padding:5px;border:1px solid #D0DFF0;">'+(r.observacion||'')+'</td></tr>';
+        });
+        reqsHtml+='</table>';
+      });
+    }
+  }catch(e){}
+
+  const totalColor=ev.puntaje_total>=80?'#16A34A':ev.puntaje_total>=60?'#D97706':'#DC2626';
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Evaluación ${provNombre}</title>
+<style>body{font-family:Arial,sans-serif;margin:20px;font-size:11px;color:#0F1B2A;}
+.hdr{background:#0A2540;color:#fff;padding:18px 22px;border-radius:8px;margin-bottom:16px;}
+.hdr h1{color:#fff;margin:0;font-size:16px;}.hdr p{color:#B0C9E4;margin:4px 0 0;font-size:10px;}
+.scores{display:flex;gap:12px;margin-bottom:16px;}
+.sc{flex:1;border:1px solid #D0DFF0;border-radius:8px;padding:10px;text-align:center;}
+.sc .lab{font-size:9px;color:#5B6B7C;text-transform:uppercase;letter-spacing:.04em;}
+.sc .val{font-size:20px;font-weight:800;color:#0A2540;margin-top:3px;}
+.total{background:${totalColor}15;border-color:${totalColor};}
+.total .val{color:${totalColor};}
+td,th{padding:5px 8px;border:1px solid #D0DFF0;text-align:left;}
+.ft{margin-top:20px;padding-top:10px;border-top:1px solid #D0DFF0;font-size:9px;color:#5B6B7C;display:flex;justify-content:space-between;}
+</style></head><body>
+<div class="hdr"><h1>EVALUACIÓN DE PROVEEDOR — ${tipo}</h1><p>${provNombre} — ${ev.actividad_tipo||''}</p><p>Fecha: ${ev.fecha||'—'} — ${ev.periodo?'Periodo: '+ev.periodo+' — ':''}Evaluador: ${ev.evaluador||'—'} — Estado: ${ev.estado}</p></div>
+<div class="scores">
+<div class="sc"><div class="lab">${labelsCom}</div><div class="val">${ev.puntaje_comercial}%</div></div>
+<div class="sc"><div class="lab">${labelsCal}</div><div class="val">${ev.puntaje_calidad}%</div></div>
+<div class="sc"><div class="lab">${labelsSst}</div><div class="val">${ev.puntaje_sst}%</div></div>
+<div class="sc"><div class="lab">${labelsAct}</div><div class="val">${ev.puntaje_actividad}%</div></div>
+<div class="sc total"><div class="lab">TOTAL</div><div class="val">${ev.puntaje_total}%</div></div>
+</div>
+${reqsHtml}
+${ev.observaciones?'<p style="margin-top:14px;"><strong>Observaciones:</strong> '+ev.observaciones+'</p>':''}
+<div class="ft"><span>Grupo LPS — SIG HSEQ Colombia</span><span>Generado: ${new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'})}</span></div>
+<script>window.print();<\/script></body></html>`);
+  w.document.close();
+}
+
+// ===== KPIs =====
+function renderKPIs(){
+  const total=proveedores.length;
+  const activos=proveedores.filter(p=>(p.estado||'Activo')==='Activo').length;
+  const evaluados=evaluaciones.length;
+  const aprobados=evaluaciones.filter(e=>e.estado==='Aprobado').length;
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="kl">Proveedores</div><div class="kv">${total}</div><div class="ks">${activos} activos</div></div>
+    <div class="kpi c2"><div class="kl">Evaluaciones</div><div class="kv">${evaluados}</div><div class="ks">Realizadas</div></div>
+    <div class="kpi c3"><div class="kl">Aprobados</div><div class="kv">${aprobados}</div><div class="ks">${evaluados?Math.round(aprobados/evaluados*100):0}% tasa</div></div>
+    <div class="kpi c4"><div class="kl">Actividades</div><div class="kv">${new Set(proveedores.map(p=>p.actividad_tipo).filter(Boolean)).size}</div><div class="ks">Categorías</div></div>`;
+}
+
+// ===== INDICADORES =====
+function renderIndicadores(){
+  if(typeof Chart==='undefined'){setTimeout(renderIndicadores,500);return;}
+  // Promedio por categoría
+  const cats=['puntaje_comercial','puntaje_calidad','puntaje_sst','puntaje_actividad'];
+  const labels=['Comercial','Calidad','SST','Actividad'];
+  const avgs=cats.map(c=>{const vals=evaluaciones.map(e=>Number(e[c])||0);return vals.length?Math.round(vals.reduce((s,v)=>s+v,0)/vals.length):0;});
+  try{
+    const ctx1=document.getElementById('chCat');
+    new Chart(ctx1,{type:'bar',data:{labels,datasets:[{data:avgs,backgroundColor:['#1598FFCC','#F5821FCC','#16A34ACC','#6C5CE7CC'],borderRadius:6,maxBarThickness:40}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100}}}});
+  }catch(e){}
+  // Estados
+  const estados={};evaluaciones.forEach(e=>{estados[e.estado]=(estados[e.estado]||0)+1;});
+  try{
+    const ctx2=document.getElementById('chEst');
+    new Chart(ctx2,{type:'doughnut',data:{labels:Object.keys(estados),datasets:[{data:Object.values(estados),backgroundColor:['#16A34A','#D97706','#DC2626'],borderWidth:0}]},options:{cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}}}});
+  }catch(e){}
+}
+
+// ===== EVALUACIÓN DE DESEMPEÑO (POST-SERVICIO) =====
+const CRITERIOS_DESEMP = {
+  CUMPLIMIENTO: [
+    'Cumplió con los plazos de entrega pactados',
+    'Entregó la totalidad del alcance contratado',
+    'Atendió oportunamente solicitudes y requerimientos',
+    'Presentó informes y documentación en los tiempos acordados',
+    'Cumplió con las condiciones contractuales',
+    'Disponibilidad del personal requerido'
+  ],
+  CALIDAD_SERVICIO: [
+    'El servicio/producto cumplió con las especificaciones técnicas',
+    'Se evidenció personal competente y capacitado',
+    'Los equipos y herramientas estaban en buen estado',
+    'Atendió las no conformidades y quejas oportunamente',
+    'Implementó acciones de mejora cuando se requirió',
+    'El resultado final fue satisfactorio para el cliente'
+  ],
+  SST_AMBIENTE: [
+    'Cumplió con las normas de seguridad en el sitio de trabajo',
+    'El personal usó los EPP requeridos',
+    'No se presentaron accidentes o incidentes por su causa',
+    'Realizó disposición adecuada de residuos generados',
+    'Cumplió con los permisos de trabajo requeridos',
+    'Reportó condiciones inseguras oportunamente',
+    'Participó en las charlas de seguridad',
+    'Mantuvo orden y aseo en las áreas de trabajo'
+  ],
+  ADMINISTRATIVO: [
+    'Entregó facturación correcta y a tiempo',
+    'Mantuvo al día los documentos contractuales',
+    'Seguridad social del personal al día durante el servicio',
+    'Comunicación fluida y profesional',
+    'Disposición para resolver imprevistos'
+  ]
+};
+
+function loadEvalDesemp(){
+  const sel=document.getElementById('edProv');
+  sel.innerHTML='<option value="">Seleccione proveedor...</option>'+proveedores.map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');
+  sel.onchange=renderEvalForm;
+}
+
+function renderEvalForm(){
+  const provId=document.getElementById('edProv').value;
+  if(!provId){document.getElementById('edReqs').innerHTML='';document.getElementById('edResumen').style.display='none';return;}
+
+  const cats=[
+    {key:'CUMPLIMIENTO',title:'📋 Cumplimiento contractual',reqs:CRITERIOS_DESEMP.CUMPLIMIENTO,color:'#1598FF'},
+    {key:'CALIDAD_SERVICIO',title:'⭐ Calidad del servicio',reqs:CRITERIOS_DESEMP.CALIDAD_SERVICIO,color:'#F5821F'},
+    {key:'SST_AMBIENTE',title:'🛡️ SST y Medio Ambiente',reqs:CRITERIOS_DESEMP.SST_AMBIENTE,color:'#16A34A'},
+    {key:'ADMINISTRATIVO',title:'📁 Gestión Administrativa',reqs:CRITERIOS_DESEMP.ADMINISTRATIVO,color:'#6C5CE7'}
+  ];
+
+  let h='';
+  cats.forEach(cat=>{
+    h+=`<div class="req-section"><div class="req-header" style="border-left:4px solid ${cat.color};flex-wrap:wrap;gap:8px;"><span onclick="this.closest('.req-header').nextElementSibling.classList.toggle('open');updateEdPcts()" style="cursor:pointer;flex:1;">${cat.title} (${cat.reqs.length})</span><input id="edevalr_${cat.key}" placeholder="👤 Evaluador" style="width:180px;padding:5px 8px;font-size:11px;border:1px solid rgba(0,0,0,.1);border-radius:6px;background:rgba(255,255,255,.8);" onclick="event.stopPropagation()"><span class="pct" id="edpct_${cat.key}" style="background:${cat.color}20;color:${cat.color};">0%</span></div>`;
+    h+=`<div class="req-body open">`;
+    cat.reqs.forEach((r,i)=>{
+      h+=`<div class="req-item"><label style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--green);min-width:60px;"><input type="checkbox" id="edchk_${cat.key}_${i}" onchange="updateEdPcts()" style="width:15px;height:15px;"> Cumple</label><label style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--slate);min-width:50px;"><input type="checkbox" id="edna_${cat.key}_${i}" onchange="handleEdNA('${cat.key}',${i})" style="width:15px;height:15px;"> N/A</label><span class="req-txt" id="edrtxt_${cat.key}_${i}">${r}</span><input class="req-obs" placeholder="Obs..." id="edobs_${cat.key}_${i}" style="width:140px;"><button class="btn-sm" onclick="editCritDesemp('${cat.key}',${i})" title="Editar" style="font-size:10px;">✏️</button><button class="btn-sm" onclick="delCritDesemp('${cat.key}',${i})" title="Eliminar" style="font-size:10px;color:var(--danger);">✕</button></div>`;
+    });
+    h+=`<div style="margin-top:8px;display:flex;gap:6px;"><input id="ednewreq_${cat.key}" placeholder="Agregar criterio..." style="flex:1;padding:6px 10px;font-size:12px;border:1px solid var(--line);border-radius:6px;"><button class="btn-sm" onclick="addCritDesemp('${cat.key}')">＋</button></div></div></div>`;
+  });
+  document.getElementById('edReqs').innerHTML=h;
+  document.getElementById('edResumen').style.display='block';
+  updateEdPcts();
+}
+
+function handleEdNA(cat,i){
+  const na=document.getElementById('edna_'+cat+'_'+i);
+  const chk=document.getElementById('edchk_'+cat+'_'+i);
+  if(na&&na.checked&&chk){chk.checked=false;chk.disabled=true;}
+  else if(chk){chk.disabled=false;}
+  updateEdPcts();
+}
+
+function addCritDesemp(catKey){
+  const inp=document.getElementById('ednewreq_'+catKey);
+  if(!inp||!inp.value.trim()){alert('Escriba el criterio');return;}
+  CRITERIOS_DESEMP[catKey].push(inp.value.trim());
+  inp.value='';
+  renderEvalForm();
+}
+
+function updateEdPcts(){
+  const cats=['CUMPLIMIENTO','CALIDAD_SERVICIO','SST_AMBIENTE','ADMINISTRATIVO'];
+  const scores={};
+  cats.forEach(cat=>{
+    const checks=document.querySelectorAll('[id^="edchk_'+cat+'_"]');
+    if(!checks.length)return;
+    let total=0,checked=0;
+    checks.forEach((c,i)=>{
+      const na=document.getElementById('edna_'+cat+'_'+i);
+      if(na&&na.checked)return;
+      total++;
+      if(c.checked)checked++;
+    });
+    scores[cat]=total>0?Math.round(checked/total*100):0;
+    const el=document.getElementById('edpct_'+cat);
+    if(el)el.textContent=scores[cat]+'%';
+  });
+  const vals=Object.values(scores);
+  const avg=vals.length?Math.round(vals.reduce((s,v)=>s+v,0)/vals.length):0;
+  const bars=document.getElementById('edBars');
+  const labels={CUMPLIMIENTO:'Cumplimiento',CALIDAD_SERVICIO:'Calidad',SST_AMBIENTE:'SST/Ambiente',ADMINISTRATIVO:'Administrativo'};
+  bars.innerHTML=Object.entries(scores).map(([k,v])=>{
+    const color=v>=80?'var(--green)':v>=60?'var(--warn)':'var(--danger)';
+    return '<div><label>'+(labels[k]||k)+'</label><div style="display:flex;align-items:center;gap:8px;"><div class="progress" style="flex:1;"><div style="width:'+v+'%;background:'+color+';"></div></div><strong style="font-size:12px;">'+v+'%</strong></div></div>';
+  }).join('')+'<div><label>TOTAL</label><div style="font-size:22px;font-weight:800;color:var(--navy);">'+avg+'%</div></div>';
+  const sel=document.getElementById('edEstado');
+  if(avg>=90)sel.value='Excelente';else if(avg>=75)sel.value='Bueno';else if(avg>=60)sel.value='Aceptable';else sel.value='Deficiente';
+}
+
+async function saveEvalDesemp(){
+  const provId=document.getElementById('edProv').value;
+  if(!provId){alert('Seleccione proveedor');return;}
+  const cats=['CUMPLIMIENTO','CALIDAD_SERVICIO','SST_AMBIENTE','ADMINISTRATIVO'];
+  const scores={};
+  cats.forEach(cat=>{
+    const checks=document.querySelectorAll('[id^="edchk_'+cat+'_"]');
+    if(!checks.length)return;
+    let t=0,c=0;
+    checks.forEach((x,i)=>{
+      const na=document.getElementById('edna_'+cat+'_'+i);
+      if(na&&na.checked)return;
+      t++;
+      if(x.checked)c++;
+    });
+    scores[cat]=t>0?Math.round(c/t*100):0;
+  });
+  const avg=Object.values(scores);const total=avg.length?Math.round(avg.reduce((s,v)=>s+v,0)/avg.length):0;
+  const estado=document.getElementById('edEstado').value;
+  try{
+    const sb=getSupabase();
+    if(!sb){alert('Error: No hay conexión con Supabase');return;}
+    const{data,error}=await sb.from('evaluacion_proveedores').insert({proveedor_id:provId,tipo:'EVALUACION',evaluador:'',periodo:document.getElementById('edPeriodo').value.trim()||null,puntaje_comercial:scores.CUMPLIMIENTO||0,puntaje_calidad:scores.CALIDAD_SERVICIO||0,puntaje_sst:scores.SST_AMBIENTE||0,puntaje_actividad:scores.ADMINISTRATIVO||0,puntaje_total:total,estado:estado,observaciones:document.getElementById('edObs').value.trim()||null}).select();
+    if(error){alert('Error BD: '+error.message);console.error(error);return;}
+    // Actualizar estado y calificación del proveedor
+    await sb.from('proveedores').update({estado:total>=75?'Activo':'En revisión',calificacion_evaluacion:total}).eq('id',provId);
+    alert('✅ Evaluación de desempeño guardada');
+    await loadProveedores();
+    await loadEvaluaciones();
+    renderKPIs();
+  }catch(e){alert('Error: '+(e.message||JSON.stringify(e)));console.error(e);}
+}
+
+function previewEvalPDF(){
+  const provId=document.getElementById('edProv').value;
+  const prov=proveedores.find(p=>p.id===provId);
+  if(!prov){alert('Seleccione proveedor');return;}
+  const cats=['CUMPLIMIENTO','CALIDAD_SERVICIO','SST_AMBIENTE','ADMINISTRATIVO'];
+  const labels={CUMPLIMIENTO:'Cumplimiento Contractual',CALIDAD_SERVICIO:'Calidad del Servicio',SST_AMBIENTE:'SST y Medio Ambiente',ADMINISTRATIVO:'Gestión Administrativa'};
+  let reqsHtml='';
+  cats.forEach(cat=>{
+    const checks=document.querySelectorAll('[id^="edchk_'+cat+'_"]');
+    if(!checks.length)return;
+    let t=checks.length,c=0,rows='';
+    checks.forEach((chk,i)=>{if(chk.checked)c++;const obs=document.getElementById('edobs_'+cat+'_'+i);rows+='<tr><td style="width:30px;text-align:center;">'+(chk.checked?'✅':'❌')+'</td><td>'+chk.closest('.req-item').querySelector('.req-txt').textContent+'</td><td>'+(obs?obs.value:'')+'</td></tr>';});
+    reqsHtml+='<h3 style="font-size:12px;margin:14px 0 6px;color:#0A2540;">'+labels[cat]+' — '+Math.round(c/t*100)+'%</h3><table style="width:100%;border-collapse:collapse;font-size:10.5px;"><tr style="background:#EAF5FF;"><th style="padding:5px;border:1px solid #D0DFF0;">✓</th><th style="padding:5px;border:1px solid #D0DFF0;">Criterio</th><th style="padding:5px;border:1px solid #D0DFF0;">Observación</th></tr>'+rows+'</table>';
+  });
+  const w=window.open('','_blank');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Evaluación Desempeño '+prov.nombre+'</title><style>body{font-family:Arial,sans-serif;margin:20px;font-size:11px;color:#0F1B2A;}.hdr{background:#0A2540;color:#fff;padding:16px 20px;border-radius:8px;margin-bottom:16px;}.hdr h1{color:#fff;margin:0;font-size:16px;}.hdr p{color:#B0C9E4;margin:4px 0 0;font-size:10px;}td,th{padding:5px 8px;border:1px solid #D0DFF0;text-align:left;}</style></head><body><div class="hdr"><h1>EVALUACIÓN DE DESEMPEÑO (POST-SERVICIO)</h1><p>'+prov.nombre+' — NIT: '+(prov.nit||'—')+'</p><p>Periodo: '+(document.getElementById('edPeriodo').value||'—')+' — Evaluador: Ver por área — Fecha: '+new Date().toLocaleDateString('es-CO')+'</p></div>'+reqsHtml+'<script>window.print();<\/script></body></html>');
+  w.document.close();
+}
+
+// ===== ADMIN REQUISITOS (clave LPS-GC) =====
+let adminUnlocked = false;
+
+function requireAdminKey(action){
+  if(adminUnlocked){ action(); return; }
+  const key = prompt('🔐 Ingrese la clave de administrador:');
+  if(key === 'LPS-GC'){ adminUnlocked = true; action(); }
+  else if(key !== null){ alert('⚠️ Clave incorrecta'); }
+}
+
+async function loadReqAdmin(){
+  requireAdminKey(async function(){
+    const cat = document.getElementById('admCat').value;
+    const act = document.getElementById('admAct').value;
+    try{
+      let q = getSupabase().from('requisitos_catalogo').select('*').eq('categoria',cat).eq('activo',true).order('orden');
+      if(act) q = q.eq('actividad',act);
+      else q = q.is('actividad',null);
+      const{data}=await q;
+      const b=document.getElementById('admBody');
+      b.innerHTML=(data||[]).length?(data||[]).map((r,i)=>
+        `<tr><td>${i+1}</td><td>${r.requisito}</td><td><span class="badge blue">${r.categoria}</span></td><td>${r.actividad||'General'}</td><td><button class="btn-sm" style="color:var(--danger);" onclick="delReqAdmin('${r.id}')">🗑</button></td></tr>`
+      ).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--slate);padding:20px;">Sin requisitos en esta categoría</td></tr>';
+    }catch(e){alert('Error: '+e.message);}
+  });
+}
+
+async function addReqAdmin(){
+  requireAdminKey(async function(){
+    const req=document.getElementById('admReq').value.trim();
+    if(!req){alert('Escriba el requisito');return;}
+    const cat=document.getElementById('admCat').value;
+    const act=document.getElementById('admAct').value||null;
+    try{
+      await getSupabase().from('requisitos_catalogo').insert({categoria:cat,actividad:act,requisito:req,activo:true});
+      document.getElementById('admReq').value='';
+      alert('✅ Requisito agregado');
+      loadReqAdmin();
+    }catch(e){alert('Error: '+e.message);}
+  });
+}
+
+async function delReqAdmin(id){
+  requireAdminKey(async function(){
+    if(!confirm('¿Eliminar este requisito?'))return;
+    try{
+      await getSupabase().from('requisitos_catalogo').update({activo:false}).eq('id',id);
+      loadReqAdmin();
+    }catch(e){alert('Error: '+e.message);}
+  });
+}
+
+// ===== INIT =====
+// ===== PLAN DE ACCIÓN =====
+async function loadPlanAccion(){
+  const provId=document.getElementById('planProv').value;
+  const filtro=document.getElementById('planFiltro').value;
+  try{
+    let q=getSupabase().from('plan_accion_proveedores').select('*,proveedores(nombre)').order('fecha_limite');
+    if(provId)q=q.eq('proveedor_id',provId);
+    if(filtro)q=q.eq('estado',filtro);
+    const{data}=await q;
+    const b=document.getElementById('planBody');
+    b.innerHTML=(data||[]).length?(data||[]).map(a=>{
+      const critCls=a.criticidad==='Alta'?'danger':a.criticidad==='Media'?'warn':'ok';
+      const estCls=a.estado==='Cerrada'?'ok':a.estado==='Vencida'?'danger':a.estado==='En curso'?'warn':'blue';
+      return `<tr><td>${a.proveedores?.nombre||'—'}</td><td>${a.accion}</td><td>${a.responsable||'—'}</td><td>${a.fecha_limite||'—'}</td><td><span class="badge ${critCls}">${a.criticidad}</span></td><td><span class="badge ${estCls}">${a.estado}</span></td><td style="font-size:11px;max-width:200px;">${a.seguimiento||'—'}<br><small>${a.fecha_seguimiento||''}</small></td><td><button class="btn-sm" onclick="editPlan('${a.id}')">✏️</button><button class="btn-sm" onclick="delPlan('${a.id}')">🗑</button></td></tr>`;
+    }).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--slate);padding:20px;">Sin acciones registradas</td></tr>';
+  }catch(e){}
+}
+
+async function savePlanAccion(){
+  const provId=document.getElementById('paProv').value;
+  const accion=document.getElementById('paAccion').value.trim();
+  if(!provId||!accion){alert('Proveedor y acción son obligatorios');return;}
+  try{
+    await getSupabase().from('plan_accion_proveedores').insert({proveedor_id:provId,accion,responsable:document.getElementById('paResp').value.trim()||null,fecha_limite:document.getElementById('paFecha').value||null,criticidad:document.getElementById('paCrit').value,estado:document.getElementById('paEstado').value,seguimiento:document.getElementById('paSeg').value.trim()||null,fecha_seguimiento:new Date().toISOString().slice(0,10)});
+    ['paAccion','paResp','paSeg'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('paFecha').value='';
+    alert('✅ Acción registrada');
+    loadPlanAccion();
+  }catch(e){alert('Error: '+e.message);}
+}
+
+async function editPlan(id){
+  const seg=prompt('Ingrese seguimiento / actualización:');
+  if(seg===null)return;
+  const est=prompt('Nuevo estado (Abierta/En curso/Cerrada/Vencida):','En curso');
+  if(!est)return;
+  try{
+    await getSupabase().from('plan_accion_proveedores').update({seguimiento:seg,estado:est,fecha_seguimiento:new Date().toISOString().slice(0,10)}).eq('id',id);
+    loadPlanAccion();
+  }catch(e){}
+}
+
+async function delPlan(id){if(!confirm('¿Eliminar?'))return;try{await getSupabase().from('plan_accion_proveedores').delete().eq('id',id);}catch(e){}loadPlanAccion();}
+
+function initPlanSelects(){
+  const opts=proveedores.map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');
+  document.getElementById('planProv').innerHTML='<option value="">Todos</option>'+opts;
+  document.getElementById('paProv').innerHTML='<option value="">Seleccione...</option>'+opts;
+}
+
+async function init(){
+  await loadReqsFromDB();
+  await loadProveedores();
+  await loadEvaluaciones();
+  initPlanSelects();
+  renderKPIs();
+}
+init();
+</script>
+</body>
+</html>
