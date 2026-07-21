@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Proveedor · LPS Grupo</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+let _sb=null;
+function getSupabase(){if(!_sb){try{_sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){}}return _sb;}
+</script>
+<style>
+:root{--navy:#0A2540;--blue:#1598FF;--sky:#EAF5FF;--green:#16A34A;--orange:#F5821F;--slate:#5B6B7C;--line:#E3E9F0;--danger:#DC2626;--r:14px;}
+*{box-sizing:border-box;}body{margin:0;background:#F6F8FB;font-family:'Inter',-apple-system,sans-serif;color:#0F1B2A;}
+h1,h2,h3{font-family:'Space Grotesk','Inter',sans-serif;margin:0;}
+.wrap{max-width:860px;margin:0 auto;padding:24px 20px 60px;}
+.header{text-align:center;margin-bottom:28px;}
+.header img{height:48px;margin-bottom:10px;}
+.header h1{font-size:22px;color:var(--navy);}
+.header p{font-size:13px;color:var(--slate);margin-top:4px;max-width:500px;display:inline-block;}
+.header .badge{display:inline-block;background:var(--sky);color:var(--blue);font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;margin-top:8px;}
+.steps{display:flex;gap:0;margin-bottom:24px;justify-content:center;}
+.step{display:flex;align-items:center;gap:8px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--slate);background:#fff;border:1px solid var(--line);}
+.step:first-child{border-radius:10px 0 0 10px;}.step:last-child{border-radius:0 10px 10px 0;}
+.step.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.step .num{width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.1);display:grid;place-items:center;font-size:12px;font-weight:800;}
+.step.active .num{background:rgba(255,255,255,.3);}
+.section{background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:0 4px 16px rgba(10,37,64,.06);}
+.section-bar{background:var(--navy);color:#fff;font-size:12px;font-weight:700;letter-spacing:.06em;padding:11px 18px;display:flex;align-items:center;gap:8px;}
+.section-inner{padding:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.section-inner.c2{grid-template-columns:1fr 1fr;}.section-inner.c1{grid-template-columns:1fr;}
+label{font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:3px;}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:13px;font-family:inherit;}
+input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,152,255,.12);}
+textarea{resize:vertical;min-height:60px;}
+.act-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.act-check{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:600;transition:.15s;}
+.act-check:hover{border-color:var(--blue);background:var(--sky);}
+.act-check.selected{border-color:var(--blue);background:var(--sky);color:var(--blue);}
+.act-check input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue);}
+.req-block{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden;}
+.req-block-header{padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;}
+.req-block-header .dot{width:10px;height:10px;border-radius:50%;}
+.req-list{padding:0 16px 14px;}
+.req-item{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid #F0F3F6;font-size:12px;}
+.req-item:last-child{border-bottom:none;}
+.req-item .req-num{width:22px;height:22px;border-radius:50%;background:var(--sky);color:var(--blue);font-size:10px;font-weight:800;display:grid;place-items:center;flex-shrink:0;}
+.req-item .req-txt{flex:1;line-height:1.4;}
+.info-box{background:#FFFBF0;border:1px solid #F4D78E;border-radius:10px;padding:12px 16px;font-size:12px;color:#92660A;line-height:1.5;margin-bottom:16px;}
+.btn{border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+.btn-p{background:var(--blue);color:#fff;box-shadow:0 6px 20px rgba(21,152,255,.35);}.btn-p:hover{background:#0B6FCC;}
+.btn-g{background:#fff;border:1px solid var(--line);color:var(--navy);}
+.btn-nav{background:var(--navy);color:#fff;}.btn-nav:hover{background:#0F3A63;}
+.actions{display:flex;gap:12px;justify-content:center;margin-top:24px;}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;box-shadow:0 8px 30px rgba(0,0,0,.2);display:none;z-index:999;}
+.page{display:none;}.page.active{display:block;}
+@media(max-width:700px){.section-inner{grid-template-columns:1fr 1fr;}.act-grid{grid-template-columns:1fr 1fr;}.steps{flex-wrap:wrap;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <img src="logo-lps.png" alt="LPS Grupo" onerror="this.style.display='none'">
+    <h1>Registro de Proveedor</h1>
+    <p>Complete el formulario para registrarse como proveedor de Grupo LPS Colombia. Al seleccionar sus actividades, podrá conocer los requisitos exigidos.</p>
+    <span class="badge">📋 Formulario de registro y pre-selección</span>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="st1"><span class="num">1</span> Datos empresa</div>
+    <div class="step" id="st2"><span class="num">2</span> Actividades</div>
+    <div class="step" id="st3"><span class="num">3</span> Requisitos</div>
+  </div>
+
+  <!-- PASO 1: DATOS DE LA EMPRESA -->
+  <div class="page active" id="p1">
+    <div class="section"><div class="section-bar">🏢 DATOS DE LA EMPRESA</div>
+      <div class="section-inner">
+        <div><label>Razón social *</label><input id="rNombre" placeholder="Nombre de la empresa"></div>
+        <div><label>NIT *</label><input id="rNit" placeholder="900.000.000-0"></div>
+        <div><label>Tipo de empresa</label><select id="rTipo"><option>Persona jurídica</option><option>Persona natural</option><option>Consorcio/Unión temporal</option></select></div>
+      </div>
+      <div class="section-inner">
+        <div><label>Dirección</label><input id="rDir" placeholder="Dirección principal"></div>
+        <div><label>Ciudad</label><input id="rCiudad" placeholder="Ciudad"></div>
+        <div><label>Departamento</label><input id="rDepto" placeholder="Departamento"></div>
+      </div>
+    </div>
+    <div class="section"><div class="section-bar">👤 REPRESENTANTE LEGAL</div>
+      <div class="section-inner">
+        <div><label>Nombre completo</label><input id="rRepresentante" placeholder="Nombre del representante legal"></div>
+        <div><label>Cédula</label><input id="rRepCedula" placeholder="Número de cédula"></div>
+        <div><label>Cargo</label><input id="rRepCargo" placeholder="Ej. Gerente General"></div>
+      </div>
+    </div>
+    <div class="section"><div class="section-bar">📞 CONTACTO COMERCIAL</div>
+      <div class="section-inner">
+        <div><label>Nombre del contacto</label><input id="rContacto" placeholder="Persona de contacto"></div>
+        <div><label>Teléfono</label><input id="rTel" placeholder="300 000 0000"></div>
+        <div><label>Email</label><input type="email" id="rEmail" placeholder="correo@empresa.com"></div>
+      </div>
+    </div>
+    <div class="section"><div class="section-bar">💼 INFORMACIÓN COMERCIAL</div>
+      <div class="section-inner c2">
+        <div><label>Servicios que ofrece</label><textarea id="rServicios" placeholder="Describa los servicios o productos que ofrece"></textarea></div>
+        <div><label>Experiencia (años)</label><input type="number" id="rExp" value="0" min="0"><label style="margin-top:8px;">Cobertura geográfica</label><input id="rCobertura" placeholder="Ej. Nacional, Bogotá, etc."></div>
+      </div>
+    </div>
+    <div class="actions"><button class="btn btn-nav" onclick="goPage(2)">Siguiente: Seleccionar actividades →</button></div>
+  </div>
+
+  <!-- PASO 2: SELECCIÓN DE ACTIVIDADES -->
+  <div class="page" id="p2">
+    <div class="info-box">⚠️ Seleccione <strong>todas las actividades</strong> que su empresa puede realizar con Grupo LPS. Para cada actividad seleccionada se desplegarán los requisitos que debe cumplir.</div>
+    <div class="section"><div class="section-bar">🔧 ACTIVIDADES DISPONIBLES</div>
+      <div style="padding:18px;">
+        <div class="act-grid" id="actGrid"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-g" onclick="goPage(1)">← Volver</button>
+      <button class="btn btn-nav" onclick="goPage(3)">Siguiente: Ver requisitos →</button>
+    </div>
+  </div>
+
+  <!-- PASO 3: REQUISITOS -->
+  <div class="page" id="p3">
+    <div class="info-box">📋 A continuación se muestran los <strong>requisitos exigidos</strong> por Grupo LPS para las actividades seleccionadas. Estos requisitos serán verificados durante el proceso de selección. Revíselos y al finalizar envíe su registro.</div>
+    <div id="reqBlocks"></div>
+    <div class="actions">
+      <button class="btn btn-g" onclick="goPage(2)">← Volver</button>
+      <button class="btn btn-p" onclick="enviarRegistro()">💾 Enviar registro</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ACTIVIDADES = [
+  {id:'ips',label:'🏥 IPS de salud',color:'#1598FF'},
+  {id:'transporte',label:'🚌 Transporte de personal',color:'#F5821F'},
+  {id:'alturas',label:'🧗 Trabajo en alturas',color:'#16A34A'},
+  {id:'confinados',label:'⛑️ Espacios confinados',color:'#6C5CE7'},
+  {id:'caliente',label:'🔥 Trabajo en caliente',color:'#DC2626'},
+  {id:'electrico',label:'⚡ Trabajo eléctrico',color:'#D97706'},
+  {id:'maquinaria',label:'🚜 Maquinaria amarilla',color:'#0891B2'},
+  {id:'dotacion',label:'👷 Dotación y EPP',color:'#7C3AED'},
+  {id:'fumigacion',label:'🧴 Fumigación y control plagas',color:'#059669'},
+  {id:'residuos',label:'♻️ Disposición de residuos',color:'#B45309'},
+  {id:'civil',label:'🏗️ Obra civil',color:'#475569'},
+  {id:'telecom',label:'📡 Telecomunicaciones',color:'#1D4ED8'},
+  {id:'energia',label:'☀️ Energías renovables',color:'#CA8A04'},
+  {id:'consultoria',label:'📊 Consultoría',color:'#9333EA'},
+  {id:'otro',label:'📦 Otro servicio',color:'#64748B'}
+];
+
+const REQS_BASE = {
+  COMERCIAL:[
+    'Certificado de existencia y representación legal (Cámara de Comercio) vigente',
+    'RUT actualizado',
+    'Fotocopia cédula del representante legal',
+    'Certificación bancaria vigente',
+    'Estados financieros del último año',
+    'Referencias comerciales (mínimo 2)',
+    'Póliza de responsabilidad civil extracontractual',
+    'Certificado de antecedentes disciplinarios'
+  ],
+  CALIDAD:[
+    'Certificación ISO 9001 o equivalente (si aplica)',
+    'Procedimientos documentados del servicio',
+    'Hojas de vida del personal técnico asignado',
+    'Certificados de calibración de equipos (si aplica)'
+  ]
+};
+
+const REQS_ACTIVIDAD = {
+  ips:['Habilitación ante Secretaría de Salud','Registro REPS vigente','Médicos con tarjeta profesional','Equipos biomédicos calibrados','Protocolo de residuos biológicos','Licencia de funcionamiento'],
+  transporte:['Tarjetas de operación vigentes','SOAT y revisión técnico-mecánica','Plan estratégico de seguridad vial (PESV)','Licencias de conducción categoría requerida','Póliza RC contractual','GPS y monitoreo','Protocolo de alcohol y drogas'],
+  alturas:['Certificación de competencia laboral','Coordinador de alturas certificado','Plan de rescate','Certificados de inspección de equipos','Programa de protección contra caídas','ARL con cobertura riesgo V'],
+  confinados:['Procedimiento de entrada a espacios confinados','Equipos de monitoreo atmosférico calibrados','Personal certificado (vigía y entrante)','Equipos de rescate','Equipos SCBA disponibles'],
+  caliente:['Permisos de trabajo en caliente','Extintores en zona de trabajo','Personal certificado en soldadura','Inspección de equipos','Vigilancia contra incendios post-trabajo'],
+  electrico:['Matrícula profesional del electricista','Certificación CONTE/RETIE','Procedimiento LOTO','Equipos de medición calibrados','EPP dieléctrico certificado'],
+  maquinaria:['Certificado de operador','Inspección preoperacional','Seguros y pólizas vigentes','Plan de mantenimiento preventivo','Protocolo de izaje de cargas'],
+  dotacion:['Fichas técnicas de productos','Certificaciones NTC/ANSI/EN','Registro INVIMA (si aplica)','Garantía de productos','Trazabilidad de lotes'],
+  fumigacion:['Concepto sanitario favorable','Licencia ambiental para plaguicidas','Fichas de seguridad (SDS)','Certificación de aplicador','Registro ICA (si aplica)','Programa de rotación de productos'],
+  residuos:['Licencia ambiental vigente','Certificados de disposición final','Vehículos con kit ambiental','Registros ante autoridad ambiental','Manifiestos de transporte','Certificación como gestor de residuos'],
+  civil:['Licencia de construcción','Director de obra con matrícula profesional','Pólizas de cumplimiento','Plan de manejo de tránsito','Programa de manejo ambiental'],
+  telecom:['Licencia de instalación de redes','Certificaciones del personal técnico','Protocolos de trabajo en postes y torres','Equipos de medición certificados'],
+  energia:['Certificación RETIE','Personal certificado en paneles/inversores','Garantía de equipos','Plan de mantenimiento post-instalación'],
+  consultoria:['Hojas de vida de consultores','Experiencia certificada','Metodología documentada','Cronograma y entregables definidos'],
+  otro:['Documentar los requisitos específicos de la actividad']
+};
+
+let selectedActs = new Set();
+
+function goPage(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p'+n).classList.add('active');
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('st'+n).classList.add('active');
+  if(n===2) renderActividades();
+  if(n===3){ loadReqsCatalog().then(()=>renderRequisitos()); }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderActividades(){
+  document.getElementById('actGrid').innerHTML = ACTIVIDADES.map(a=>{
+    const sel = selectedActs.has(a.id);
+    return `<label class="act-check ${sel?'selected':''}" style="${sel?'border-color:'+a.color+';background:'+a.color+'10':''}" onclick="toggleAct('${a.id}',this)"><input type="checkbox" ${sel?'checked':''} style="display:none;"> ${a.label}</label>`;
+  }).join('');
+}
+
+function toggleAct(id,el){
+  if(selectedActs.has(id)){selectedActs.delete(id);el.classList.remove('selected');}
+  else{selectedActs.add(id);el.classList.add('selected');}
+}
+
+async function loadReqsCatalog(){
+  try{
+    const{data}=await getSupabase().from('requisitos_catalogo').select('*').eq('activo',true).order('orden');
+    if(data && data.length){
+      REQS_BASE.COMERCIAL=data.filter(r=>r.categoria==='COMERCIAL'&&!r.actividad).map(r=>r.requisito);
+      REQS_BASE.CALIDAD=data.filter(r=>r.categoria==='CALIDAD'&&!r.actividad).map(r=>r.requisito);
+      // Cargar SST generales como actividad específica si existen
+      const sstGen=data.filter(r=>r.categoria==='SST'&&!r.actividad).map(r=>r.requisito);
+      if(sstGen.length) REQS_ACTIVIDAD['sst_general']=sstGen;
+      // Cargar requisitos por actividad
+      const acts=[...new Set(data.filter(r=>r.actividad).map(r=>r.actividad))];
+      const actMap={'IPS de salud':'ips','Transporte de personal':'transporte','Trabajo en alturas':'alturas','Espacios confinados':'confinados','Trabajo en caliente':'caliente','Trabajo eléctrico':'electrico','Maquinaria amarilla':'maquinaria','Dotación y EPP':'dotacion','Fumigación y control plagas':'fumigacion','Disposición de residuos':'residuos','Obra civil':'civil','Telecomunicaciones':'telecom','Energías renovables':'energia','Consultoría':'consultoria'};
+      acts.forEach(act=>{const key=actMap[act]||act;REQS_ACTIVIDAD[key]=data.filter(r=>r.actividad===act).map(r=>r.requisito);});
+    }
+  }catch(e){}
+}
+
+function renderRequisitos(){
+  if(selectedActs.size===0){
+    document.getElementById('reqBlocks').innerHTML='<div style="text-align:center;padding:30px;color:var(--slate);">Vuelva al paso 2 y seleccione al menos una actividad.</div>';
+    return;
+  }
+  let h='';
+  // Requisitos base
+  const bases=[
+    {key:'COMERCIAL',title:'📋 Requisitos Comerciales (obligatorios)',reqs:REQS_BASE.COMERCIAL,color:'#1598FF'},
+    {key:'CALIDAD',title:'⭐ Requisitos de Calidad',reqs:REQS_BASE.CALIDAD,color:'#F5821F'}
+  ];
+  bases.forEach(b=>{
+    h+=`<div class="req-block"><div class="req-block-header" style="background:${b.color}10;border-bottom:2px solid ${b.color};"><span class="dot" style="background:${b.color};"></span> ${b.title} <span style="margin-left:auto;font-size:11px;color:var(--slate);">${b.reqs.length} requisitos</span></div><div class="req-list">`;
+    b.reqs.forEach((r,i)=>{ h+=`<div class="req-item"><span class="req-num">${i+1}</span><span class="req-txt">${r}</span></div>`; });
+    h+=`</div></div>`;
+  });
+  // Requisitos por actividad
+  selectedActs.forEach(actId=>{
+    const act=ACTIVIDADES.find(a=>a.id===actId);
+    const reqs=REQS_ACTIVIDAD[actId]||[];
+    if(!reqs.length)return;
+    h+=`<div class="req-block"><div class="req-block-header" style="background:${act.color}10;border-bottom:2px solid ${act.color};"><span class="dot" style="background:${act.color};"></span> 🔧 ${act.label} <span style="margin-left:auto;font-size:11px;color:var(--slate);">${reqs.length} requisitos específicos</span></div><div class="req-list">`;
+    reqs.forEach((r,i)=>{ h+=`<div class="req-item"><span class="req-num">${i+1}</span><span class="req-txt">${r}</span></div>`; });
+    h+=`</div></div>`;
+  });
+  // Total
+  let totalReqs = REQS_BASE.COMERCIAL.length + REQS_BASE.CALIDAD.length;
+  selectedActs.forEach(id=>{ totalReqs += (REQS_ACTIVIDAD[id]||[]).length; });
+  h+=`<div style="text-align:center;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px;"><strong style="font-size:18px;color:var(--navy);">${totalReqs}</strong><span style="font-size:13px;color:var(--slate);"> requisitos totales a verificar</span></div>`;
+  document.getElementById('reqBlocks').innerHTML=h;
+}
+
+async function enviarRegistro(){
+  const nombre=document.getElementById('rNombre').value.trim();
+  const nit=document.getElementById('rNit').value.trim();
+  if(!nombre||!nit){alert('Razón social y NIT son obligatorios');return;}
+  if(selectedActs.size===0){alert('Seleccione al menos una actividad');return;}
+
+  const actividades=[...selectedActs].map(id=>ACTIVIDADES.find(a=>a.id===id)?.label?.replace(/^.{2} /,'')).join(', ');
+
+  try{
+    const sb=getSupabase();
+    const{data,error}=await sb.from('proveedores').insert({
+      nombre, nit,
+      servicio:document.getElementById('rServicios').value.trim()||null,
+      actividad_tipo:actividades,
+      contacto:document.getElementById('rContacto').value.trim()||null,
+      telefono:document.getElementById('rTel').value.trim()||null,
+      email:document.getElementById('rEmail').value.trim()||null,
+      direccion:(document.getElementById('rDir').value.trim()+', '+document.getElementById('rCiudad').value.trim()+', '+document.getElementById('rDepto').value.trim()).replace(/^, |, $/g,'')||null,
+      estado:'Pendiente'
+    }).select();
+    if(error)throw error;
+
+    const t=document.getElementById('toast');
+    t.textContent='✅ Registro enviado correctamente. Grupo LPS revisará su documentación.';
+    t.style.display='block';
+    setTimeout(()=>t.style.display='none',5000);
+
+    // Limpiar
+    document.querySelectorAll('input,textarea').forEach(i=>i.value='');
+    document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+    selectedActs.clear();
+    goPage(1);
+  }catch(e){
+    alert('Error al enviar: '+(e.message||'Verifique su conexión'));
+  }
+}
+</script>
+</body>
+</html>
