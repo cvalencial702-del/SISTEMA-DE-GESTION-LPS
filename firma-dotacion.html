@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firma de entrega de dotación · LPS</title>
+<style>
+  :root{--navy:#0A2540;--blue:#1598FF;--green:#16A34A;--danger:#DC2626;--slate:#5B6B7C;--line:#E2EBF3;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#EEF3F8;color:var(--navy);padding:16px;}
+  .wrap{max-width:600px;margin:0 auto;}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(10,37,64,.08);overflow:hidden;margin-bottom:16px;}
+  .hdr{background:var(--navy);color:#fff;padding:18px 20px;}
+  .hdr h1{font-size:17px;}
+  .hdr p{font-size:12px;color:#B0C9E4;margin-top:4px;}
+  .body{padding:20px;}
+  h2{font-size:14px;margin-bottom:10px;color:var(--navy);}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px;}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;}
+  th{background:#EAF5FF;font-size:11px;}
+  .compromiso{font-size:12px;text-align:justify;line-height:1.55;background:#F8FAFC;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px;}
+  label{display:block;font-size:11px;font-weight:700;margin-bottom:6px;color:var(--navy);}
+  canvas{border:1px solid var(--line);border-radius:8px;background:#fff;width:100%;touch-action:none;cursor:crosshair;}
+  .btn{border:none;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;}
+  .btn-p{background:var(--green);color:#fff;}
+  .btn-g{background:#EEF3F8;color:var(--slate);}
+  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .msg{padding:14px;border-radius:10px;font-size:14px;text-align:center;}
+  .ok{background:#DCFCE7;color:#166534;}
+  .err{background:#FEE2E2;color:#991B1B;}
+  .info{font-size:12px;color:var(--slate);margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="hdr"><h1>🦺 Firma de entrega de dotación y EPP</h1><p>SIG HSEQ Colombia · Grupo LPS</p></div>
+    <div class="body" id="contenido">
+      <div class="msg" id="cargando">Cargando su entrega...</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let entrega=null, firmaCtx=null, dibujando=false, hayFirma=false;
+
+function textoCompromiso(nombre,cedula){
+  return 'Yo, '+nombre+', identificado(a) con cédula '+cedula+', declaro que he recibido de LPS la dotación y/o los elementos de protección personal (EPP) aquí relacionados, suministrados de forma gratuita. Me comprometo a usarlos y conservarlos de manera adecuada conforme a los requerimientos legales vigentes (Ley 9 de 1979, Res. 2400 de 1979, Decreto 1072 de 2015 y demás normas de SST) y a los riesgos identificados en mi actividad, así como a reportar su deterioro o pérdida.';
+}
+
+function getToken(){ return new URLSearchParams(location.search).get('token'); }
+
+async function cargar(){
+  const token=getToken();
+  const cont=document.getElementById('contenido');
+  if(!token){ cont.innerHTML='<div class="msg err">Enlace inválido: falta el token.</div>'; return; }
+  try{
+    const {data,error}=await sb.from('dotacion_entrega').select('*').eq('firma_token',token).limit(1);
+    if(error) throw error;
+    if(!data || !data.length){ cont.innerHTML='<div class="msg err">No se encontró la entrega. El enlace puede haber expirado.</div>'; return; }
+    entrega=data[0];
+    if(entrega.firmado){ cont.innerHTML='<div class="msg ok">✅ Esta entrega ya fue firmada. Gracias.</div>'; return; }
+
+    // Traer items
+    let items=[];
+    if(entrega.tipo_entrega!=='BONO'){
+      const {data:its}=await sb.from('dotacion_entrega_items').select('*').eq('entrega_id',entrega.id);
+      items=its||[];
+    }
+    render(items);
+  }catch(e){ cont.innerHTML='<div class="msg err">Error al cargar: '+e.message+'</div>'; }
+}
+
+function render(items){
+  const cont=document.getElementById('contenido');
+  let cuerpo;
+  if(entrega.tipo_entrega==='BONO'){
+    cuerpo='<p style="font-size:14px;padding:10px 0;"><strong>💵 Bono de dotación</strong> — Valor: <strong>$'+(entrega.bono_valor?Number(entrega.bono_valor).toLocaleString('es-CO'):'—')+'</strong></p>';
+  } else {
+    cuerpo='<table><tr><th>#</th><th>Elemento</th><th>Cant.</th><th>Talla</th></tr>'+
+      items.map((it,i)=>'<tr><td>'+(i+1)+'</td><td>'+it.elemento+(it.especificar?' ('+it.especificar+')':'')+'</td><td>'+(it.cantidad||1)+'</td><td>'+(it.talla||'—')+'</td></tr>').join('')+'</table>';
+  }
+  cont.innerHTML=
+    '<h2>Hola, '+(entrega.nombre||'')+'</h2>'
+    +'<p class="info">Cédula: '+entrega.cedula+' · Fecha: '+(entrega.fecha||'')+(entrega.gestor_contratista?' · Gestor: '+entrega.gestor_contratista:'')+'</p>'
+    +'<h2 style="margin-top:14px;">Elementos a recibir</h2>'+cuerpo
+    +'<div class="compromiso">'+textoCompromiso(entrega.nombre||'', entrega.cedula)+'</div>'
+    +'<label>SU FIRMA</label>'
+    +'<canvas id="fCanvas" width="500" height="160"></canvas>'
+    +'<div class="row"><button class="btn btn-g" onclick="limpiar()">🗑 Borrar</button><button class="btn btn-p" onclick="firmar()">✅ Confirmar y firmar</button></div>'
+    +'<p class="info">Al firmar, usted acepta el texto de compromiso anterior.</p>';
+  setupCanvas();
+}
+
+function setupCanvas(){
+  const c=document.getElementById('fCanvas');
+  firmaCtx=c.getContext('2d');
+  firmaCtx.strokeStyle='#0A2540'; firmaCtx.lineWidth=2.2; firmaCtx.lineCap='round';
+  const pos=ev=>{const r=c.getBoundingClientRect();const t=ev.touches?ev.touches[0]:ev;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};};
+  const start=ev=>{ev.preventDefault();dibujando=true;const p=pos(ev);firmaCtx.beginPath();firmaCtx.moveTo(p.x,p.y);};
+  const move=ev=>{if(!dibujando)return;ev.preventDefault();const p=pos(ev);firmaCtx.lineTo(p.x,p.y);firmaCtx.stroke();hayFirma=true;};
+  const end=()=>{dibujando=false;};
+  c.onmousedown=start;c.onmousemove=move;c.onmouseup=end;c.onmouseleave=end;
+  c.ontouchstart=start;c.ontouchmove=move;c.ontouchend=end;
+}
+function limpiar(){ const c=document.getElementById('fCanvas'); firmaCtx.clearRect(0,0,c.width,c.height); hayFirma=false; }
+
+async function firmar(){
+  if(!hayFirma){ alert('Por favor firme antes de confirmar.'); return; }
+  const firma=document.getElementById('fCanvas').toDataURL('image/png');
+  try{
+    const {error}=await sb.from('dotacion_entrega').update({
+      firma:firma, firmado:true, fecha_firma:new Date().toISOString()
+    }).eq('id',entrega.id);
+    if(error) throw error;
+    document.getElementById('contenido').innerHTML='<div class="msg ok">✅ ¡Gracias! Su firma quedó registrada correctamente.</div>';
+  }catch(e){ alert('Error al guardar la firma: '+e.message); }
+}
+
+cargar();
+</script>
+</body>
+</html>
