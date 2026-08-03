@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acta de Entrega · Firma</title>
+<style>
+  :root{--navy:#0A2540;--green:#16A34A;--danger:#DC2626;--slate:#5B6B7C;--line:#E2EBF3;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#EEF3F8;color:var(--navy);padding:16px;}
+  .wrap{max-width:680px;margin:0 auto;}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(10,37,64,.08);overflow:hidden;margin-bottom:16px;}
+  .hdr{background:var(--navy);color:#fff;padding:18px 20px;}.hdr h1{font-size:16px;}.hdr p{font-size:12px;color:#B0C9E4;margin-top:4px;}
+  .body{padding:20px;}
+  h2{font-size:12px;margin:14px 0 6px;color:#fff;padding:6px 10px;border-radius:6px;background:#1598FF;}
+  .datos{font-size:13px;line-height:1.7;}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px;}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;}
+  th{background:#EAF5FF;font-size:11px;}
+  label{display:block;font-size:11px;font-weight:700;margin:14px 0 6px;}
+  canvas{border:1px solid var(--line);border-radius:8px;background:#fff;width:100%;touch-action:none;cursor:crosshair;}
+  .btn{border:none;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;}
+  .btn-p{background:var(--green);color:#fff;}.btn-g{background:#EEF3F8;color:var(--slate);}
+  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .msg{padding:14px;border-radius:10px;font-size:14px;text-align:center;}
+  .ok{background:#DCFCE7;color:#166534;}.err{background:#FEE2E2;color:#991B1B;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="hdr"><h1>📑 Acta de Entrega</h1><p>SIG HSEQ Colombia · Grupo LPS</p></div>
+    <div class="body" id="contenido"><div class="msg">Cargando...</div></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let reg=null,ctx=null,dib=false,hay=false;
+function getToken(){ return new URLSearchParams(location.search).get('token'); }
+async function cargar(){
+  const token=getToken(); const cont=document.getElementById('contenido');
+  if(!token){ cont.innerHTML='<div class="msg err">Enlace inválido.</div>'; return; }
+  try{
+    const {data,error}=await sb.from('acta_entrega').select('*').eq('firma_token',token).limit(1);
+    if(error) throw error;
+    if(!data||!data.length){ cont.innerHTML='<div class="msg err">No se encontró el registro.</div>'; return; }
+    reg=data[0];
+    if(reg.colaborador_firmado){ cont.innerHTML='<div class="msg ok">✅ Esta acta ya fue firmada. Gracias.</div>'; return; }
+    render();
+  }catch(e){ cont.innerHTML='<div class="msg err">Error: '+e.message+'</div>'; }
+}
+function render(){
+  const items=(reg.items||[]).map(it=>'<tr><td>'+(it.descripcion||'')+'</td><td>'+(it.estado||'')+'</td><td>'+(it.ruta||'')+'</td></tr>').join('')||'<tr><td colspan="3">—</td></tr>';
+  const creds=(reg.credenciales||[]).map(c=>'<tr><td>'+(c.entidad||'')+'</td><td>'+(c.usuario||'')+'</td><td>'+(c.clave||'')+'</td><td>'+(c.pagina||'')+'</td></tr>').join('')||'<tr><td colspan="4">—</td></tr>';
+  const c=document.getElementById('contenido');
+  c.innerHTML='<div class="datos"><strong>Nombre:</strong> '+(reg.nombre||'')+'<br><strong>Documento:</strong> '+(reg.cedula||'')+'<br><strong>Cargo:</strong> '+(reg.cargo||'—')+' &nbsp; <strong>Área:</strong> '+(reg.area||'—')+'</div>'
+    +'<h2>Descripción del contenido</h2><table><tr><th>Descripción</th><th>Estado</th><th>Ruta de acceso</th></tr>'+items+'</table>'
+    +'<h2 style="background:#16A34A;">Usuarios y contraseñas</h2><table><tr><th>Entidad</th><th>Usuario</th><th>Contraseña</th><th>Página</th></tr>'+creds+'</table>'
+    +'<label>SU FIRMA (Colaborador)</label><canvas id="fc" width="600" height="150"></canvas>'
+    +'<div class="row"><button class="btn btn-g" onclick="limpiar()">🗑 Borrar</button><button class="btn btn-p" onclick="firmar()">✅ Confirmar y firmar</button></div>';
+  setup();
+}
+function setup(){ const c=document.getElementById('fc'); ctx=c.getContext('2d'); ctx.strokeStyle='#0A2540';ctx.lineWidth=2.2;ctx.lineCap='round';
+  const pos=ev=>{const r=c.getBoundingClientRect();const t=ev.touches?ev.touches[0]:ev;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};};
+  c.onmousedown=ev=>{ev.preventDefault();dib=true;const p=pos(ev);ctx.beginPath();ctx.moveTo(p.x,p.y);};
+  c.onmousemove=ev=>{if(!dib)return;ev.preventDefault();const p=pos(ev);ctx.lineTo(p.x,p.y);ctx.stroke();hay=true;};
+  c.onmouseup=()=>dib=false;c.onmouseleave=()=>dib=false;c.ontouchstart=c.onmousedown;c.ontouchmove=c.onmousemove;c.ontouchend=()=>dib=false;
+}
+function limpiar(){ const c=document.getElementById('fc'); ctx.clearRect(0,0,c.width,c.height); hay=false; }
+async function firmar(){
+  if(!hay){ alert('Por favor firme antes de confirmar.'); return; }
+  const firma=document.getElementById('fc').toDataURL('image/png');
+  try{
+    const {error}=await sb.from('acta_entrega').update({firma_colaborador:firma,colaborador_firmado:true,estado:'COMPLETO',updated_at:new Date().toISOString()}).eq('id',reg.id);
+    if(error) throw error;
+    document.getElementById('contenido').innerHTML='<div class="msg ok">✅ ¡Gracias! Su firma quedó registrada.</div>';
+  }catch(e){ alert('Error: '+e.message); }
+}
+cargar();
+</script>
+</body>
+</html>
