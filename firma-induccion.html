@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inducción LPS · Firma</title>
+<style>
+  :root{--navy:#0A2540;--blue:#1598FF;--green:#16A34A;--danger:#DC2626;--slate:#5B6B7C;--line:#E2EBF3;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#EEF3F8;color:var(--navy);padding:16px;}
+  .wrap{max-width:640px;margin:0 auto;}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(10,37,64,.08);overflow:hidden;margin-bottom:16px;}
+  .hdr{background:var(--navy);color:#fff;padding:18px 20px;}
+  .hdr h1{font-size:17px;}.hdr p{font-size:12px;color:#B0C9E4;margin-top:4px;}
+  .body{padding:20px;}
+  h2{font-size:13px;margin:16px 0 8px;color:#fff;padding:7px 12px;border-radius:6px;}
+  .etapa{border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px;}
+  ul{margin:6px 0 8px 18px;font-size:13px;}
+  .datos{font-size:13px;line-height:1.7;}
+  .compromiso{font-size:12px;text-align:justify;line-height:1.55;background:#F8FAFC;border:1px solid var(--line);border-radius:10px;padding:14px;margin:16px 0;}
+  label{display:block;font-size:11px;font-weight:700;margin-bottom:6px;}
+  canvas{border:1px solid var(--line);border-radius:8px;background:#fff;width:100%;touch-action:none;cursor:crosshair;}
+  .btn{border:none;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;}
+  .btn-p{background:var(--green);color:#fff;}.btn-g{background:#EEF3F8;color:var(--slate);}
+  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .msg{padding:14px;border-radius:10px;font-size:14px;text-align:center;}
+  .ok{background:#DCFCE7;color:#166534;}.err{background:#FEE2E2;color:#991B1B;}
+  .info{font-size:12px;color:var(--slate);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="hdr"><h1>🎓 Inducción LPS</h1><p>SIG HSEQ Colombia · Grupo LPS</p></div>
+    <div class="body" id="contenido"><div class="msg">Cargando...</div></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let reg=null, ctx=null, dib=false, hay=false;
+
+function compromiso(nombre,cedula){
+  return 'Yo, '+nombre+', identificado(a) con cédula '+cedula+', confirmo haber recibido toda la inducción arriba mencionada y necesaria para desempeñar las funciones asignadas a mi cargo.';
+}
+function getToken(){ return new URLSearchParams(location.search).get('token'); }
+
+async function cargar(){
+  const token=getToken(); const cont=document.getElementById('contenido');
+  if(!token){ cont.innerHTML='<div class="msg err">Enlace inválido.</div>'; return; }
+  try{
+    const {data,error}=await sb.from('induccion').select('*').eq('firma_token',token).limit(1);
+    if(error) throw error;
+    if(!data||!data.length){ cont.innerHTML='<div class="msg err">No se encontró el registro. El enlace pudo expirar.</div>'; return; }
+    reg=data[0];
+    if(reg.colaborador_firmado){ cont.innerHTML='<div class="msg ok">✅ Esta inducción ya fue firmada. Gracias.</div>'; return; }
+    render();
+  }catch(e){ cont.innerHTML='<div class="msg err">Error: '+e.message+'</div>'; }
+}
+
+function etapaHtml(titulo,color,temas,fecha,cap){
+  const lista=(temas||'').split('\n').filter(Boolean).map(t=>'<li>'+t+'</li>').join('') || '<li>—</li>';
+  return '<h2 style="background:'+color+';">'+titulo+'</h2><div class="etapa"><strong style="font-size:12px;">Temas:</strong><ul>'+lista+'</ul><div class="info">Fecha: '+(fecha||'—')+' · Encargado: '+(cap||'—')+'</div></div>';
+}
+
+function render(){
+  const cont=document.getElementById('contenido');
+  cont.innerHTML=
+    '<div class="datos"><strong>Nombre:</strong> '+(reg.nombre||'')+'<br><strong>Identificación:</strong> '+(reg.cedula||'')+'<br><strong>Cargo:</strong> '+(reg.cargo||'—')+' &nbsp; <strong>Área:</strong> '+(reg.area||'—')+'</div>'
+    +etapaHtml('1. INDUCCIÓN DE TALENTO HUMANO','#1598FF',reg.th_temas,reg.th_fecha,reg.th_capacitador)
+    +etapaHtml('2. INDUCCIÓN EN SEGURIDAD Y SALUD EN EL TRABAJO','#16A34A',reg.sst_temas,reg.sst_fecha,reg.sst_capacitador)
+    +etapaHtml('3. INDUCCIÓN AL CARGO','#6D28D9',reg.cargo_temas,reg.cargo_fecha,reg.cargo_capacitador)
+    +etapaHtml('INDUCCIÓN LOGÍSTICA','#D97706',reg.log_temas,reg.log_fecha,reg.log_capacitador)
+    +'<div class="compromiso">'+compromiso(reg.nombre||'',reg.cedula||'')+'</div>'
+    +'<label>SU FIRMA</label><canvas id="fc" width="560" height="160"></canvas>'
+    +'<div class="row"><button class="btn btn-g" onclick="limpiar()">🗑 Borrar</button><button class="btn btn-p" onclick="firmar()">✅ Confirmar y firmar</button></div>'
+    +'<p class="info" style="margin-top:6px;">Al firmar acepta el texto de confirmación anterior.</p>';
+  setup();
+}
+
+function setup(){
+  const c=document.getElementById('fc'); ctx=c.getContext('2d');
+  ctx.strokeStyle='#0A2540';ctx.lineWidth=2.2;ctx.lineCap='round';
+  const pos=ev=>{const r=c.getBoundingClientRect();const t=ev.touches?ev.touches[0]:ev;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};};
+  c.onmousedown=ev=>{ev.preventDefault();dib=true;const p=pos(ev);ctx.beginPath();ctx.moveTo(p.x,p.y);};
+  c.onmousemove=ev=>{if(!dib)return;ev.preventDefault();const p=pos(ev);ctx.lineTo(p.x,p.y);ctx.stroke();hay=true;};
+  c.onmouseup=()=>dib=false;c.onmouseleave=()=>dib=false;
+  c.ontouchstart=c.onmousedown;c.ontouchmove=c.onmousemove;c.ontouchend=()=>dib=false;
+}
+function limpiar(){ const c=document.getElementById('fc'); ctx.clearRect(0,0,c.width,c.height); hay=false; }
+
+async function firmar(){
+  if(!hay){ alert('Por favor firme antes de confirmar.'); return; }
+  const firma=document.getElementById('fc').toDataURL('image/png');
+  try{
+    const {error}=await sb.from('induccion').update({colaborador_firma:firma,colaborador_firmado:true,fecha_firma_colab:new Date().toISOString(),estado:'COMPLETO'}).eq('id',reg.id);
+    if(error) throw error;
+    document.getElementById('contenido').innerHTML='<div class="msg ok">✅ ¡Gracias! Su firma quedó registrada correctamente.</div>';
+  }catch(e){ alert('Error al guardar: '+e.message); }
+}
+cargar();
+</script>
+</body>
+</html>
