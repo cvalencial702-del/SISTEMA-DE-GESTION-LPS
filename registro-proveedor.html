@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro de Proveedor · LPS Grupo</title>
+<title>Creación de Proveedor · LPS Grupo</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
@@ -63,9 +63,9 @@ textarea{resize:vertical;min-height:60px;}
 <div class="wrap">
   <div class="header">
     <img src="logo-lps.png" alt="LPS Grupo" onerror="this.style.display='none'">
-    <h1>Registro de Proveedor</h1>
+    <h1>Creación de Proveedor</h1>
     <p>Complete el formulario para registrarse como proveedor de Grupo LPS Colombia. Al seleccionar sus actividades, podrá conocer los requisitos exigidos.</p>
-    <span class="badge">📋 Formulario de registro y pre-selección</span>
+    <div style="font-size:11px;color:#94A3B8;margin-top:6px;">Código: P-GC-01/F-01, V1</div>
   </div>
 
   <div class="steps">
@@ -127,6 +127,10 @@ textarea{resize:vertical;min-height:60px;}
 
   <!-- PASO 3: REQUISITOS -->
   <div class="page" id="p3">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+      <h2 style="margin:0;font-size:18px;color:#0A2540;">Matriz de Requisitos</h2>
+      <span style="font-size:11px;color:#94A3B8;">Código: P-GC-01/F-09-V1</span>
+    </div>
     <div class="info-box">📋 A continuación se muestran los <strong>requisitos exigidos</strong> por Grupo LPS para las actividades seleccionadas. Estos requisitos serán verificados durante el proceso de selección. Revíselos y al finalizar envíe su registro.</div>
     <div id="reqBlocks"></div>
     <div class="actions">
