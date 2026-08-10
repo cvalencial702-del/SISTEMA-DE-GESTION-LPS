@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ficha de Verificación de Vehículo · LPS</title>
+<style>
+  :root{--navy:#0A2540;--blue:#1598FF;--blue-d:#0C6BC4;--green:#16A34A;--amber:#D97706;--danger:#DC2626;--slate:#5B6B7C;--line:#E2EBF3;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#EEF3F8;color:var(--navy);padding:14px;}
+  .wrap{max-width:720px;margin:0 auto;}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(10,37,64,.08);overflow:hidden;margin-bottom:14px;}
+  .hdr{background:var(--navy);color:#fff;padding:16px 18px;}.hdr h1{font-size:15px;}.hdr p{font-size:11px;color:#B0C9E4;margin-top:3px;}
+  .body{padding:16px 18px;}
+  .sec{display:flex;align-items:center;gap:8px;margin:16px 0 10px;}
+  .sec .n{width:20px;height:20px;background:var(--blue);color:#fff;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+  .sec .t{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+  .sec .ln{flex:1;height:1px;background:#DCE6F0;}
+  label{font-size:10px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.3px;display:block;margin-bottom:3px;}
+  input,select,textarea{width:100%;border:0.5px solid #D0DBE7;border-radius:7px;padding:8px 10px;font-size:12.5px;color:var(--navy);font-family:inherit;background:#fff;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  table{width:100%;border-collapse:collapse;font-size:11.5px;}
+  th,td{padding:5px 6px;text-align:left;}
+  th{color:var(--slate);font-size:10px;text-transform:uppercase;border-bottom:1px solid #EEF3F8;}
+  .pill{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;}
+  .pill-ok{background:#DCFCE7;color:#166534;}.pill-warn{background:#FEF3C7;color:#92600A;}.pill-bad{background:#FEE2E2;color:#991B1B;}.pill-gray{background:#EEF3F8;color:#5B6B7C;}
+  .foto-box{border:1px dashed #C4D2E0;border-radius:8px;padding:14px 4px;text-align:center;cursor:pointer;background:#FCFDFE;position:relative;overflow:hidden;min-height:64px;}
+  .foto-box .ic{color:var(--blue);font-size:17px;} .foto-box .lb{font-size:10px;color:var(--navy);font-weight:600;margin-top:3px;}
+  .foto-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .chk{font-size:11.5px;color:#42505E;line-height:1.9;}
+  .chk label{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:400;text-transform:none;letter-spacing:0;margin:0;color:#42505E;}
+  .chk input{width:auto;}
+  .res-opt{flex:1;border:1px solid var(--line);border-radius:8px;padding:9px;text-align:center;cursor:pointer;font-size:12px;color:#8494A5;}
+  .res-opt.on-ok{border:1.5px solid var(--green);background:#F0FDF4;color:#166534;font-weight:600;}
+  .res-opt.on-warn{border:1.5px solid #F5D06B;background:#FEFBEB;color:#92600A;font-weight:600;}
+  .res-opt.on-bad{border:1.5px solid var(--danger);background:#FEF2F2;color:#991B1B;font-weight:600;}
+  canvas{border:1px dashed #C4D2E0;border-radius:8px;background:#FCFDFE;width:100%;height:80px;touch-action:none;cursor:crosshair;}
+  .btn{border:none;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn-p{background:var(--green);color:#fff;}.btn-g{background:#EEF3F8;color:var(--slate);}
+  .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .msg{padding:14px;border-radius:10px;font-size:14px;text-align:center;}
+  .ok{background:#DCFCE7;color:#166534;}.err{background:#FEE2E2;color:#991B1B;}
+  .hint{font-size:10px;color:#94A3B8;margin-top:4px;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="hdr"><h1>🚗 Ficha de Verificación de Vehículo</h1><p>Proyecto Claro · Brownfield — SIG HSEQ Grupo LPS</p></div>
+    <div class="body" id="contenido"><div class="msg">Cargando…</div></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let reg=null, editId=null, resultadoSel=null;
+const fotos={conductor:null,frontal:null,lateral_der:null,trasera:null,lateral_izq:null};
+const firmas={};
+
+function getToken(){ return new URLSearchParams(location.search).get('token'); }
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function estadoDoc(f){ if(!f)return{txt:'—',cls:''}; const h=new Date();h.setHours(0,0,0,0); const d=Math.round((new Date(f+'T00:00:00')-h)/86400000); if(d<0)return{txt:'Vencido',cls:'pill-bad'}; if(d<=30)return{txt:'Por vencer',cls:'pill-warn'}; return{txt:'Vigente',cls:'pill-ok'};}
+
+async function cargar(){
+  const token=getToken(); const cont=document.getElementById('contenido');
+  if(!token){ reg={}; editId=null; pintarFormulario('nueva'); return; }
+  try{
+    const {data,error}=await sb.from('verificacion_vehiculos').select('*').eq('firma_token',token).limit(1);
+    if(error) throw error;
+    if(!data||!data.length){ cont.innerHTML='<div class="msg err">No se encontró la ficha. Verifique el enlace.</div>'; return; }
+    reg=data[0]; editId=reg.id;
+    if(reg.conductor_firmado){ pintarLectura(); } else { pintarFormulario('editar'); }
+  }catch(e){ cont.innerHTML='<div class="msg err">Error: '+e.message+'</div>'; }
+}
+
+function elementosHtml(tipo, marcados){
+  marcados = marcados||{};
+  const casco=['Certificado NTC 4533:2017 (Regl. ONU 22.05)','Sello de certificación ONAC visible','Etiqueta: talla, lote y fecha de fabricación','Coraza sin fisuras ni deterioro'];
+  const epp=['Casco certificado (Res. 1080/2019)','Chaqueta con protecciones','Guantes','Rodilleras / coderas','Chaleco o bandas reflectivas','Botas o calzado cerrado'];
+  const genMoto=['Luces, direccionales y frenos','Llantas y espejos','Tablero sin fallas','Estado de limpieza'];
+  const botiquin=['Antisépticos','Gasas y vendas','Esparadrapo','Analgésicos','Guantes de látex','Tijeras','Algodón','Baja lenguas'];
+  const kit=['Gato para elevar el vehículo','Cruceta','Dos señales triangulares reflectivas','Botiquín de primeros auxilios','Extintor vigente','Dos tacos de bloqueo','Caja de herramienta','Llanta de repuesto','Linterna'];
+  const genCarro=['Tablero sin fallas','Cinturones de seguridad en buen estado','Estado de limpieza','Espejos y vidrios','Luces y direccionales'];
+  const grupo=(titulo,items,pfx)=>'<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;margin-bottom:5px;">'+titulo+'</div><div class="chk">'+items.map((t,i)=>{const k=pfx+'_'+i;const c=marcados[k]&&marcados[k].ok?'checked':'';return '<label><input type="checkbox" data-el="'+k+'" value="'+esc(t)+'" '+c+'> '+t+'</label>';}).join('')+'</div></div>';
+  if(tipo==='Moto'){
+    return grupo('Casco · Resolución 1080 de 2019',casco,'casco')+grupo('EPP para motocicleta',epp,'epp')+grupo('Condiciones generales',genMoto,'gen');
+  } else if(tipo==='Carry Ref'||tipo==='Camión'){
+    return grupo('Botiquín de primeros auxilios (CNT)',botiquin,'botiquin')+grupo('Kit de carretera · Art. 30 Ley 769/2002',kit,'kit')
+      +'<div class="grid2"><div><label>Extintor · fecha próxima recarga</label><input type="date" id="f_extintor"></div><div><label>Estado llanta de repuesto</label><select id="f_llanta"><option value="">—</option><option>Buena</option><option>Regular</option><option>Mala</option><option>No tiene</option></select></div></div>'
+      +'<div class="chk" style="margin-top:8px;"><label><input type="checkbox" data-el="fuga_comb" value="Sin fugas de combustible"> Sin fugas de combustible</label><label><input type="checkbox" data-el="fuga_aceite" value="Sin fugas de aceite"> Sin fugas de aceite</label></div>'
+      +grupo('Condiciones generales',genCarro,'gen');
+  }
+  return '<div class="hint">Seleccione el tipo de vehículo para ver los elementos.</div>';
+}
+function pintarElementos(){
+  const tipo=document.getElementById('f_tipo').value;
+  document.getElementById('elementosArea').innerHTML=elementosHtml(tipo, (reg&&reg.elementos)||{});
+  if(reg){ const ex=document.getElementById('f_extintor'); if(ex&&reg.extintor_recarga)ex.value=reg.extintor_recarga; const ll=document.getElementById('f_llanta'); if(ll&&reg.llanta_repuesto_estado)ll.value=reg.llanta_repuesto_estado; }
+}
+
+function pintarEstados(){
+  [['f_licVenc','e_lic'],['f_soatVenc','e_soat'],['f_polVenc','e_pol'],['f_rtmVenc','e_rtm']].forEach(([inp,cell])=>{
+    const el=document.getElementById(inp),c=document.getElementById(cell); if(!el||!c)return;
+    const e=estadoDoc(el.value); c.innerHTML=e.cls?'<span class="pill '+e.cls+'">'+e.txt+'</span>':'—';
+  });
+}
+
+function cargarFoto(input,key){
+  const f=input.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{ fotos[key]=e.target.result; const img=document.getElementById('img_'+key),ic=document.getElementById('ic_'+key); if(img){img.src=e.target.result;img.classList.remove('hidden');} if(ic)ic.classList.add('hidden'); };
+  r.readAsDataURL(f);
+}
+
+function setResultado(r){
+  resultadoSel=r;
+  document.getElementById('ro_apro').className='res-opt'+(r==='Aprobado'?' on-ok':'');
+  document.getElementById('ro_seg').className='res-opt'+(r==='Requiere seguimiento'?' on-warn':'');
+  document.getElementById('ro_no').className='res-opt'+(r==='No aprobado'?' on-bad':'');
+}
+
+function setupFirma(key){
+  const c=document.getElementById('firma'+key); if(!c)return;
+  const ctx=c.getContext('2d'); ctx.strokeStyle='#0A2540';ctx.lineWidth=2;ctx.lineCap='round';
+  firmas[key]={ctx,hay:false,canvas:c}; let dib=false;
+  const pos=ev=>{const r=c.getBoundingClientRect();const t=ev.touches?ev.touches[0]:ev;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};};
+  c.onmousedown=ev=>{ev.preventDefault();dib=true;const p=pos(ev);ctx.beginPath();ctx.moveTo(p.x,p.y);};
+  c.onmousemove=ev=>{if(!dib)return;ev.preventDefault();const p=pos(ev);ctx.lineTo(p.x,p.y);ctx.stroke();firmas[key].hay=true;};
+  c.onmouseup=()=>dib=false;c.onmouseleave=()=>dib=false;c.ontouchstart=c.onmousedown;c.ontouchmove=c.onmousemove;c.ontouchend=()=>dib=false;
+}
+function limpiarFirma(k){const f=firmas[k];if(f){f.ctx.clearRect(0,0,f.canvas.width,f.canvas.height);f.hay=false;}}
+function firmaData(k){const f=firmas[k];return (f&&f.hay)?f.canvas.toDataURL('image/png'):null;}
+function pintarFirmaExistente(k,src){ if(src&&firmas[k]){const img=new Image();img.onload=()=>{firmas[k].ctx.drawImage(img,0,0,firmas[k].canvas.width,firmas[k].canvas.height);firmas[k].hay=true;};img.src=src;} }
+
+function pintarFormulario(modo){
+  const r=reg||{};
+  const banner = modo==='nueva'
+    ? '<div class="msg" style="background:#EAF5FF;color:#0C447C;margin-bottom:12px;">Diligencie la ficha de verificación del vehículo. Al terminar podrá firmar y guardar.</div>'
+    : '<div class="msg" style="background:#FEF9E7;color:#92600A;margin-bottom:12px;">Complete o actualice la ficha y registre la firma.</div>';
+  const foto=(k,lb)=>'<div class="foto-box" onclick="document.getElementById(\'in_'+k+'\').click()"><span class="ic" id="ic_'+k+'">＋</span><div class="lb">'+lb+'</div><img id="img_'+k+'" class="hidden"></div><input type="file" id="in_'+k+'" accept="image/*" class="hidden" onchange="cargarFoto(this,\''+k+'\')">';
+
+  document.getElementById('contenido').innerHTML=banner+
+  '<div class="sec"><span class="n">1</span><span class="t">Identificación</span><span class="ln"></span></div>'+
+  '<div class="grid3">'+
+    '<div><label>Fecha</label><input type="datetime-local" id="f_fecha"></div>'+
+    '<div><label>Gestor</label><input id="f_gestor" value="'+esc(r.gestor||'')+'"></div>'+
+    '<div><label>Tipo de servicio</label><select id="f_servicio"><option value="">—</option><option>Público</option><option>Particular</option></select></div>'+
+    '<div><label>Tipo de vehículo</label><select id="f_tipo" onchange="pintarElementos()"><option value="">—</option><option>Moto</option><option>Carry Ref</option><option>Camión</option></select></div>'+
+    '<div><label>Placa</label><input id="f_placa" value="'+esc(r.placa||'')+'" style="text-transform:uppercase;"></div>'+
+    '<div><label>Referencia / modelo</label><input id="f_ref" value="'+esc(r.referencia_modelo||'')+'"></div>'+
+  '</div>'+
+  '<div class="sec"><span class="n">2</span><span class="t">Conductor</span><span class="ln"></span></div>'+
+  '<div class="grid2">'+
+    '<div><label>Nombre del conductor</label><input id="f_condNom" value="'+esc(r.conductor_nombre||'')+'"></div>'+
+    '<div><label>Identificación (C.C.)</label><input id="f_condDoc" value="'+esc(r.conductor_identificacion||'')+'"></div>'+
+  '</div>'+
+  '<div style="margin-top:8px;">'+foto('conductor','Foto conductor')+'</div>'+
+  '<div class="sec"><span class="n">3</span><span class="t">Evidencia fotográfica</span><span class="ln"></span></div>'+
+  '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">'+foto('frontal','Frontal')+foto('lateral_der','Lat. der.')+foto('trasera','Trasera')+foto('lateral_izq','Lat. izq.')+'</div>'+
+  '<div class="sec"><span class="n">4</span><span class="t">Documentos · CNT</span><span class="ln"></span></div>'+
+  '<table><thead><tr><th>Documento</th><th>N°</th><th>Vence</th><th>Estado</th></tr></thead><tbody>'+
+    '<tr><td>Licencia</td><td><input id="f_licNum" value="'+esc(r.licencia_numero||'')+'" style="font-size:11px;padding:5px;"></td><td><input type="date" id="f_licVenc" onchange="pintarEstados()" style="font-size:11px;padding:5px;"></td><td id="e_lic">—</td></tr>'+
+    '<tr><td>Tarjeta propiedad</td><td><input id="f_tarPro" value="'+esc(r.tarjeta_propiedad||'')+'" style="font-size:11px;padding:5px;"></td><td style="color:#94A3B8;">—</td><td><span class="pill pill-ok">Registrado</span></td></tr>'+
+    '<tr><td>SOAT</td><td><input id="f_soatNum" value="'+esc(r.soat_numero||'')+'" style="font-size:11px;padding:5px;"></td><td><input type="date" id="f_soatVenc" onchange="pintarEstados()" style="font-size:11px;padding:5px;"></td><td id="e_soat">—</td></tr>'+
+    '<tr><td>RTM</td><td><input id="f_rtmNum" value="'+esc(r.rtm_numero||'')+'" style="font-size:11px;padding:5px;"></td><td><input type="date" id="f_rtmVenc" onchange="pintarEstados()" style="font-size:11px;padding:5px;"></td><td id="e_rtm">—</td></tr>'+
+    '<tr><td>Pólizas</td><td><input id="f_polNum" value="'+esc(r.polizas||'')+'" style="font-size:11px;padding:5px;"></td><td><input type="date" id="f_polVenc" onchange="pintarEstados()" style="font-size:11px;padding:5px;"></td><td id="e_pol">—</td></tr>'+
+  '</tbody></table><div class="hint">Colores automáticos: verde vigente · amarillo por vencer (30 días) · rojo vencido.</div>'+
+  '<div class="sec"><span class="n">5</span><span class="t">Elementos a verificar</span><span class="ln"></span></div>'+
+  '<div id="elementosArea"><div class="hint">Seleccione el tipo de vehículo.</div></div>'+
+  '<div class="sec"><span class="n">6</span><span class="t">Dictamen</span><span class="ln"></span></div>'+
+  '<label>Resultado</label><div style="display:flex;gap:8px;margin-bottom:10px;"><div class="res-opt" id="ro_apro" onclick="setResultado(\'Aprobado\')">Aprobado</div><div class="res-opt" id="ro_seg" onclick="setResultado(\'Requiere seguimiento\')">Requiere seguimiento</div><div class="res-opt" id="ro_no" onclick="setResultado(\'No aprobado\')">No aprobado</div></div>'+
+  '<label>Observaciones</label><textarea id="f_obs" rows="2">'+esc(r.observaciones||'')+'</textarea>'+
+  '<div class="sec"><span class="n">7</span><span class="t">Firma del conductor</span><span class="ln"></span></div>'+
+  '<canvas id="firmaCond" width="640" height="80"></canvas>'+
+  '<div class="row"><button class="btn btn-g" onclick="limpiarFirma(\'Cond\')">🗑 Borrar firma</button><button class="btn btn-p" onclick="guardar()">✅ Guardar ficha</button></div>'+
+  '<div class="hint">Al firmar y guardar, la ficha queda registrada en el sistema LPS.</div>';
+
+  const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  document.getElementById('f_fecha').value = r.fecha_inspeccion ? r.fecha_inspeccion.slice(0,16) : now.toISOString().slice(0,16);
+  if(r.tipo_servicio)document.getElementById('f_servicio').value=r.tipo_servicio;
+  if(r.tipo_vehiculo){document.getElementById('f_tipo').value=r.tipo_vehiculo; pintarElementos();}
+  if(r.licencia_venc)document.getElementById('f_licVenc').value=r.licencia_venc;
+  if(r.soat_venc)document.getElementById('f_soatVenc').value=r.soat_venc;
+  if(r.rtm_venc)document.getElementById('f_rtmVenc').value=r.rtm_venc;
+  if(r.polizas_venc)document.getElementById('f_polVenc').value=r.polizas_venc;
+  pintarEstados();
+  ['conductor','frontal','lateral_der','trasera','lateral_izq'].forEach(k=>{
+    const campo=k==='conductor'?'foto_conductor':'foto_'+k;
+    if(r[campo]){ fotos[k]=r[campo]; const img=document.getElementById('img_'+k); if(img){img.src=r[campo];img.classList.remove('hidden');} const ic=document.getElementById('ic_'+k); if(ic)ic.classList.add('hidden'); }
+  });
+  if(r.resultado)setResultado(r.resultado);
+  setupFirma('Cond');
+  if(r.firma_conductor)pintarFirmaExistente('Cond',r.firma_conductor);
+}
+
+function recogerElementos(){
+  const out={};
+  document.querySelectorAll('#elementosArea input[type="checkbox"]').forEach(c=>{ out[c.getAttribute('data-el')]={label:c.value,ok:c.checked}; });
+  return out;
+}
+
+async function guardar(){
+  const g=id=>{const e=document.getElementById(id);return e?(e.value.trim()||null):null;};
+  if(!g('f_placa')){ alert('Ingrese la placa del vehículo.'); return; }
+  const firma=firmaData('Cond');
+  const ext=document.getElementById('f_extintor'), ll=document.getElementById('f_llanta');
+  const d={
+    proyecto:'CLARO-BROWNFIELD',
+    fecha_inspeccion:g('f_fecha')||new Date().toISOString(),
+    gestor:g('f_gestor'), tipo_servicio:g('f_servicio'), tipo_vehiculo:g('f_tipo'),
+    placa:(g('f_placa')||'').toUpperCase(), referencia_modelo:g('f_ref'),
+    conductor_nombre:g('f_condNom'), conductor_identificacion:g('f_condDoc'),
+    foto_conductor:fotos.conductor, foto_frontal:fotos.frontal, foto_lateral_der:fotos.lateral_der, foto_trasera:fotos.trasera, foto_lateral_izq:fotos.lateral_izq,
+    licencia_numero:g('f_licNum'), licencia_venc:g('f_licVenc'),
+    tarjeta_propiedad:g('f_tarPro'),
+    soat_numero:g('f_soatNum'), soat_venc:g('f_soatVenc'),
+    rtm_numero:g('f_rtmNum'), rtm_venc:g('f_rtmVenc'),
+    polizas:g('f_polNum'), polizas_venc:g('f_polVenc'),
+    elementos:recogerElementos(),
+    extintor_recarga:ext?ext.value||null:null,
+    llanta_repuesto_estado:ll?ll.value||null:null,
+    resultado:resultadoSel, observaciones:g('f_obs'),
+    updated_at:new Date().toISOString()
+  };
+  if(firma){ d.firma_conductor=firma; d.conductor_firmado=true; d.estado='COMPLETO'; }
+  try{
+    if(editId){ await sb.from('verificacion_vehiculos').update(d).eq('id',editId); }
+    else { const {data,error}=await sb.from('verificacion_vehiculos').insert(d).select(); if(error)throw error; editId=data[0].id; }
+    document.getElementById('contenido').innerHTML='<div class="msg ok">✅ ¡Gracias! La ficha del vehículo '+esc(d.placa)+' quedó registrada.</div>';
+  }catch(e){ alert('Error al guardar: '+e.message); }
+}
+
+function pintarLectura(){
+  const r=reg;
+  const foto=(t,src)=>src?'<div style="text-align:center;"><img src="'+src+'" style="width:110px;height:82px;object-fit:cover;border-radius:6px;border:1px solid var(--line);"><div style="font-size:9px;color:var(--slate);">'+t+'</div></div>':'';
+  const docRow=(n,num,venc,noV)=>{const e=noV?{txt:'',cls:''}:estadoDoc(venc);return '<tr><td>'+n+'</td><td>'+esc(num||'—')+'</td><td>'+esc(venc||'—')+'</td><td>'+(e.cls?'<span class="pill '+e.cls+'">'+e.txt+'</span>':'—')+'</td></tr>';};
+  const els=r.elementos?Object.values(r.elementos).map(v=>'<div style="font-size:11px;">'+(v.ok?'☑':'☐')+' '+esc(v.label)+'</div>').join(''):'—';
+  const resC=r.resultado==='Aprobado'?'pill-ok':r.resultado==='No aprobado'?'pill-bad':'pill-warn';
+  let h='<div style="font-size:13px;"><strong>Placa:</strong> '+esc(r.placa||'—')+' &nbsp; <strong>Tipo:</strong> '+esc(r.tipo_vehiculo||'—')+'<br><strong>Conductor:</strong> '+esc(r.conductor_nombre||'—')+' (C.C. '+esc(r.conductor_identificacion||'—')+')</div>';
+  const anyFoto=r.foto_frontal||r.foto_lateral_der||r.foto_trasera||r.foto_lateral_izq;
+  if(anyFoto)h+='<div class="sec"><span class="t" style="color:var(--navy);">Evidencia</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;">'+foto('Frontal',r.foto_frontal)+foto('Lat. der.',r.foto_lateral_der)+foto('Trasera',r.foto_trasera)+foto('Lat. izq.',r.foto_lateral_izq)+'</div>';
+  h+='<div class="sec"><span class="t" style="color:var(--navy);">Documentos</span></div><table><tr><th>Documento</th><th>N°</th><th>Vence</th><th>Estado</th></tr>'
+    +docRow('Licencia',r.licencia_numero,r.licencia_venc)+docRow('Tarjeta propiedad',r.tarjeta_propiedad,'',true)+docRow('SOAT',r.soat_numero,r.soat_venc)+docRow('RTM',r.rtm_aplica!==false?r.rtm_numero:'No aplica',r.rtm_venc,r.rtm_aplica===false)+docRow('Pólizas',r.polizas,r.polizas_venc)+'</table>';
+  h+='<div class="sec"><span class="t" style="color:var(--navy);">Elementos</span></div><div style="columns:2;">'+els+'</div>';
+  h+='<div class="sec"><span class="t" style="color:var(--navy);">Dictamen</span></div><span class="pill '+resC+'">'+esc(r.resultado||'Sin dictamen')+'</span>';
+  if(r.observaciones)h+='<p style="font-size:12px;margin-top:8px;"><strong>Obs:</strong> '+esc(r.observaciones)+'</p>';
+  h+='<div class="msg ok" style="margin-top:14px;">✅ Esta ficha ya fue firmada y está completa.</div>';
+  document.getElementById('contenido').innerHTML=h;
+}
+
+cargar();
+</script>
+</body>
+</html>
