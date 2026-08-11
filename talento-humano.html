@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Gestión del Talento Humano · LPS Grupo</title>
+<style>
+:root{--navy:#0A2540;--blue:#1598FF;--blue-dark:#0B6FCC;--sky:#EAF5FF;--orange:#F5821F;--green:#1E9E5A;--slate:#5B6B7C;--line:#E3E9F0;--ok:#16A34A;--warn:#D97706;--danger:#DC2626;--radius:14px;--shadow:0 6px 20px rgba(10,37,64,.08);}
+*{box-sizing:border-box;} html,body{margin:0;background:#F6F8FB;color:#0F1B2A;font-family:'Inter',-apple-system,sans-serif;}
+h1,h2,h3,h4{font-family:'Space Grotesk','Inter',sans-serif;margin:0;}
+button{font-family:inherit;cursor:pointer;}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 30px;background:#fff;border-bottom:1px solid var(--line);}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand img{height:36px;}
+.brand-txt{font-weight:700;font-size:14px;color:var(--navy);}
+.brand-sub{font-size:10px;color:var(--slate);letter-spacing:.1em;text-transform:uppercase;}
+.topnav{display:flex;gap:6px;}
+.topnav a{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;color:var(--slate);text-decoration:none;border:1.5px solid transparent;}
+.topnav a:hover,.topnav a.active{color:var(--blue);background:var(--sky);border-color:var(--blue);}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--slate);text-decoration:none;padding:6px 14px;border-radius:8px;border:1px solid var(--line);background:#fff;}
+.back-btn:hover{border-color:var(--blue);color:var(--blue);}
+
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 56px);}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:20px 0;overflow-y:auto;}
+.sb-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--slate);font-weight:700;padding:0 20px;margin:16px 0 8px;}
+.sb-btn{width:100%;text-align:left;border:none;background:transparent;padding:10px 20px;font-size:13px;color:var(--slate);font-weight:600;display:flex;align-items:center;gap:10px;}
+.sb-btn:hover{background:var(--sky);color:var(--blue);}
+.sb-btn.active{background:var(--blue);color:#fff;border-radius:0;}
+.sb-btn .ic{width:18px;text-align:center;}
+.sb-count{margin-left:auto;font-size:11px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:10px;}
+
+.main{padding:24px 30px;overflow-y:auto;}
+.view{display:none;} .view.active{display:block;animation:fadeV .25s ease;}
+@keyframes fadeV{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--blue);}
+.kpi.orange{border-left-color:var(--orange);} .kpi.green{border-left-color:var(--green);} .kpi.red{border-left-color:var(--danger);}
+.kpi .label{font-size:10.5px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.kpi .val{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--navy);margin-top:4px;}
+.kpi .sub{font-size:11px;color:var(--slate);margin-top:3px;}
+
+.charts-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.charts-row.two{grid-template-columns:1fr 1fr;}
+.chart-box{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);}
+.chart-box h4{font-size:12px;color:var(--navy);margin-bottom:2px;}
+.chart-box .chart-sub{font-size:10px;color:var(--slate);margin-bottom:10px;}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:22px;}
+.panel h3{font-size:16px;margin-bottom:4px;}
+.panel .panel-sub{font-size:12px;color:var(--slate);margin-bottom:14px;}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--slate);border-bottom:1px solid var(--line);padding:8px 8px;background:var(--sky);}
+tbody td{padding:10px 8px;border-bottom:1px solid var(--line);}
+tbody tr:hover{background:var(--sky);}
+.badge{padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700;}
+.badge.ok{background:#E4F7EA;color:var(--ok);} .badge.blue{background:var(--sky);color:var(--blue);} .badge.warn{background:#FEF3E0;color:var(--warn);}
+
+.btn{border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(21,152,255,.3);}
+.btn-primary:hover{background:var(--blue-dark);}
+.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--navy);}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
+.btn-sm{padding:5px 10px;font-size:11.5px;border-radius:7px;}
+.row-btn{border:1px solid var(--line);background:#fff;cursor:pointer;font-size:11.5px;padding:4px 8px;border-radius:7px;margin-left:3px;}
+.row-btn:hover{border-color:var(--blue);background:var(--sky);}
+
+.form-section{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;}
+.form-section-bar{background:var(--navy);color:#fff;font-size:11px;font-weight:700;letter-spacing:.05em;padding:10px 16px;display:flex;align-items:center;gap:8px;}
+.form-section-inner{padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.form-section-inner.c3{grid-template-columns:repeat(3,1fr);}
+.form-section-inner.c2{grid-template-columns:1fr 1fr;}
+.form-section-inner.c1{grid-template-columns:1fr;}
+label{font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:4px;}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;background:#fff;}
+textarea{resize:vertical;min-height:50px;}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+
+.search-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.search-bar input{flex:1;min-width:200px;}
+.search-bar select{width:160px;}
+
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid var(--line);padding-bottom:0;}
+.tab-btn{border:none;background:transparent;padding:10px 18px;font-size:13px;font-weight:600;color:var(--slate);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;}
+.tab-btn:hover{color:var(--blue);}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* ===== Modal Ficha Empleado ===== */
+.ficha-bg{display:none;position:fixed;inset:0;background:rgba(10,20,35,.6);backdrop-filter:blur(3px);z-index:100;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto;}
+.ficha-bg.open{display:flex;}
+.ficha-modal{background:#fff;border-radius:16px;width:100%;max-width:700px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.3);}
+.ficha-header{background:linear-gradient(135deg,var(--navy),var(--navy2,#0F3A63));color:#fff;padding:24px 28px;display:flex;align-items:center;gap:18px;}
+.ficha-avatar{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.15);border:2.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;font-family:'Space Grotesk',sans-serif;flex-shrink:0;}
+.ficha-header h3{font-size:18px;color:#fff;margin-bottom:2px;}
+.ficha-header .fh-sub{font-size:11.5px;color:#B0C9E4;margin-top:2px;}
+.ficha-header .fh-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:800;margin-top:6px;}
+.ficha-header .fh-badge.ok{background:var(--ok);color:#fff;}
+.ficha-header .fh-badge.warn{background:var(--warn);color:#fff;}
+.ficha-header .fh-badge.blue{background:var(--blue);color:#fff;}
+.ficha-body{padding:24px 28px;max-height:65vh;overflow-y:auto;}
+.ficha-section{margin-bottom:20px;}
+.ficha-section h5{font-size:11px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:6px;border-bottom:1.5px solid var(--line);}
+.ficha-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.ficha-grid.c2{grid-template-columns:1fr 1fr;}
+.ficha-cell{border:1px solid var(--line);border-radius:8px;padding:8px 12px;}
+.ficha-cell .fc-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);margin-bottom:2px;}
+.ficha-cell .fc-value{font-size:13px;font-weight:700;color:var(--navy);}
+.ficha-cell.alert{border-color:var(--warn);background:#FFFBF0;}
+.ficha-cell.alert .fc-label{color:var(--danger);}
+.ficha-cell.highlight{background:#FFFFF0;border-color:#E8D44D;}
+.ficha-footer{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-top:1px solid var(--line);background:#FBFCFE;font-size:11px;color:var(--slate);}
+
+/* ===== Modal de acceso ===== */
+.lock-bg{display:none;position:fixed;inset:0;background:rgba(10,20,35,.7);backdrop-filter:blur(4px);z-index:200;place-items:center;}
+.lock-bg.open{display:grid;}
+.lock-box{background:#fff;border-radius:18px;padding:36px;text-align:center;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.lock-box h3{font-size:18px;color:#0A2540;margin-bottom:6px;}
+.lock-box p{font-size:13px;color:#5B6B7C;margin-bottom:18px;}
+.lock-box input{width:100%;border:2px solid #E3E9F0;border-radius:10px;padding:12px 16px;font-size:15px;text-align:center;letter-spacing:3px;font-weight:700;font-family:inherit;margin-bottom:14px;}
+.lock-box input:focus{outline:none;border-color:#1598FF;box-shadow:0 0 0 4px rgba(21,152,255,.15);}
+.lock-box .lock-btn{width:100%;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:700;background:#1598FF;color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(21,152,255,.3);}
+.lock-box .lock-btn:hover{background:#0B6FCC;}
+.lock-box .lock-err{color:#DC2626;font-size:12px;font-weight:700;margin-top:8px;display:none;}
+.lock-box .lock-icon{font-size:40px;margin-bottom:10px;}
+
+@media(max-width:900px)
+/* ===== Modal de acceso ===== */
+.lock-bg{display:none;position:fixed;inset:0;background:rgba(10,20,35,.7);backdrop-filter:blur(4px);z-index:200;place-items:center;}
+.lock-bg.open{display:grid;}
+.lock-box{background:#fff;border-radius:18px;padding:36px;text-align:center;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.lock-box h3{font-size:18px;color:#0A2540;margin-bottom:6px;}
+.lock-box p{font-size:13px;color:#5B6B7C;margin-bottom:18px;}
+.lock-box input{width:100%;border:2px solid #E3E9F0;border-radius:10px;padding:12px 16px;font-size:15px;text-align:center;letter-spacing:3px;font-weight:700;font-family:inherit;margin-bottom:14px;}
+.lock-box input:focus{outline:none;border-color:#1598FF;box-shadow:0 0 0 4px rgba(21,152,255,.15);}
+.lock-box .lock-btn{width:100%;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:700;background:#1598FF;color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(21,152,255,.3);}
+.lock-box .lock-btn:hover{background:#0B6FCC;}
+.lock-box .lock-err{color:#DC2626;font-size:12px;font-weight:700;margin-top:8px;display:none;}
+.lock-box .lock-icon{font-size:40px;margin-bottom:10px;}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}.kpi-grid{grid-template-columns:repeat(2,1fr);}.charts-row{grid-template-columns:1fr;}.form-section-inner{grid-template-columns:1fr 1fr;}}
+.firma-canvas{border:1px solid #E2EBF3;border-radius:8px;background:#fff;touch-action:none;cursor:crosshair;width:100%;max-width:380px;display:block;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+let _sb=null;
+function getSupabase(){if(!_sb){try{_sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){}}return _sb;}
+</script>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">
+    <img src="logo-lps.png" alt="LPS Grupo">
+    <div><div class="brand-txt">Gestión del Talento Humano</div><div class="brand-sub">SIG HSEQ Colombia · Grupo LPS</div></div>
+  </div>
+  <nav class="topnav">
+    <a href="#" class="active" onclick="event.preventDefault();switchTHView('dashboard')">Perfil Sociodemográfico</a>
+    <a href="#" onclick="event.preventDefault();switchTHView('registro')">Ficha de Empleado</a>
+    <a href="#" onclick="event.preventDefault();switchTHView('listado')">Base de Personal</a>
+    <a href="#" onclick="event.preventDefault();switchTHView('dotacion')">Entrega de Dotación y EPP</a>
+    <a href="#" onclick="event.preventDefault();switchTHView('induccion')">Inducción LPS</a>
+    <a href="#" onclick="event.preventDefault();switchTHView('pazsalvo')">Paz y Salvo</a>
+    <a href="#" onclick="event.preventDefault();switchTHView('acta')">Acta de Entrega</a>
+  </nav>
+  <a class="back-btn" href="#" onclick="event.preventDefault(); window.location.href='index.html';">← Volver al Mapa de Procesos</a>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Módulo</div>
+  <button class="sb-btn active" onclick="switchTHView('dashboard')"><span class="ic">📊</span> Perfil Sociodemográfico</button>
+  <button class="sb-btn" onclick="switchTHView('registro')"><span class="ic">📝</span> Ficha de Empleado</button>
+  <button class="sb-btn" onclick="switchTHView('listado')"><span class="ic">👥</span> Base de Personal <span class="sb-count" id="sbCount">0</span></button>
+  <button class="sb-btn" onclick="switchTHView('dotacion')"><span class="ic">🦺</span> Entrega de Dotación y EPP</button>
+  <button class="sb-btn" onclick="switchTHView('induccion')"><span class="ic">🎓</span> Inducción LPS</button>
+  <button class="sb-btn" onclick="switchTHView('pazsalvo')"><span class="ic">📤</span> Paz y Salvo</button>
+  <button class="sb-btn" onclick="switchTHView('acta')"><span class="ic">📑</span> Acta de Entrega</button>
+  <div class="sb-title" style="margin-top:26px;">Análisis rápido</div>
+  <div style="padding:0 20px;font-size:11px;color:var(--slate);line-height:1.6;">
+    Los KPIs y gráficos se actualizan automáticamente con cada registro.
+  </div>
+</aside>
+
+<div class="main">
+
+<!-- VISTA 1: DASHBOARD SOCIODEMOGRÁFICO -->
+<div class="view active" id="v-dashboard">
+  <h2 style="font-size:22px;color:var(--navy);margin-bottom:4px;">Perfil Sociodemográfico</h2>
+  <p style="font-size:12.5px;color:var(--slate);margin-bottom:18px;">Análisis automático actualizado con cada registro de personal.</p>
+  <div class="kpi-grid" id="kpiArea"></div>
+  <div class="charts-row" id="chartsRow1"></div>
+  <div class="charts-row two" id="chartsRow2"></div>
+  <div class="charts-row" id="chartsRow3"></div>
+</div>
+
+<!-- VISTA 2: FICHA DE EMPLEADO -->
+<div class="view" id="v-registro">
+  <div class="panel">
+    <h3 id="formTitle">📝 Nueva Ficha de Empleado</h3>
+    <div class="panel-sub">Complete todos los campos. Los datos alimentan el perfil sociodemográfico automáticamente.</div>
+
+    <div class="form-section"><div class="form-section-bar">📌 INFORMACIÓN GENERAL</div>
+      <div class="form-section-inner">
+        <div><label>Número de cédula</label><input id="f_cedula" placeholder="Ej. 79223669"></div>
+        <div><label>Lugar de expedición</label><input id="f_expedicion" placeholder="Ej. Soacha"></div>
+        <div><label>Fecha de expedición</label><input type="date" id="f_fechaExp"></div>
+        <div><label>Apellidos</label><input id="f_apellidos" placeholder="Valencia Lopez"></div>
+        <div><label>Nombres</label><input id="f_nombres" placeholder="Carlos Augusto"></div>
+        <div><label>Género</label><select id="f_genero"><option>Masculino</option><option>Femenino</option><option>Otro</option></select></div>
+        <div><label>Fecha de nacimiento</label><input type="date" id="f_nacimiento"></div>
+        <div><label>Lugar de nacimiento</label><input id="f_lugarNac" placeholder="Dpto / Ciudad"></div>
+        <div><label>Tipo de sangre</label><select id="f_sangre"><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
+        <div><label>Estado civil</label><select id="f_civil"><option>Soltero/a</option><option>Casado/a</option><option>Unión libre</option><option>Divorciado/a</option><option>Viudo/a</option></select></div>
+        <div><label>Número de hijos</label><input type="number" id="f_hijos" value="0" min="0"></div>
+        <div><label>Correo electrónico</label><input type="email" id="f_correo" placeholder="correo@ejemplo.com"></div>
+        <div><label>Teléfono celular</label><input id="f_celular" placeholder="300 000 0000"></div>
+        <div><label>Medio de transporte</label><select id="f_transporte" onchange="document.getElementById('f_transporteOtro').style.display=this.value==='Otro'?'block':'none'"><option>Transporte público</option><option>Carro</option><option>Moto</option><option>Patineta</option><option>Bicicleta</option><option>A pie</option><option>Otro</option></select><input id="f_transporteOtro" placeholder="¿Cuál?" style="display:none;margin-top:6px;"></div>
+        <div><label>Modalidad de trabajo</label><select id="f_modalidad" onchange="document.getElementById('f_modalidadOtra').style.display=this.value==='Otra'?'block':'none'"><option>Presencial</option><option>Teletrabajo</option><option>Híbrido</option><option>Otra</option></select><input id="f_modalidadOtra" placeholder="¿Cuál?" style="display:none;margin-top:6px;"></div>
+        <div><label>Estrato socioeconómico</label><select id="f_estrato"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+        <div><label>Turno de trabajo</label><select id="f_turno"><option>Diurno</option><option>Nocturno</option><option>Rotativo</option><option>Mixto</option></select></div>
+        <div><label>Cargo</label><input id="f_cargo" placeholder="Ej. Técnico de campo"></div>
+        <div><label>Proyecto/Área</label><input id="f_proyecto" placeholder="Ej. Claro - Brownfield"></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🏥 SALUD Y ALERTAS MÉDICAS</div>
+      <div class="form-section-inner c2">
+        <div><label>Alergias / Condiciones médicas</label><input id="f_alergias" placeholder="Ej. Penicilina, Polvo, Ninguna"></div>
+        <div><label>Prescripción médica o restricciones</label><input id="f_prescripcion" placeholder="Ej. Uso de lentes, restricción de alturas"></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🏠 DIRECCIÓN Y CONTACTO</div>
+      <div class="form-section-inner c2">
+        <div><label>Dirección <span style="color:#DC2626;">*</span></label><input id="f_direccion" placeholder="Calle / Carrera / Número"></div>
+        <div><label>Barrio <span style="color:#DC2626;">*</span></label><input id="f_barrio" placeholder="Barrio"></div>
+        <div><label>Ciudad <span style="color:#DC2626;">*</span></label><input id="f_ciudad" placeholder="Ciudad"></div>
+        <div><label>Teléfono fijo</label><input id="f_fijo" placeholder="N/A"></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🎓 FORMACIÓN ACADÉMICA</div>
+      <div class="form-section-inner c3">
+        <div><label>Nivel de instrucción</label><select id="f_instruccion"><option>Bachiller</option><option>Técnico</option><option>Tecnólogo</option><option>Universitario</option><option>Especialización</option><option>Maestría</option><option>Doctorado</option></select></div>
+        <div><label>Título obtenido</label><input id="f_titulo" placeholder="Ej. Ing. Industrial"></div>
+        <div><label>Posgrado / Especialización</label><input id="f_posgrado" placeholder="Ej. Esp. en SST"></div>
+      </div>
+      <div class="form-section-inner c1" style="border-top:1px solid #EEF3F8;">
+        <div>
+          <label style="margin-bottom:8px;">Estudios adicionales (puede agregar varios)</label>
+          <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:10px;">
+            <thead><tr>
+              <th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Nivel</th>
+              <th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Título</th>
+              <th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Institución</th>
+              <th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Año</th>
+              <th style="width:40px;border-bottom:1px solid #E3E9F0;"></th>
+            </tr></thead>
+            <tbody id="estudiosBody"><tr><td colspan="5" style="text-align:center;color:#5B6B7C;padding:12px;font-size:12px;">Sin estudios adicionales</td></tr></tbody>
+          </table>
+          <div style="display:grid;grid-template-columns:1fr 1.3fr 1.3fr 0.7fr auto;gap:8px;align-items:end;">
+            <div><label>Nivel</label><select id="est_nivel"><option>Bachiller</option><option>Técnico</option><option>Tecnólogo</option><option>Universitario</option><option>Especialización</option><option>Maestría</option><option>Doctorado</option><option>Curso / Certificación</option><option>Diplomado</option></select></div>
+            <div><label>Título</label><input id="est_titulo" placeholder="Ej. Téc. en electricidad"></div>
+            <div><label>Institución</label><input id="est_inst" placeholder="Ej. SENA"></div>
+            <div><label>Año</label><input type="number" id="est_anio" min="1950" max="2100" placeholder="Año"></div>
+            <button class="btn btn-primary" style="padding:8px 14px;" onclick="addEstudio()">＋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🏥 SEGURIDAD SOCIAL</div>
+      <div class="form-section-inner c3">
+        <div><label>EPS</label><input id="f_eps" placeholder="Ej. Sura"></div>
+        <div><label>Fondo de pensiones</label><input id="f_pension" placeholder="Ej. Porvenir"></div>
+        <div><label>Fondo de cesantías</label><input id="f_cesantias" placeholder="Ej. Porvenir"></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">👨‍👩‍👧‍👦 GRUPO FAMILIAR</div>
+      <div class="form-section-inner c1">
+        <div>
+          <p style="font-size:12px; color:#5B6B7C; margin:0 0 10px;">Registre los miembros del grupo familiar del empleado.</p>
+          <table style="width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:10px;">
+            <thead><tr><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Nombre completo</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Documento de identidad</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Parentesco</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Teléfono</th><th style="width:40px;border-bottom:1px solid #E3E9F0;"></th></tr></thead>
+            <tbody id="familiaBody"></tbody>
+          </table>
+          <div style="display:grid; grid-template-columns:1.3fr 1fr 1fr 0.7fr 1fr auto; gap:8px; align-items:end;">
+            <div><label>Nombre completo</label><input id="fam_nombre" placeholder="Nombre completo"></div>
+            <div><label>Documento de identidad</label><input id="fam_doc" placeholder="CC / TI / RC"></div>
+            <div><label>Parentesco</label><select id="fam_parentesco" onchange="toggleEdadHijo()"><option>Cónyuge</option><option>Hijo/a</option><option>Padre</option><option>Madre</option><option>Hermano/a</option><option>Otro</option></select></div>
+            <div id="fam_edad_wrap" style="display:none;"><label>Edad (años)</label><input type="number" id="fam_edad" min="0" max="120" placeholder="Años"></div>
+            <div><label>Teléfono</label><input id="fam_tel" placeholder="300 000 0000"></div>
+            <button class="btn btn-primary" style="padding:8px 14px;" onclick="addFamiliar()">＋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🚨 CONTACTOS DE EMERGENCIA</div>
+      <div class="form-section-inner c1">
+        <div>
+          <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:10px;">
+            <thead><tr><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Nombre</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Parentesco</th><th style="text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#5B6B7C;border-bottom:1px solid #E3E9F0;padding:8px;">Teléfono</th><th style="width:40px;border-bottom:1px solid #E3E9F0;"></th></tr></thead>
+            <tbody id="emergBody"><tr><td colspan="4" style="text-align:center;color:#5B6B7C;padding:12px;font-size:12px;">Sin contactos registrados</td></tr></tbody>
+          </table>
+          <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:8px;align-items:end;">
+            <div><label>Nombre completo</label><input id="emerg_nombre" placeholder="Nombre completo"></div>
+            <div><label>Parentesco</label><input id="emerg_parent" placeholder="Ej. Madre"></div>
+            <div><label>Teléfono</label><input id="emerg_tel" placeholder="300 000 0000"></div>
+            <button class="btn btn-primary" style="padding:8px 14px;" onclick="addEmergencia()">＋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">👕 DOTACIÓN Y OTROS</div>
+      <div class="form-section-inner">
+        <div><label>Talla camisa</label><select id="f_camisa"><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></div>
+        <div><label>Talla pantalón</label><input id="f_pantalon" placeholder="Ej. 30"></div>
+        <div><label>Talla botas</label><input id="f_botas" placeholder="Ej. 41"></div>
+        <div><label>Talla chaqueta</label><select id="f_chaqueta"><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></div>
+      </div>
+    </div>
+
+    <div class="form-section"><div class="form-section-bar">🏦 INFORMACIÓN BANCARIA</div>
+      <div class="form-section-inner c3">
+        <div><label>Institución bancaria</label><input id="f_banco" placeholder="Ej. Bancolombia"></div>
+        <div><label>Tipo de cuenta</label><select id="f_tipoCuenta"><option>Cuenta de ahorros</option><option>Cuenta corriente</option></select></div>
+        <div><label>Número de cuenta</label><input id="f_numCuenta" placeholder="Número"></div>
+      </div>
+    </div>
+
+    <!-- Apartado salarial: oculto, requiere clave para desplegarse -->
+    <div style="margin-top:14px;">
+      <button type="button" id="btnSalarial" onclick="desbloquearSalarial()" style="background:#EEF3F8;color:#5B6B7C;border:1px dashed #C4D2E0;border-radius:8px;padding:9px 14px;font-size:12px;cursor:pointer;">🔒 Información salarial (requiere clave)</button>
+    </div>
+    <div class="form-section" id="seccionSalarial" style="display:none;margin-top:8px;">
+      <div class="form-section-bar" style="background:#166534;">💰 INFORMACIÓN SALARIAL Y BONOS</div>
+      <div class="form-section-inner c3">
+        <div><label>Salario</label><input id="f_salario" type="number" placeholder="0" min="0"></div>
+        <div><label>Auxilio de transporte</label><input id="f_auxTransporte" type="number" placeholder="0" min="0"></div>
+        <div><label>Bono People Pass fijo</label><input id="f_bonoPPFijo" type="number" placeholder="0" min="0"></div>
+        <div><label>Bono People Pass variable</label><input id="f_bonoPPVar" type="number" placeholder="0" min="0"></div>
+        <div><label>Bono</label><input id="f_bono" type="number" placeholder="0" min="0"></div>
+        <div><label>Rodamiento</label><input id="f_rodamiento" type="number" placeholder="0" min="0"></div>
+        <div><label>Auxilio de alimentación</label><input id="f_auxAlimentacion" type="number" placeholder="0" min="0"></div>
+        <div><label>Bono celular</label><input id="f_bonoCelular" type="number" placeholder="0" min="0"></div>
+        <div><label>Bono computador</label><input id="f_bonoComputador" type="number" placeholder="0" min="0"></div>
+        <div><label>Fecha de ingreso</label><input type="date" id="f_ingreso"></div>
+        <div><label>Fecha de retiro</label><input type="date" id="f_retiro"></div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="resetForm()">Cancelar</button>
+      <button class="btn btn-ghost" onclick="previewFicha()">👁 Vista Previa PDF</button>
+      <button class="btn btn-primary" id="btnSaveEmp" onclick="saveEmpleado()">💾 Guardar Registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- VISTA 3: BASE DE PERSONAL -->
+<div class="view" id="v-listado">
+  <div class="panel">
+    <h3>👥 Base de Personal</h3>
+    <div class="panel-sub">Mostrando <span id="totalCount">0</span> de <span id="totalAll">0</span> registros</div>
+    <div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap;">
+      <button class="btn btn-primary" style="background:#166534;" onclick="exportarExcel()">⬇ Exportar Excel</button>
+      <button class="btn btn-primary" style="background:#0A6BC4;" onclick="document.getElementById('inpImportExcel').click()">⬆ Importar Excel</button>
+      <input type="file" id="inpImportExcel" accept=".xlsx,.xls" class="hidden" onchange="importarExcel(this)">
+      <button class="btn btn-ghost" onclick="descargarPlantillaExcel()">📄 Descargar plantilla</button>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="setTab(this,'todos')">Todos</button>
+      <button class="tab-btn" onclick="setTab(this,'activos')">Activos</button>
+      <button class="tab-btn" onclick="setTab(this,'inactivos')">Inactivos</button>
+    </div>
+    <div class="search-bar">
+      <input id="searchInput" placeholder="🔍 Buscar por nombre, cédula, cargo, área, EPS..." oninput="renderListado()">
+      <select id="filterArea" onchange="renderListado()"><option value="">Todas las áreas</option></select>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Nombre</th><th>Sexo</th><th>Edad</th><th>Años</th><th>Estado</th><th>Ficha</th><th style="width:160px;"></th></tr></thead>
+        <tbody id="empBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- VISTA 4: ENTREGA DE DOTACIÓN Y EPP -->
+<div class="view" id="v-dotacion">
+  <div class="panel">
+    <h3>🦺 Entrega de Dotación y EPP</h3>
+    <div class="panel-sub">Registre la entrega de elementos con la firma del trabajador. Busque por cédula.</div>
+
+    <!-- Buscar empleado por cédula -->
+    <div class="form-section" style="margin-top:14px;">
+      <div class="form-section-bar">🔍 BUSCAR TRABAJADOR</div>
+      <div class="form-section-inner c3">
+        <div><label>Número de cédula</label><input id="dotCedula" placeholder="Ej. 1020304050" onkeydown="if(event.key==='Enter')buscarEmpleadoDotacion()"></div>
+        <div style="display:flex;align-items:end;"><button class="btn btn-p" onclick="buscarEmpleadoDotacion()">Buscar</button></div>
+        <div style="display:flex;align-items:end;"><span id="dotEmpInfo" style="font-size:13px;color:var(--navy);font-weight:600;"></span></div>
+      </div>
+    </div>
+
+    <!-- Nueva entrega -->
+    <div id="dotFormEntrega" style="display:none;">
+      <div class="form-section">
+        <div class="form-section-bar">📦 NUEVA ENTREGA</div>
+        <div class="form-section-inner c3">
+          <div><label>Tipo de entrega</label><select id="dotTipo" onchange="cambiarTipoEntrega()"><option value="DOTACION">Dotación y EPP</option><option value="BONO">Bono de dotación</option></select></div>
+          <div><label>Fecha de entrega</label><input type="date" id="dotFecha"></div>
+          <div><label>Gestor / Contratista</label><input id="dotGestor" placeholder="Gestor o contratista responsable"></div>
+        </div>
+        <div class="form-section-inner c3" style="padding-top:0;">
+          <div><label>Entregado por</label><input id="dotEntregadoPor" placeholder="Nombre de quien entrega"></div>
+          <div><label>Observaciones</label><input id="dotObs" placeholder="Opcional"></div>
+          <div id="dotBonoWrap" style="display:none;"><label>Valor del bono (COP)</label><input type="number" id="dotBonoValor" placeholder="Ej. 150000" min="0"></div>
+        </div>
+
+        <!-- Elementos (solo para tipo DOTACION) -->
+        <div id="dotElementosWrap" style="padding:0 16px 12px;">
+          <label style="font-size:11px;font-weight:700;color:var(--navy);">ELEMENTOS A ENTREGAR</label>
+          <div id="dotItems"></div>
+          <button class="btn-sm" onclick="addDotItem()" style="margin-top:8px;background:var(--sky,#EAF5FF);color:#0A6BC4;">＋ Agregar elemento</button>
+        </div>
+
+        <!-- Firma presencial -->
+        <div style="padding:0 16px 16px;">
+          <label style="font-size:11px;font-weight:700;color:var(--navy);">FIRMA DEL TRABAJADOR (presencial)</label>
+          <div style="border:1.5px dashed #C4D8F0;border-radius:10px;padding:10px;background:#FAFCFF;max-width:420px;">
+            <canvas id="dotFirma" width="400" height="140" style="border:1px solid #E2EBF3;border-radius:6px;background:#fff;touch-action:none;cursor:crosshair;width:100%;"></canvas>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="btn-sm" onclick="limpiarFirma()" style="color:var(--danger,#DC2626);">🗑 Borrar firma</button>
+              <span style="font-size:11px;color:var(--slate);align-self:center;">Firme con el mouse o el dedo</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:0 16px 16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-p" onclick="guardarEntregaDotacion(true)">💾 Guardar con firma presencial</button>
+          <button class="btn btn-p" style="background:#6D28D9;" onclick="guardarEntregaDotacion(false)">🔗 Crear y enviar link para firma</button>
+          <button class="btn btn-g" onclick="cancelarEntregaDotacion()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de entregas del empleado -->
+    <div id="dotHistorial" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- VISTA 5: INDUCCIÓN LPS -->
+<div class="view" id="v-induccion">
+  <div class="panel">
+    <h3>🎓 Inducción LPS</h3>
+    <div class="panel-sub">Registro de inducción del colaborador. Busque por cédula para traer sus datos.</div>
+
+    <!-- Buscar empleado -->
+    <div class="form-section" style="margin-top:14px;">
+      <div class="form-section-bar">🔍 BUSCAR COLABORADOR</div>
+      <div class="form-section-inner c3">
+        <div><label>Número de cédula</label><input id="indCedula" placeholder="Ej. 1020304050" onkeydown="if(event.key==='Enter')buscarEmpleadoInduccion()"></div>
+        <div style="display:flex;align-items:end;"><button class="btn btn-p" onclick="buscarEmpleadoInduccion()">Buscar</button></div>
+        <div style="display:flex;align-items:end;"><span id="indEmpInfo" style="font-size:13px;color:var(--navy);font-weight:600;"></span></div>
+      </div>
+    </div>
+
+    <div id="indForm" style="display:none;">
+      <!-- Datos del colaborador -->
+      <div class="form-section">
+        <div class="form-section-bar">👤 DATOS DEL COLABORADOR</div>
+        <div class="form-section-inner c4">
+          <div><label>Nombre</label><input id="indNombre" readonly style="background:#F1F5F9;"></div>
+          <div><label>Identificación</label><input id="indId" readonly style="background:#F1F5F9;"></div>
+          <div><label>Cargo</label><input id="indCargo" placeholder="Cargo"></div>
+          <div><label>Área</label><input id="indArea" placeholder="Área"></div>
+        </div>
+      </div>
+
+      <!-- ETAPA 1: TALENTO HUMANO -->
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#1598FF;">1️⃣ INDUCCIÓN DE TALENTO HUMANO</div>
+        <div style="padding:14px 16px;">
+          <label style="font-size:11px;font-weight:700;color:var(--navy);">Temas</label>
+          <div id="indTemasTH"></div>
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <select id="indSelTH" style="flex:1;padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;"></select>
+            <button class="btn-sm" onclick="addTemaFromSelect('TH')" style="background:#EAF5FF;color:#0A6BC4;">Agregar seleccionado</button>
+            <button class="btn-sm" onclick="addTemaLibre('TH')" style="background:#EAF5FF;color:#0A6BC4;">＋ Tema libre</button>
+            <button class="btn-sm" onclick="gestionarTemas('TH')" style="background:#F3E8FF;color:#6D28D9;" title="Ver, agregar o eliminar temas del catálogo">⚙️ Gestionar temas</button>
+          </div>
+          <div class="c3" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px;">
+            <div><label>Fecha</label><input type="date" id="indFechaTH"></div>
+            <div><label>Encargado de la inducción</label><input id="indCapTH" placeholder="Nombre del capacitador"></div>
+          </div>
+          <div style="margin-top:10px;">
+            <label style="font-size:11px;font-weight:700;color:var(--navy);">Firma del encargado</label>
+            <canvas id="firmaTH" class="firma-canvas" width="380" height="110"></canvas>
+            <button class="btn-sm" onclick="limpiarFirmaInd('TH')" style="color:var(--danger);margin-top:4px;">🗑 Borrar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETAPA 2: SST -->
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#16A34A;">2️⃣ INDUCCIÓN EN SEGURIDAD Y SALUD EN EL TRABAJO</div>
+        <div style="padding:14px 16px;">
+          <label style="font-size:11px;font-weight:700;color:var(--navy);">Temas</label>
+          <div id="indTemasSST"></div>
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <select id="indSelSST" style="flex:1;padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;"></select>
+            <button class="btn-sm" onclick="addTemaFromSelect('SST')" style="background:#EAF5FF;color:#0A6BC4;">Agregar seleccionado</button>
+            <button class="btn-sm" onclick="addTemaLibre('SST')" style="background:#EAF5FF;color:#0A6BC4;">＋ Tema libre</button>
+            <button class="btn-sm" onclick="gestionarTemas('SST')" style="background:#F3E8FF;color:#6D28D9;" title="Ver, agregar o eliminar temas del catálogo">⚙️ Gestionar temas</button>
+          </div>
+          <div class="c3" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px;">
+            <div><label>Fecha</label><input type="date" id="indFechaSST"></div>
+            <div><label>Encargado de la inducción</label><input id="indCapSST" placeholder="Nombre del capacitador"></div>
+          </div>
+          <div style="margin-top:10px;">
+            <label style="font-size:11px;font-weight:700;color:var(--navy);">Firma del encargado</label>
+            <canvas id="firmaSST" class="firma-canvas" width="380" height="110"></canvas>
+            <button class="btn-sm" onclick="limpiarFirmaInd('SST')" style="color:var(--danger);margin-top:4px;">🗑 Borrar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETAPA 3: CARGO -->
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#6D28D9;">3️⃣ INDUCCIÓN AL CARGO</div>
+        <div style="padding:14px 16px;">
+          <label style="font-size:11px;font-weight:700;color:var(--navy);">Temas</label>
+          <div id="indTemasCARGO"></div>
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <select id="indSelCARGO" style="flex:1;padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;"></select>
+            <button class="btn-sm" onclick="addTemaFromSelect('CARGO')" style="background:#EAF5FF;color:#0A6BC4;">Agregar seleccionado</button>
+            <button class="btn-sm" onclick="addTemaLibre('CARGO')" style="background:#EAF5FF;color:#0A6BC4;">＋ Tema libre</button>
+            <button class="btn-sm" onclick="gestionarTemas('CARGO')" style="background:#F3E8FF;color:#6D28D9;" title="Ver, agregar o eliminar temas del catálogo">⚙️ Gestionar temas</button>
+          </div>
+          <div class="c3" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px;">
+            <div><label>Fecha</label><input type="date" id="indFechaCARGO"></div>
+            <div><label>Encargado de la inducción</label><input id="indCapCARGO" placeholder="Nombre del capacitador"></div>
+          </div>
+          <div style="margin-top:10px;">
+            <label style="font-size:11px;font-weight:700;color:var(--navy);">Firma del encargado</label>
+            <canvas id="firmaCARGO" class="firma-canvas" width="380" height="110"></canvas>
+            <button class="btn-sm" onclick="limpiarFirmaInd('CARGO')" style="color:var(--danger);margin-top:4px;">🗑 Borrar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETAPA 3b: LOGÍSTICA -->
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#D97706;">📦 INDUCCIÓN LOGÍSTICA</div>
+        <div style="padding:14px 16px;">
+          <label style="font-size:11px;font-weight:700;color:var(--navy);">Temas</label>
+          <div id="indTemasLOGISTICA"></div>
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <select id="indSelLOGISTICA" style="flex:1;padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;"></select>
+            <button class="btn-sm" onclick="addTemaFromSelect('LOGISTICA')" style="background:#EAF5FF;color:#0A6BC4;">Agregar seleccionado</button>
+            <button class="btn-sm" onclick="addTemaLibre('LOGISTICA')" style="background:#EAF5FF;color:#0A6BC4;">＋ Tema libre</button>
+            <button class="btn-sm" onclick="gestionarTemas('LOGISTICA')" style="background:#F3E8FF;color:#6D28D9;" title="Ver, agregar o eliminar temas del catálogo">⚙️ Gestionar temas</button>
+          </div>
+          <div class="c3" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px;">
+            <div><label>Fecha</label><input type="date" id="indFechaLOGISTICA"></div>
+            <div><label>Encargado de la inducción</label><input id="indCapLOGISTICA" placeholder="Nombre del capacitador"></div>
+          </div>
+          <div style="margin-top:10px;">
+            <label style="font-size:11px;font-weight:700;color:var(--navy);">Firma del encargado</label>
+            <canvas id="firmaLOGISTICA" class="firma-canvas" width="380" height="110"></canvas>
+            <button class="btn-sm" onclick="limpiarFirmaInd('LOGISTICA')" style="color:var(--danger);margin-top:4px;">🗑 Borrar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CIERRE: firma del colaborador -->
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#0A2540;">✍️ CONFIRMACIÓN DEL COLABORADOR</div>
+        <div style="padding:14px 16px;">
+          <div id="indTextoCompromiso" style="font-size:12px;text-align:justify;line-height:1.55;background:#F8FAFC;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;"></div>
+          <label style="font-size:11px;font-weight:700;color:var(--navy);">Firma del colaborador</label>
+          <canvas id="firmaColab" class="firma-canvas" width="380" height="110"></canvas>
+          <button class="btn-sm" onclick="limpiarFirmaInd('Colab')" style="color:var(--danger);margin-top:4px;">🗑 Borrar</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+        <button class="btn btn-p" onclick="guardarInduccion()">💾 Guardar</button>
+        <button class="btn btn-p" style="background:#6D28D9;" onclick="crearLinkInduccion()">🔗 Crear link para diligenciar/firmar</button>
+        <button class="btn btn-g" onclick="pdfInduccion()">📄 Generar PDF</button>
+        <button class="btn btn-g" onclick="cancelarInduccion()">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="indHistorial" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- VISTA 6: PAZ Y SALVO (Entrega de puesto de trabajo) -->
+<div class="view" id="v-pazsalvo">
+  <div class="panel">
+    <h3>📤 Entrega de Puesto de Trabajo · Paz y Salvo</h3>
+    <div class="panel-sub">Formato de retiro. Busque por cédula para traer los datos del colaborador.</div>
+
+    <div class="form-section" style="margin-top:14px;">
+      <div class="form-section-bar">🔍 BUSCAR COLABORADOR</div>
+      <div class="form-section-inner c3">
+        <div><label>Número de cédula</label><input id="psCedula" placeholder="Ej. 1020304050" onkeydown="if(event.key==='Enter')buscarEmpleadoPS()"></div>
+        <div style="display:flex;align-items:end;"><button class="btn btn-p" onclick="buscarEmpleadoPS()">Buscar</button></div>
+        <div style="display:flex;align-items:end;"><span id="psEmpInfo" style="font-size:13px;color:var(--navy);font-weight:600;"></span></div>
+      </div>
+    </div>
+
+    <div id="psForm" style="display:none;">
+      <div class="form-section">
+        <div class="form-section-bar">👤 DATOS GENERALES DEL COLABORADOR</div>
+        <div class="form-section-inner c3">
+          <div><label>Nombre</label><input id="psNombre" readonly style="background:#F1F5F9;"></div>
+          <div><label>Cédula</label><input id="psId" readonly style="background:#F1F5F9;"></div>
+          <div><label>Cargo</label><input id="psCargo"></div>
+          <div><label>Jefe inmediato</label><input id="psJefe"></div>
+          <div><label>Cargo del jefe</label><input id="psCargoJefe"></div>
+          <div><label>Área / Dependencia</label><input id="psArea"></div>
+          <div><label>Fecha de salida</label><input type="date" id="psFechaSalida"></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#1598FF;">💻 3. ENTREGA DE EQUIPOS DE CÓMPUTO</div>
+        <div style="padding:12px 16px;"><div id="psEquipos"></div><button class="btn-sm" onclick="addPsRow('equipos')" style="margin-top:6px;background:#EAF5FF;color:#0A6BC4;">＋ Agregar equipo</button></div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#16A34A;">🦺 4. ENTREGA DE EPP</div>
+        <div style="padding:12px 16px;"><div id="psEpp"></div><button class="btn-sm" onclick="addPsRow('epp')" style="margin-top:6px;background:#EAF5FF;color:#0A6BC4;">＋ Agregar EPP</button></div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#6D28D9;">🖥️ 5. ENTREGA / DESACTIVACIÓN TECNOLOGÍA</div>
+        <div style="padding:12px 16px;font-size:13px;">
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><input type="checkbox" id="psCorreo"> Se desactivó el correo corporativo</label>
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><input type="checkbox" id="psApps"> Desactivación de aplicaciones</label>
+          <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="psBuk"> Desactivación Buk</label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#D97706;">🩺 6. EXAMEN MÉDICO DE RETIRO</div>
+        <div style="padding:12px 16px;font-size:13px;">
+          <label style="margin-right:20px;"><input type="radio" name="psExamen" value="si"> Sí se realiza</label>
+          <label><input type="radio" name="psExamen" value="no"> No se realiza</label>
+          <p style="font-size:11px;color:var(--slate);margin-top:6px;">En caso de no realizar examen ocupacional de retiro, exime a la compañía de cualquier reclamo de condición que se presente en el futuro.</p>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-bar">📝 ACEPTACIÓN Y OBSERVACIONES</div>
+        <div style="padding:12px 16px;"><textarea id="psObs" rows="2" placeholder="Observaciones" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:13px;"></textarea></div>
+      </div>
+
+      <!-- Firmas por área -->
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#0A2540;">✍️ FIRMAS</div>
+        <div style="padding:12px 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+          <div><label>Almacén</label><canvas id="firmaPsAlmacen" class="firma-canvas" width="340" height="90"></canvas><button class="btn-sm" onclick="limpiarFirmaPS('Almacen')" style="color:var(--danger);">🗑</button></div>
+          <div><label>HSE</label><canvas id="firmaPsHse" class="firma-canvas" width="340" height="90"></canvas><button class="btn-sm" onclick="limpiarFirmaPS('Hse')" style="color:var(--danger);">🗑</button></div>
+          <div><label>TI</label><canvas id="firmaPsTi" class="firma-canvas" width="340" height="90"></canvas><button class="btn-sm" onclick="limpiarFirmaPS('Ti')" style="color:var(--danger);">🗑</button></div>
+          <div><label>Talento Humano</label><canvas id="firmaPsTh" class="firma-canvas" width="340" height="90"></canvas><button class="btn-sm" onclick="limpiarFirmaPS('Th')" style="color:var(--danger);">🗑</button></div>
+          <div><label>Colaborador</label><canvas id="firmaPsColaborador" class="firma-canvas" width="340" height="90"></canvas><button class="btn-sm" onclick="limpiarFirmaPS('Colaborador')" style="color:var(--danger);">🗑</button></div>
+          <div><label>Jefe inmediato</label><canvas id="firmaPsJefe" class="firma-canvas" width="340" height="90"></canvas><button class="btn-sm" onclick="limpiarFirmaPS('Jefe')" style="color:var(--danger);">🗑</button></div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-p" onclick="guardarPS()">💾 Guardar</button>
+        <button class="btn btn-p" style="background:#6D28D9;" onclick="crearLinkPS()">🔗 Crear link para firma</button>
+        <button class="btn btn-g" onclick="pdfPS()">📄 Generar PDF</button>
+        <button class="btn btn-g" onclick="cancelarPS()">Cancelar</button>
+      </div>
+    </div>
+    <div id="psHistorial" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- VISTA 7: ACTA DE ENTREGA -->
+<div class="view" id="v-acta">
+  <div class="panel">
+    <h3>📑 Acta de Entrega</h3>
+    <div class="panel-sub">Entrega de tareas, funciones y credenciales. Busque por cédula.</div>
+
+    <div class="form-section" style="margin-top:14px;">
+      <div class="form-section-bar">🔍 BUSCAR COLABORADOR</div>
+      <div class="form-section-inner c3">
+        <div><label>Número de cédula</label><input id="acCedula" placeholder="Ej. 1020304050" onkeydown="if(event.key==='Enter')buscarEmpleadoActa()"></div>
+        <div style="display:flex;align-items:end;"><button class="btn btn-p" onclick="buscarEmpleadoActa()">Buscar</button></div>
+        <div style="display:flex;align-items:end;"><span id="acEmpInfo" style="font-size:13px;color:var(--navy);font-weight:600;"></span></div>
+      </div>
+    </div>
+
+    <div id="acForm" style="display:none;">
+      <div class="form-section">
+        <div class="form-section-bar">👤 DATOS DEL EMPLEADO</div>
+        <div class="form-section-inner c4">
+          <div><label>Nombre</label><input id="acNombre" readonly style="background:#F1F5F9;"></div>
+          <div><label>Documento</label><input id="acId" readonly style="background:#F1F5F9;"></div>
+          <div><label>Cargo</label><input id="acCargo"></div>
+          <div><label>Área / Proyecto</label><input id="acArea"></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#1598FF;">📋 DESCRIPCIÓN DEL CONTENIDO (tareas y funciones)</div>
+        <div style="padding:12px 16px;"><div id="acItems"></div><button class="btn-sm" onclick="addActaItem()" style="margin-top:6px;background:#EAF5FF;color:#0A6BC4;">＋ Agregar ítem</button></div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#16A34A;">🔑 ENTREGA DE USUARIOS Y CONTRASEÑAS</div>
+        <div style="padding:12px 16px;"><div id="acCreds"></div><button class="btn-sm" onclick="addActaCred()" style="margin-top:6px;background:#EAF5FF;color:#0A6BC4;">＋ Agregar credencial</button></div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-bar" style="background:#0A2540;">✍️ FIRMAS</div>
+        <div style="padding:12px 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+          <div><label>Jefe inmediato</label><input id="acNombreJefe" placeholder="Nombre del jefe" style="margin-bottom:6px;"><canvas id="firmaAcJefe" class="firma-canvas" width="340" height="90"></canvas><button class="btn-sm" onclick="limpiarFirmaAc('Jefe')" style="color:var(--danger);">🗑</button></div>
+          <div><label>Colaborador</label><input id="acNombreColab" readonly style="background:#F1F5F9;margin-bottom:6px;"><canvas id="firmaAcColab" class="firma-canvas" width="340" height="90"></canvas><button class="btn-sm" onclick="limpiarFirmaAc('Colab')" style="color:var(--danger);">🗑</button></div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-p" onclick="guardarActa()">💾 Guardar</button>
+        <button class="btn btn-p" style="background:#6D28D9;" onclick="crearLinkActa()">🔗 Crear link para firma</button>
+        <button class="btn btn-g" onclick="pdfActa()">📄 Generar PDF</button>
+        <button class="btn btn-g" onclick="cancelarActa()">Cancelar</button>
+      </div>
+    </div>
+    <div id="acHistorial" style="margin-top:16px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- /main -->
+</div><!-- /layout -->
+
+<!-- MODAL FICHA EMPLEADO -->
+<div class="ficha-bg" id="fichaModal" onclick="if(event.target===this)closeFichaModal()">
+  <div class="ficha-modal">
+    <div class="ficha-header" id="fichaHeader"></div>
+    <div class="ficha-body" id="fichaBody"></div>
+    <div class="ficha-footer">
+      <span id="fichaFooterLeft"></span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-g" onclick="closeFichaModal()">Cerrar X</button>
+        <button class="btn btn-p" id="fichaDownloadBtn">Descargar PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+
+let empleados = [];
+let editingIdx = null;
+let currentTab = 'todos';
+let charts = {};
+let familiares = [];
+
+const FIELDS = ['cedula','expedicion','fechaExp','apellidos','nombres','genero','nacimiento','lugarNac','sangre','civil','hijos','correo','celular','transporte','transporteOtro','modalidad','modalidadOtra','ingreso','retiro','estrato','turno','alergias','prescripcion','direccion','fijo','sede','estado','empresaAnt','empresaDir','empresaTel','profesion','instruccion','titulo','posgrado','eps','pension','cesantias','emergNombre','emergParent','emergCel','camisa','pantalon','botas','chaqueta','banco','tipoCuenta','numCuenta','salario','auxTransporte','bonoPPFijo','bonoPPVar','bono','rodamiento','auxAlimentacion','bonoCelular','bonoComputador','cargo','proyecto','barrio','ciudad'];
+
+const FIELD_MAP = {
+  cedula:'cedula', expedicion:'expedicion', fechaExp:'fecha_expedicion',
+  apellidos:'apellidos', nombres:'nombres', genero:'genero',
+  nacimiento:'fecha_nacimiento', lugarNac:'lugar_nacimiento', sangre:'tipo_sangre',
+  civil:'estado_civil', hijos:'hijos', correo:'correo', celular:'celular', transporte:'medio_transporte', transporteOtro:'medio_transporte_otro', modalidad:'modalidad_trabajo', modalidadOtra:'modalidad_trabajo_otra', ingreso:'fecha_ingreso', retiro:'fecha_retiro', estrato:'estrato', turno:'turno_trabajo', alergias:'alergias', prescripcion:'prescripcion_medica',
+  direccion:'direccion', fijo:'telefono_fijo',
+  sede:'sede', estado:'estado',
+  empresaAnt:'empresa_anterior', empresaDir:'empresa_anterior_dir', empresaTel:'empresa_anterior_tel',
+  profesion:'profesion', instruccion:'instruccion', titulo:'titulo', posgrado:'posgrado',
+  eps:'eps', pension:'fondo_pension', cesantias:'fondo_cesantias',
+  emergNombre:'emergencia_nombre', emergParent:'emergencia_parentesco', emergCel:'emergencia_celular',
+  ciudad:'ciudad',
+  camisa:'talla_camisa', pantalon:'talla_pantalon', botas:'talla_botas', chaqueta:'talla_chaqueta',
+  banco:'banco', tipoCuenta:'tipo_cuenta', numCuenta:'numero_cuenta',
+  salario:'salario', auxTransporte:'auxilio_transporte', bonoPPFijo:'bono_peoplepass_fijo', bonoPPVar:'bono_peoplepass_variable', bono:'bono', rodamiento:'rodamiento', auxAlimentacion:'auxilio_alimentacion', bonoCelular:'bono_celular', bonoComputador:'bono_computador',
+  cargo:'cargo', proyecto:'proyecto', barrio:'barrio'
+};
+
+function toDbRow(e) {
+  const row = {};
+  const DATE_COLS = ['fecha_expedicion','fecha_nacimiento','fecha_ingreso'];
+  FIELDS.forEach(f => {
+    if(!FIELD_MAP[f]) return;
+    let val = e[f];
+    const col = FIELD_MAP[f];
+    if(!val || val === '' || val === 'undefined') val = null;
+    if(['fecha_expedicion','fecha_nacimiento','fecha_ingreso','fecha_retiro'].includes(col) && !val) val = null;
+    row[col] = val;
+  });
+  row.hijos = Number(e.hijos) || 0;
+  if(!row.estado) row.estado = 'Activo';
+  return row;
+}
+
+function fromDbRow(row) {
+  const e = { _dbId: row.id };
+  FIELDS.forEach(f => { e[f] = row[FIELD_MAP[f]] || ''; });
+  e.hijos = row.hijos || 0;
+  return e;
+}
+
+const ACCESS_KEY = 'LPS-TH';
+let isUnlocked = false;
+let pendingView = null;
+
+function switchTHView(id){
+  // Perfil Sociodemográfico: acceso libre
+  if(id === 'dashboard'){
+    activateView(id);
+    return;
+  }
+  // Ficha y Base de Personal: requieren clave
+  if(!isUnlocked){
+    pendingView = id;
+    document.getElementById('lockModal').classList.add('open');
+    document.getElementById('lockInput').value = '';
+    document.getElementById('lockErr').style.display = 'none';
+    setTimeout(()=>document.getElementById('lockInput').focus(), 200);
+    return;
+  }
+  activateView(id);
+}
+
+async function activateView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('v-'+id).classList.add('active');
+  document.querySelectorAll('.topnav a').forEach(a=>a.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  const names={dashboard:0,registro:1,listado:2,dotacion:3,induccion:4,pazsalvo:5,acta:6};
+  document.querySelectorAll('.topnav a')[names[id]].classList.add('active');
+  document.querySelectorAll('.sb-btn')[names[id]].classList.add('active');
+  if(id==='dotacion'){ initDotacion(); }
+  if(id==='induccion'){ initInduccion(); }
+  if(id==='pazsalvo'){ initPazSalvo(); }
+  if(id==='acta'){ initActa(); }
+  // Recargar datos frescos desde Supabase al cambiar de pestaña
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(sb){
+      const {data} = await sb.from('empleados').select('*').order('apellidos');
+      if(data){ empleados = data.map(fromDbRow); document.getElementById('sbCount').textContent = empleados.length; }
+    }
+  }catch(e){}
+  if(id==='dashboard') renderDashboard();
+  if(id==='listado') renderListado();
+}
+
+function checkAccess(){
+  const val = document.getElementById('lockInput').value.trim();
+  if(val === ACCESS_KEY){
+    isUnlocked = true;
+    document.getElementById('lockModal').classList.remove('open');
+    if(pendingView) activateView(pendingView);
+    pendingView = null;
+  } else {
+    document.getElementById('lockErr').style.display = 'block';
+    document.getElementById('lockInput').value = '';
+    document.getElementById('lockInput').focus();
+  }
+}
+
+function getVal(id){const el=document.getElementById('f_'+id);return el?el.value.trim():'';}
+function setVal(id,v){const el=document.getElementById('f_'+id);if(el)el.value=v||'';}
+
+function collectEmpleado(){
+  const e={};
+  FIELDS.forEach(f=>e[f]=getVal(f));
+  e.hijos=Number(e.hijos)||0;
+  return e;
+}
+
+async function loadEmpleados(){
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(!sb) return;
+    const {data,error} = await sb.from('empleados').select('*').order('apellidos');
+    if(!error && data){
+      empleados = data.map(fromDbRow);
+      document.getElementById('sbCount').textContent = empleados.length;
+    }
+  } catch(e){ console.warn('Error cargando empleados:', e); }
+}
+
+// ===================== IMPORTAR / EXPORTAR EXCEL =====================
+// Encabezados legibles del Excel mapeados a los campos internos (FIELDS)
+const EXCEL_COLS = {
+  'Cédula':'cedula','Lugar expedición':'expedicion','Fecha expedición':'fechaExp',
+  'Apellidos':'apellidos','Nombres':'nombres','Género':'genero','Fecha nacimiento':'nacimiento',
+  'Lugar nacimiento':'lugarNac','Tipo sangre':'sangre','Estado civil':'civil','Hijos':'hijos',
+  'Correo':'correo','Celular':'celular','Cargo':'cargo','Proyecto':'proyecto',
+  'Medio transporte':'transporte','Modalidad':'modalidad','Fecha ingreso':'ingreso','Fecha retiro':'retiro',
+  'Estrato':'estrato','Turno':'turno','Alergias':'alergias','Prescripción médica':'prescripcion',
+  'Dirección':'direccion','Barrio':'barrio','Ciudad':'ciudad','Teléfono fijo':'fijo','Sede':'sede','Estado':'estado',
+  'Empresa anterior':'empresaAnt','Dir. empresa anterior':'empresaDir','Tel. empresa anterior':'empresaTel',
+  'Profesión':'profesion','Instrucción':'instruccion','Título':'titulo','Posgrado':'posgrado',
+  'EPS':'eps','Fondo pensión':'pension','Fondo cesantías':'cesantias',
+  'Contacto emergencia':'emergNombre','Parentesco emergencia':'emergParent','Cel. emergencia':'emergCel',
+  'Talla camisa':'camisa','Talla pantalón':'pantalon','Talla botas':'botas','Talla chaqueta':'chaqueta',
+  'Banco':'banco','Tipo cuenta':'tipoCuenta','Número cuenta':'numCuenta'
+};
+// Columnas salariales: solo se exportan/importan si se ingresa la clave salarial
+const EXCEL_COLS_SALARIAL = {
+  'Salario':'salario','Auxilio transporte':'auxTransporte','Bono People Pass fijo':'bonoPPFijo',
+  'Bono People Pass variable':'bonoPPVar','Bono':'bono','Rodamiento':'rodamiento',
+  'Auxilio alimentación':'auxAlimentacion','Bono celular':'bonoCelular','Bono computador':'bonoComputador'
+};
+
+function pedirClaveExcel(){
+  const k=prompt('🔐 Ingrese la clave para importar/exportar datos:');
+  if(k===null) return false;
+  if(k!=='LPS-TH*'){ alert('⚠️ Clave incorrecta.'); return false; }
+  return true;
+}
+
+function exportarExcel(){
+  if(!pedirClaveExcel()) return;
+  if(typeof XLSX==='undefined'){ alert('No se pudo cargar la librería de Excel. Verifique su conexión.'); return; }
+  // Preguntar si se incluyen los datos salariales (segunda clave)
+  let incluirSalarial=false;
+  if(confirm('¿Incluir la información salarial en el Excel?\n\nAceptar = sí (pedirá la clave salarial)\nCancelar = exportar sin salarios')){
+    const ks=prompt('🔐 Ingrese la clave salarial para incluir salarios y bonos:');
+    if(ks===null) return;
+    if(ks==='LPS-TH*'){ incluirSalarial=true; }
+    else { alert('⚠️ Clave salarial incorrecta. Se exportará SIN datos salariales.'); }
+  }
+  const cols = incluirSalarial ? {...EXCEL_COLS, ...EXCEL_COLS_SALARIAL} : EXCEL_COLS;
+  const filas=empleados.map(emp=>{
+    const row={};
+    Object.entries(cols).forEach(([titulo,campo])=>{ row[titulo]=emp[campo]!==undefined&&emp[campo]!==null?emp[campo]:''; });
+    return row;
+  });
+  const ws=XLSX.utils.json_to_sheet(filas,{header:Object.keys(cols)});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Empleados');
+  XLSX.writeFile(wb,'Base_Personal_LPS_'+(incluirSalarial?'con_salarios_':'')+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+
+function descargarPlantillaExcel(){
+  if(typeof XLSX==='undefined'){ alert('No se pudo cargar la librería de Excel.'); return; }
+  const cols={...EXCEL_COLS, ...EXCEL_COLS_SALARIAL};
+  const ws=XLSX.utils.json_to_sheet([{}],{header:Object.keys(cols)});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Plantilla');
+  XLSX.writeFile(wb,'Plantilla_Base_Personal_LPS.xlsx');
+}
+
+async function importarExcel(input){
+  const file=input.files[0]; if(!file) return;
+  input.value='';
+  if(!pedirClaveExcel()) return;
+  if(typeof XLSX==='undefined'){ alert('No se pudo cargar la librería de Excel.'); return; }
+  try{
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+    if(!rows.length){ alert('El archivo no tiene filas.'); return; }
+    // ¿El archivo trae columnas salariales?
+    const traeSalarial=Object.keys(EXCEL_COLS_SALARIAL).some(t=>rows[0].hasOwnProperty(t));
+    let importarSalarial=false;
+    if(traeSalarial){
+      if(confirm('El archivo contiene datos salariales. ¿Desea importarlos?\n\nAceptar = sí (pedirá la clave salarial)\nCancelar = importar sin salarios')){
+        const ks=prompt('🔐 Ingrese la clave salarial para importar salarios y bonos:');
+        if(ks==='LPS-TH*'){ importarSalarial=true; }
+        else if(ks!==null){ alert('⚠️ Clave salarial incorrecta. Se importará SIN datos salariales.'); }
+      }
+    }
+    if(!confirm('Se importarán '+rows.length+' registro(s). Los empleados con la misma cédula se actualizarán. ¿Continuar?')) return;
+    const sb=getSupabase();
+    let creados=0,actualizados=0,errores=0;
+    const colsImport = importarSalarial ? {...EXCEL_COLS, ...EXCEL_COLS_SALARIAL} : EXCEL_COLS;
+    for(const r of rows){
+      // Construir objeto de empleado desde las columnas legibles
+      const emp={};
+      Object.entries(colsImport).forEach(([titulo,campo])=>{ if(r[titulo]!==undefined&&r[titulo]!=='') emp[campo]=r[titulo]; });
+      // Normalizar fechas (Excel puede entregar número serial o texto)
+      ['fechaExp','nacimiento','ingreso','retiro'].forEach(f=>{
+        if(emp[f]!==undefined&&emp[f]!==''){
+          let v=emp[f];
+          if(typeof v==='number'){ // serial de Excel
+            const d=XLSX.SSF?XLSX.SSF.parse_date_code(v):null;
+            if(d) v=d.y+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0');
+          } else { v=String(v).trim(); const dd=new Date(v); if(!isNaN(dd)) v=dd.toISOString().slice(0,10); }
+          emp[f]=v;
+        }
+      });
+      if(!emp.cedula||!emp.apellidos||!emp.nombres){ errores++; continue; }
+      emp.cedula=String(emp.cedula).trim();
+      // Construir row SOLO con los campos que trae el Excel (no borra los que falten al actualizar)
+      const row={};
+      Object.keys(emp).forEach(f=>{
+        const col=FIELD_MAP[f]; if(!col) return;
+        let val=emp[f]; if(val===''||val==='undefined')val=null;
+        row[col]=val;
+      });
+      if(emp.hijos!==undefined) row.hijos=Number(emp.hijos)||0;
+      try{
+        // ¿Existe por cédula?
+        const {data:exist}=await sb.from('empleados').select('id').eq('cedula',String(emp.cedula)).limit(1);
+        if(exist&&exist.length){ await sb.from('empleados').update(row).eq('id',exist[0].id); actualizados++; }
+        else { if(!row.estado)row.estado='Activo'; await sb.from('empleados').insert(row); creados++; }
+      }catch(err){ console.error('fila:',err); errores++; }
+    }
+    await loadEmpleados(); renderListado();
+    alert('✅ Importación finalizada.\nCreados: '+creados+'\nActualizados: '+actualizados+(errores?'\nOmitidos (datos incompletos): '+errores:''));
+  }catch(e){ alert('Error al leer el archivo: '+e.message); }
+}
+
+// Desbloquea el apartado salarial solo con la clave
+let salarialDesbloqueado=false;
+let salarialPendiente=null;
+function desbloquearSalarial(){
+  if(salarialDesbloqueado){ // ya visible: permitir ocultar de nuevo
+    document.getElementById('seccionSalarial').style.display='none';
+    document.getElementById('btnSalarial').innerHTML='🔒 Información salarial (requiere clave)';
+    salarialDesbloqueado=false;
+    return;
+  }
+  const k=prompt('🔐 Ingrese la clave para ver y editar la información salarial:');
+  if(k===null)return;
+  if(k!=='LPS-TH*'){ alert('⚠️ Clave incorrecta.'); return; }
+  document.getElementById('seccionSalarial').style.display='block';
+  document.getElementById('btnSalarial').innerHTML='🔓 Información salarial (visible)';
+  salarialDesbloqueado=true;
+  // Si venimos de editar, cargar los valores guardados ahora
+  if(salarialPendiente){
+    Object.entries(salarialPendiente).forEach(([f,v])=>setVal(f,v));
+  }
+}
+
+async function saveEmpleado(){
+  const e=collectEmpleado();
+  if(!e.cedula||!e.apellidos||!e.nombres){alert('Cédula, apellidos y nombres son obligatorios');return;}
+  if(!e.direccion||!e.barrio){alert('Dirección y Barrio son obligatorios');return;}
+  if(!e.ciudad){alert('La Ciudad es obligatoria. Complétela para poder guardar.');return;}
+  // Si el apartado salarial NO se desbloqueó, conservar los valores salariales previos (no sobrescribir con vacío)
+  if(!salarialDesbloqueado && salarialPendiente){
+    Object.entries(salarialPendiente).forEach(([f,v])=>{ e[f]=v; });
+  }
+
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    const row = toDbRow(e);
+
+    if(editingIdx!==null && empleados[editingIdx]._dbId && sb){
+      await sb.from('empleados').update(row).eq('id', empleados[editingIdx]._dbId);
+      // Borrar familiares antiguos por empleado_id
+      await sb.from('familiares').delete().eq('empleado_id', empleados[editingIdx]._dbId);
+      for(const f of familiares){
+        await sb.from('familiares').insert({empleado_id: empleados[editingIdx]._dbId, nombre:f.nombre, documento:f.doc, parentesco:f.parentesco, edad:f.edad||null, telefono:f.tel});
+      }
+      await sb.from('contactos_emergencia').delete().eq('empleado_id', empleados[editingIdx]._dbId);
+      for(const c of emergencias){
+        await sb.from('contactos_emergencia').insert({empleado_id: empleados[editingIdx]._dbId, nombre:c.nombre, parentesco:c.parentesco, telefono:c.tel});
+      }
+      await sb.from('estudios').delete().eq('empleado_id', empleados[editingIdx]._dbId);
+      for(const st of estudios){
+        await sb.from('estudios').insert({empleado_id: empleados[editingIdx]._dbId, nivel:st.nivel, titulo:st.titulo, institucion:st.institucion, anio:st.anio});
+      }
+    } else if(sb) {
+      const {data,error} = await sb.from('empleados').insert(row).select();
+      if(error){ alert('Error BD: '+error.message); console.error('Insert error:',error); return; }
+      if(data && data[0]){
+        for(const f of familiares){
+          await sb.from('familiares').insert({empleado_id: data[0].id, nombre:f.nombre, documento:f.doc, parentesco:f.parentesco, edad:f.edad||null, telefono:f.tel});
+        }
+        for(const c of emergencias){
+          await sb.from('contactos_emergencia').insert({empleado_id: data[0].id, nombre:c.nombre, parentesco:c.parentesco, telefono:c.tel});
+        }
+        for(const st of estudios){
+          await sb.from('estudios').insert({empleado_id: data[0].id, nivel:st.nivel, titulo:st.titulo, institucion:st.institucion, anio:st.anio});
+        }
+      }
+    }
+  } catch(err){
+    console.error('Error guardando:', err);
+    alert('Error al guardar: ' + (err.message || JSON.stringify(err)));
+    return;
+  }
+
+  editingIdx=null;
+  familiares = [];
+  renderFamiliares();
+  estudios = [];
+  renderEstudios();
+  resetForm();
+  try{ await loadEmpleados(); }catch(e){}
+  renderDashboard();
+  renderListado();
+  alert('✅ Registro guardado correctamente');
+  switchTHView('listado');
+}
+
+function resetForm(){
+  FIELDS.forEach(f=>{const el=document.getElementById('f_'+f);if(!el)return;if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';});
+  const h=document.getElementById('f_hijos');if(h)h.value='0';
+  editingIdx=null;
+  familiares=[];
+  renderFamiliares();
+  estudios=[];
+  renderEstudios();
+  emergencias=[];
+  renderEmergencias();
+  document.getElementById('btnSaveEmp').textContent='💾 Guardar Registro';
+  document.getElementById('formTitle').textContent='📝 Nueva Ficha de Empleado';
+  // El apartado salarial siempre vuelve a quedar oculto hasta ingresar la clave
+  const secSal=document.getElementById('seccionSalarial'); if(secSal)secSal.style.display='none';
+  const btnSal=document.getElementById('btnSalarial'); if(btnSal)btnSal.innerHTML='🔒 Información salarial (requiere clave)';
+  salarialDesbloqueado=false;
+}
+
+async function editEmpleado(i){
+  const e=empleados[i];
+  const SAL_FIELDS=['salario','auxTransporte','bonoPPFijo','bonoPPVar','bono','rodamiento','auxAlimentacion','bonoCelular','bonoComputador'];
+  FIELDS.forEach(f=>{ if(!SAL_FIELDS.includes(f)) setVal(f,e[f]); });
+  // Guardar los valores salariales aparte; se aplican solo al desbloquear con clave
+  salarialPendiente={}; SAL_FIELDS.forEach(f=>salarialPendiente[f]=e[f]);
+  editingIdx=i;
+  familiares = [];
+  try {
+    const sb = getSupabase();
+    if(sb && e._dbId){
+      const {data} = await sb.from('familiares').select('*').eq('empleado_id', e._dbId);
+      if(data) familiares = data.map(f=>({nombre:f.nombre, doc:f.documento, parentesco:f.parentesco, edad:f.edad||'', tel:f.telefono}));
+      const {data:ems} = await sb.from('contactos_emergencia').select('*').eq('empleado_id', e._dbId);
+      if(ems) emergencias = ems.map(c=>({nombre:c.nombre, parentesco:c.parentesco, tel:c.telefono}));
+      const {data:ests} = await sb.from('estudios').select('*').eq('empleado_id', e._dbId);
+      estudios = ests ? ests.map(s=>({nivel:s.nivel, titulo:s.titulo, institucion:s.institucion||'—', anio:s.anio||'—'})) : [];
+    }
+  } catch(e){}
+  renderEmergencias();
+  renderEstudios();
+  renderFamiliares();
+  document.getElementById('btnSaveEmp').textContent='💾 Guardar Cambios';
+  document.getElementById('formTitle').textContent='✏️ Editar Ficha — '+e.nombres+' '+e.apellidos;
+  switchTHView('registro');
+}
+
+async function delEmpleado(i){
+  if(!confirm('¿Eliminar el registro de '+empleados[i].nombres+'?'))return;
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(sb && empleados[i]._dbId){
+      await sb.from('empleados').delete().eq('id', empleados[i]._dbId);
+    }
+  }catch(e){}
+  try{ await loadEmpleados(); }catch(e){}
+  renderDashboard();
+  renderListado();
+}
+
+async function toggleEstadoEmp(i){
+  const newEstado = empleados[i].estado==='Activo' ? 'Inactivo' : 'Activo';
+  try {
+    const sb = typeof getSupabase==='function' ? getSupabase() : null;
+    if(sb && empleados[i]._dbId){
+      await sb.from('empleados').update({estado:newEstado}).eq('id', empleados[i]._dbId);
+    }
+  }catch(e){}
+  try{ await loadEmpleados(); }catch(e){}
+  renderListado();
+  renderDashboard();
+}
+
+function calcEdad(fn){
+  if(!fn)return 0;
+  const d=new Date(fn),hoy=new Date();
+  let a=hoy.getFullYear()-d.getFullYear();
+  if(hoy.getMonth()<d.getMonth()||(hoy.getMonth()===d.getMonth()&&hoy.getDate()<d.getDate()))a--;
+  return a;
+}
+function calcAntig(fi){
+  if(!fi)return 0;
+  return ((new Date()-new Date(fi))/31557600000).toFixed(1);
+}
+
+// ===== FAMILIARES =====
+function toggleEdadHijo(){
+  const p=document.getElementById('fam_parentesco').value;
+  const wrap=document.getElementById('fam_edad_wrap');
+  const esHijo=(p==='Hijo/a');
+  wrap.style.display=esHijo?'block':'none';
+  if(!esHijo)document.getElementById('fam_edad').value='';
+}
+function addFamiliar(){
+  const nombre = document.getElementById('fam_nombre').value.trim();
+  if(!nombre){ alert('Ingrese el nombre del familiar'); return; }
+  const parentesco = document.getElementById('fam_parentesco').value;
+  const edadVal = document.getElementById('fam_edad').value.trim();
+  if(parentesco==='Hijo/a' && edadVal===''){ alert('Para Hijo/Hija indique la edad en años.'); return; }
+  familiares.push({
+    nombre,
+    doc: document.getElementById('fam_doc').value.trim() || '—',
+    parentesco,
+    edad: parentesco==='Hijo/a' ? (edadVal+' años') : '',
+    tel: document.getElementById('fam_tel').value.trim() || '—',
+  });
+  document.getElementById('fam_nombre').value='';
+  document.getElementById('fam_doc').value='';
+  document.getElementById('fam_tel').value='';
+  document.getElementById('fam_edad').value='';
+  toggleEdadHijo();
+  renderFamiliares();
+}
+function removeFamiliar(i){ familiares.splice(i,1); renderFamiliares(); }
+
+// ===== ESTUDIOS ADICIONALES =====
+let estudios = [];
+function addEstudio(){
+  const titulo=document.getElementById('est_titulo').value.trim();
+  if(!titulo){ alert('Ingrese el título del estudio'); return; }
+  estudios.push({
+    nivel: document.getElementById('est_nivel').value,
+    titulo,
+    institucion: document.getElementById('est_inst').value.trim() || '—',
+    anio: document.getElementById('est_anio').value.trim() || '—'
+  });
+  document.getElementById('est_titulo').value='';
+  document.getElementById('est_inst').value='';
+  document.getElementById('est_anio').value='';
+  renderEstudios();
+}
+function removeEstudio(i){ estudios.splice(i,1); renderEstudios(); }
+function renderEstudios(){
+  const body=document.getElementById('estudiosBody');
+  if(!body) return;
+  body.innerHTML = estudios.length ? estudios.map((s,i)=>`
+    <tr>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${s.nivel}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${s.titulo}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${s.institucion}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${s.anio}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;"><button style="border:none;background:transparent;cursor:pointer;font-size:13px;" onclick="removeEstudio(${i})">🗑</button></td>
+    </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:#5B6B7C;padding:12px;font-size:12px;">Sin estudios adicionales</td></tr>';
+}
+function renderFamiliares(){
+  const body = document.getElementById('familiaBody');
+  if(!body) return;
+  body.innerHTML = familiares.length ? familiares.map((f,i)=>`
+    <tr>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${f.nombre}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${f.doc}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${f.parentesco}${f.edad?' · '+f.edad:''}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;">${f.tel}</td>
+      <td style="padding:8px;border-bottom:1px solid #E3E9F0;"><button style="border:none;background:transparent;cursor:pointer;font-size:13px;" onclick="removeFamiliar(${i})">🗑</button></td>
+    </tr>`).join('') : '<tr><td colspan="5" style="padding:12px 8px;color:#5B6B7C;text-align:center;font-size:12px;">Sin familiares registrados</td></tr>';
+}
+
+// ===== FICHA PDF =====
+function buildFichaPDF(e){
+  const edad=calcEdad(e.nacimiento);
+  const antig=calcAntig(e.ingreso);
+  const iniciales=((e.nombres||'')[0]||'')+((e.apellidos||'')[0]||'');
+  const cls=e.estado==='Activo'?'#16A34A':'#D97706';
+  const cargoTxt=[e.cargo,e.area].filter(Boolean).join(' | ')||e.instruccion||'—';
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Ficha ${e.nombres} ${e.apellidos}</title>
+<style>
+body{font-family:Arial,sans-serif;color:#0F1B2A;margin:0;font-size:11.5px;}
+.hdr{background:linear-gradient(135deg,#0A2540,#0F3A63);color:#fff;padding:22px 28px;display:flex;align-items:center;gap:16px;}
+.av{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;}
+.hdr h1{font-size:16px;margin:0;} .hdr .s{font-size:10px;color:#B0C9E4;margin-top:2px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:9px;font-weight:800;color:#fff;background:${cls};margin-top:4px;}
+.body{padding:22px 28px;}
+h2{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#0A2540;margin:16px 0 8px;padding-bottom:5px;border-bottom:1.5px solid #E3E9F0;}
+.g{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:4px;} .g.c2{grid-template-columns:1fr 1fr;}
+.c{border:1px solid #E3E9F0;border-radius:5px;padding:6px 9px;}
+.c .l{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#1598FF;margin-bottom:1px;}
+.c .v{font-size:11.5px;font-weight:700;color:#0A2540;}
+.c.a{border-color:#D97706;background:#FFFBF0;} .c.a .l{color:#DC2626;}
+.ft{padding:10px 28px;border-top:1px solid #E3E9F0;font-size:8.5px;color:#5B6B7C;display:flex;justify-content:space-between;}
+table{width:100%;border-collapse:collapse;margin:4px 0;} th{background:#EAF5FF;text-align:left;padding:5px 7px;border:1px solid #C9DEF2;font-size:9px;} td{padding:5px 7px;border:1px solid #DDE7F0;font-size:10.5px;}
+</style></head><body>
+<div class="hdr"><div class="av">${iniciales.toUpperCase()}</div><div><h1>${(e.nombres||'').toUpperCase()} ${(e.apellidos||'').toUpperCase()}</h1><div class="s">${cargoTxt}</div><div class="s">CC: ${e.cedula} | Exp: ${e.expedicion||'—'} ${e.fechaExp||''}</div><span class="badge">${(e.estado||'ACTIVO').toUpperCase()}</span></div></div>
+<div class="body">
+
+<h2>Datos Personales</h2>
+<div class="g"><div class="c"><div class="l">Sexo</div><div class="v">${e.genero||'—'}</div></div><div class="c"><div class="l">Fecha de nacimiento</div><div class="v">${e.nacimiento||'—'}</div></div><div class="c"><div class="l">Edad</div><div class="v">${edad} años</div></div></div>
+<div class="g"><div class="c"><div class="l">Estado civil</div><div class="v">${e.civil||'—'}</div></div><div class="c"><div class="l">Tipo de sangre</div><div class="v">${e.sangre||'—'}</div></div><div class="c"><div class="l">Personas a cargo</div><div class="v">${e.hijos||0}</div></div></div>
+<div class="g"><div class="c"><div class="l">Lugar nacimiento</div><div class="v">${e.lugarNac||'—'}</div></div><div class="c"><div class="l">Correo</div><div class="v">${e.correo||'—'}</div></div><div class="c"><div class="l">Celular</div><div class="v">${e.celular||'—'}</div></div></div>
+
+<h2>Información Laboral</h2>
+<div class="g"><div class="c"><div class="l">EPS</div><div class="v">${e.eps||'—'}</div></div><div class="c"><div class="l">Escolaridad</div><div class="v">${e.instruccion||'—'}</div></div><div class="c"><div class="l">Fecha de ingreso</div><div class="v">${e.ingreso||'—'}</div></div></div>
+<div class="g"><div class="c"><div class="l">Tiempo en empresa</div><div class="v">${antig} años</div></div><div class="c"><div class="l">Turno de trabajo</div><div class="v">${e.turno||'Diurno'}</div></div><div class="c"><div class="l">Fecha de retiro</div><div class="v">${e.retiro||'N/A'}</div></div></div>
+<div class="g"><div class="c"><div class="l">Título</div><div class="v">${e.titulo||'—'}</div></div><div class="c"><div class="l">Posgrado</div><div class="v">${e.posgrado||'—'}</div></div><div class="c"><div class="l">Modalidad</div><div class="v">${e.modalidad||'—'}</div></div></div>
+
+<h2>Salud y Alertas Médicas</h2>
+<div class="g c2"><div class="c a"><div class="l">Alergias / Condiciones</div><div class="v">${e.alergias||'Ninguna'}</div></div><div class="c"><div class="l">EPS / Aseguradora</div><div class="v">${e.eps||'—'}</div></div></div>
+${e.prescripcion?'<div class="g c2"><div class="c"><div class="l">Prescripción médica</div><div class="v">'+e.prescripcion+'</div></div></div>':''}
+
+<h2>Última Empresa donde Laboró</h2>
+<div class="g"><div class="c"><div class="l">Empresa</div><div class="v">${e.empresaAnt||'—'}</div></div><div class="c"><div class="l">Dirección</div><div class="v">${e.empresaDir||'—'}</div></div><div class="c"><div class="l">Teléfono</div><div class="v">${e.empresaTel||'—'}</div></div></div>
+
+<h2>Grupo Familiar</h2>
+<table><tr><th>Nombre</th><th>Documento</th><th>Parentesco</th><th>Teléfono</th></tr>${familiares.length?familiares.map(f=>'<tr><td>'+f.nombre+'</td><td>'+f.doc+'</td><td>'+f.parentesco+'</td><td>'+f.tel+'</td></tr>').join(''):'<tr><td colspan="4">Sin familiares registrados</td></tr>'}</table>
+
+<h2>Contactos de Emergencia</h2>
+<table><tr><th>Nombre</th><th>Parentesco</th><th>Teléfono</th></tr>${emergencias.length?emergencias.map(c=>'<tr><td>'+c.nombre+'</td><td>'+c.parentesco+'</td><td>'+c.tel+'</td></tr>').join(''):'<tr><td colspan="3">'+(e.emergNombre?e.emergNombre+' ('+e.emergParent+') — '+e.emergCel:'Sin contactos')+'</td></tr>'}</table>
+
+<h2>Seguridad Social</h2>
+<div class="g"><div class="c"><div class="l">Pensiones</div><div class="v">${e.pension||'—'}</div></div><div class="c"><div class="l">Cesantías</div><div class="v">${e.cesantias||'—'}</div></div><div class="c"><div class="l">Estrato</div><div class="v">${e.estrato||'—'}</div></div></div>
+
+<h2>Residencia y Movilidad</h2>
+<div class="g"><div class="c"><div class="l">Dirección</div><div class="v">${e.direccion||'—'}</div></div><div class="c"><div class="l">Medio de transporte</div><div class="v">${e.transporte||'—'}</div></div><div class="c"><div class="l">Teléfono fijo</div><div class="v">${e.fijo||'—'}</div></div></div>
+
+<h2>Dotación</h2>
+<div class="g"><div class="c"><div class="l">Camisa</div><div class="v">${e.camisa||'—'}</div></div><div class="c"><div class="l">Pantalón</div><div class="v">${e.pantalon||'—'}</div></div><div class="c"><div class="l">Botas</div><div class="v">${e.botas||'—'}</div></div></div>
+<div class="g"><div class="c"><div class="l">Chaqueta</div><div class="v">${e.chaqueta||'—'}</div></div><div class="c"><div class="l"></div><div class="v"></div></div><div class="c"><div class="l"></div><div class="v"></div></div></div>
+
+<h2>Información Bancaria</h2>
+<div class="g"><div class="c"><div class="l">Banco</div><div class="v">${e.banco||'—'}</div></div><div class="c"><div class="l">Tipo de cuenta</div><div class="v">${e.tipoCuenta||'—'}</div></div><div class="c"><div class="l">N° cuenta</div><div class="v">${e.numCuenta||'—'}</div></div></div>
+
+</div>
+<div class="ft"><span>Ficha individual · Grupo LPS · SIG HSEQ Colombia</span><span>Generado: ${new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'})}</span></div>
+<script>window.print();<\/script></body></html>`;
+}
+
+function previewFicha(){
+  const e=collectEmpleado();
+  const w=window.open('','_blank');
+  w.document.write(buildFichaPDF(e));
+  w.document.close();
+}
+async function pdfEmpleado(i){
+  const e=empleados[i];
+  // Cargar familiares y emergencias desde Supabase
+  try{
+    const sb=getSupabase();
+    if(sb && e._dbId){
+      const [{data:fams},{data:ems}] = await Promise.all([
+        sb.from('familiares').select('*').eq('empleado_id',e._dbId),
+        sb.from('contactos_emergencia').select('*').eq('empleado_id',e._dbId)
+      ]);
+      if(fams) familiares=fams.map(f=>({nombre:f.nombre,doc:f.documento||'—',parentesco:f.parentesco||'—',edad:f.edad||'',tel:f.telefono||'—'}));
+      if(ems) emergencias=ems.map(c=>({nombre:c.nombre,parentesco:c.parentesco||'—',tel:c.telefono||'—'}));
+    }
+  }catch(ex){}
+  const w=window.open('','_blank');
+  w.document.write(buildFichaPDF(e));
+  w.document.close();
+}
+
+// ===== FICHA MODAL =====
+function closeFichaModal(){document.getElementById('fichaModal').classList.remove('open');}
+async function showFichaModal(i){
+  const e=empleados[i];
+  const edad=calcEdad(e.nacimiento);
+  const antig=calcAntig(e.ingreso);
+  const iniciales=(e.nombres[0]||'')+(e.apellidos[0]||'');
+  const cls=e.estado==='Activo'?'ok':(e.estado==='Inactivo'?'warn':'blue');
+  const cargoTxt = [e.cargo, e.area].filter(Boolean).join(' | ') || e.instruccion || '—';
+  const contratoTxt = [e.contrato, e.modalidad].filter(Boolean).join(' | ') || '—';
+  document.getElementById('fichaHeader').innerHTML=`<div class="ficha-avatar">${iniciales.toUpperCase()}</div><div><h3>${(e.nombres||'').toUpperCase()} ${(e.apellidos||'').toUpperCase()}</h3><div class="fh-sub">${cargoTxt}</div><div class="fh-sub">CC: ${e.cedula} | ${contratoTxt}</div><span class="fh-badge ${cls}">${(e.estado||'ACTIVO').toUpperCase()}</span></div>`;
+  document.getElementById('fichaBody').innerHTML=`
+    <div class="ficha-section"><h5>Datos Personales</h5>
+      <div class="ficha-grid"><div class="ficha-cell"><div class="fc-label">Sexo</div><div class="fc-value">${e.genero||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Fecha de nacimiento</div><div class="fc-value">${e.nacimiento||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Edad</div><div class="fc-value">${edad} años</div></div></div>
+      <div class="ficha-grid" style="margin-top:8px;"><div class="ficha-cell"><div class="fc-label">Estado civil</div><div class="fc-value">${e.civil||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Tipo de sangre</div><div class="fc-value">${e.sangre||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Personas a cargo</div><div class="fc-value">${e.hijos||'0'}</div></div></div>
+    </div>
+    <div class="ficha-section"><h5>Información Laboral</h5>
+      <div class="ficha-grid"><div class="ficha-cell"><div class="fc-label">EPS</div><div class="fc-value">${e.eps||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Escolaridad</div><div class="fc-value">${e.instruccion||'—'}</div></div><div class="ficha-cell"><div class="fc-label">Fecha de ingreso</div><div class="fc-value">${e.ingreso||'—'}</div></div></div>
+      <div class="ficha-grid" style="margin-top:8px;"><div class="ficha-cell"><div class="fc-label">Tiempo en empresa</div><div class="fc-value">${antig} años</div></div><div class="ficha-cell"><div class="fc-label">Turno de trabajo</div><div class="fc-value">${e.turno||'Diurno'}</div></div><div class="ficha-cell"><div class="fc-label">Fecha de retiro</div><div class="fc-value">${e.retiro||'N/A'}</div></div></div>
+    </div>
+    <div class="ficha-section"><h5>Salud y Alertas Médicas</h5>
+      <div class="ficha-grid c2"><div class="ficha-cell alert"><div class="fc-label">Alergias / Condiciones</div><div class="fc-value">${e.alergias||'Ninguna'}</div></div><div class="ficha-cell"><div class="fc-label">Prescripción médica o restricciones</div><div class="fc-value">${e.prescripcion||'Ninguna'}</div></div></div>
+    </div>
+    <div class="ficha-section"><h5>Contacto de Emergencia</h5><div id="fichaEmergencias"></div></div>
+
+    `;
+
+  // Cargar contactos de emergencia
+  const elEmerg=document.getElementById('fichaEmergencias');
+  try{
+    const sb=getSupabase();
+    if(sb && e._dbId){
+      const{data}=await sb.from('contactos_emergencia').select('*').eq('empleado_id',e._dbId);
+      if(data && data.length>0){
+        elEmerg.innerHTML=data.map(c=>'<div class="ficha-grid c2" style="margin-bottom:6px;"><div class="ficha-cell alert"><div class="fc-label">Teléfono de emergencia</div><div class="fc-value">'+(c.telefono||'—')+'</div></div><div class="ficha-cell"><div class="fc-label">A quién avisar</div><div class="fc-value">'+(c.nombre||'—')+' ('+(c.parentesco||'—')+')</div></div></div>').join('');
+      } else if(e.emergNombre || e.emergCel){
+        elEmerg.innerHTML='<div class="ficha-grid c2"><div class="ficha-cell alert"><div class="fc-label">Teléfono de emergencia</div><div class="fc-value">'+(e.emergCel||'—')+'</div></div><div class="ficha-cell"><div class="fc-label">A quién avisar</div><div class="fc-value">'+(e.emergNombre||'—')+' ('+(e.emergParent||'—')+')</div></div></div>';
+      } else {
+        elEmerg.innerHTML='<div style="color:#5B6B7C;font-size:12px;padding:8px;">Sin contactos de emergencia registrados</div>';
+      }
+    }
+  }catch(ex){
+    if(e.emergNombre || e.emergCel){
+      elEmerg.innerHTML='<div class="ficha-grid c2"><div class="ficha-cell alert"><div class="fc-label">Teléfono de emergencia</div><div class="fc-value">'+(e.emergCel||'—')+'</div></div><div class="ficha-cell"><div class="fc-label">A quién avisar</div><div class="fc-value">'+(e.emergNombre||'—')+' ('+(e.emergParent||'—')+')</div></div></div>';
+    }
+  }
+
+  document.getElementById('fichaFooterLeft').textContent='Ficha individual · Grupo LPS — Generado: '+new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('fichaDownloadBtn').onclick=()=>pdfEmpleado(i);
+  document.getElementById('fichaModal').classList.add('open');
+}
+
+// ===== LISTADO =====
+function setTab(btn,tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');currentTab=tab;renderListado();
+}
+
+function renderListado(){
+  const q=(document.getElementById('searchInput').value||'').toLowerCase();
+  const fa=document.getElementById('filterArea').value;
+  let list=empleados.map((e,i)=>({...e,_i:i}));
+  if(currentTab==='activos')list=list.filter(e=>e.estado==='Activo');
+  if(currentTab==='inactivos')list=list.filter(e=>e.estado!=='Activo');
+  if(fa)list=list.filter(e=>e.area===fa);
+  if(q)list=list.filter(e=>(e.nombres+' '+e.apellidos+' '+e.cedula+' '+e.eps+' '+e.instruccion).toLowerCase().includes(q));
+  document.getElementById('totalCount').textContent=list.length;
+  document.getElementById('totalAll').textContent=empleados.length;
+  document.getElementById('sbCount').textContent=empleados.length;
+  const body=document.getElementById('empBody');
+  body.innerHTML=list.length?list.map(e=>{
+    const cls=e.estado==='Activo'?'ok':(e.estado==='Inactivo'?'warn':'blue');
+    const edad=calcEdad(e.nacimiento);
+    const antig=calcAntig(e.ingreso);
+    const sexo=e.genero==='Masculino'?'M':(e.genero==='Femenino'?'F':'—');
+    const toggleTxt=e.estado==='Activo'?'→ Inact':'→ Activ';
+    const toggleCls=e.estado==='Activo'?'warn':'ok';
+    return `<tr><td><strong>${(e.apellidos||'').toUpperCase()}, ${(e.nombres||'').toUpperCase()}</strong></td><td style="text-align:center;">${sexo}</td><td style="text-align:center;">${edad}</td><td style="text-align:center;">${antig}</td><td><span class="badge ${cls}">${(e.estado||'ACTIVO').toUpperCase()}</span></td><td><button class="row-btn" onclick="showFichaModal(${e._i})">Ficha</button></td><td style="white-space:nowrap;"><button class="row-btn" style="color:var(--${toggleCls});" onclick="toggleEstadoEmp(${e._i})">${toggleTxt}</button><button class="row-btn" onclick="editEmpleado(${e._i})">Ed</button><button class="row-btn" style="color:var(--danger);" onclick="delEmpleado(${e._i})">X</button></td></tr>`;
+  }).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--slate);padding:30px;">Sin registros. Use "Ficha de Empleado" para agregar personal.</td></tr>';
+  const areas=[...new Set(empleados.map(e=>e.area).filter(Boolean))].sort();
+  const sel=document.getElementById('filterArea');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Todas las áreas</option>'+areas.map(a=>`<option ${a===cur?'selected':''}>${a}</option>`).join('');
+}
+
+// ===== DASHBOARD =====
+function renderDashboard(){
+  if(typeof Chart === 'undefined'){
+    console.warn('Chart.js no cargado, reintentando...');
+    setTimeout(renderDashboard, 500);
+    return;
+  }
+  const activos=empleados.filter(e=>e.estado==='Activo');
+  const inactivos=empleados.filter(e=>e.estado!=='Activo');
+  const n=activos.length;
+  const edades=activos.map(e=>calcEdad(e.nacimiento)).filter(a=>a>0);
+  const avgEdad=edades.length?Math.round(edades.reduce((s,a)=>s+a,0)/edades.length*10)/10:0;
+  const mujeres=activos.filter(e=>e.genero==='Femenino').length;
+  const pctMuj=n?Math.round(mujeres/n*100):0;
+  const antigs=activos.map(e=>Number(calcAntig(e.ingreso))).filter(a=>a>0);
+  const avgAntig=antigs.length?Math.round(antigs.reduce((s,a)=>s+a,0)/antigs.length*10)/10:0;
+
+  document.getElementById('kpiArea').innerHTML=`
+    <div class="kpi"><div class="label">Personal activo</div><div class="val">${n}</div><div class="sub">Empleados</div></div>
+    <div class="kpi orange"><div class="label">Edad promedio</div><div class="val">${avgEdad}</div><div class="sub">Años</div></div>
+    <div class="kpi green"><div class="label">% Mujeres</div><div class="val">${pctMuj}%</div><div class="sub">${mujeres} de ${n}</div></div>
+    <div class="kpi red"><div class="label">Antigüedad promedio</div><div class="val">${avgAntig}</div><div class="sub">Años</div></div>`;
+
+  // Análisis automático
+  const mayorEdad = activos.length ? activos.reduce((a,b)=>calcEdad(a.nacimiento)>calcEdad(b.nacimiento)?a:b) : null;
+  const masAntiguo = activos.length ? activos.filter(e=>e.ingreso).reduce((a,b)=>new Date(a.ingreso)<new Date(b.ingreso)?a:b, activos.filter(e=>e.ingreso)[0]) : null;
+  const areaMax = Object.entries(count(activos,'area')).sort((a,b)=>b[1]-a[1])[0];
+
+  let analisis = '<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:18px;box-shadow:0 4px 16px rgba(10,37,64,.06);">';
+  analisis += '<h4 style="font-size:14px;color:#0A2540;margin-bottom:8px;">📋 Análisis automático de personal activo</h4>';
+  analisis += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:12.5px;color:#5B6B7C;line-height:1.6;">';
+  analisis += '<div>👥 <b>Total activos:</b> '+n+' | <b>Inactivos:</b> '+inactivos.length+'</div>';
+  analisis += '<div>👫 <b>Hombres:</b> '+activos.filter(e=>e.genero==='Masculino').length+' | <b>Mujeres:</b> '+mujeres+'</div>';
+  if(areaMax) analisis += '<div>🏢 <b>Área principal:</b> '+areaMax[0]+' ('+areaMax[1]+')</div>';
+  if(mayorEdad) analisis += '<div>🎂 <b>Mayor edad:</b> '+mayorEdad.nombres+' '+mayorEdad.apellidos+' ('+calcEdad(mayorEdad.nacimiento)+' años)</div>';
+  if(masAntiguo) analisis += '<div>⏳ <b>Más antiguo:</b> '+(masAntiguo.nombres||'')+' '+(masAntiguo.apellidos||'')+' ('+calcAntig(masAntiguo.ingreso)+' años)</div>';
+  analisis += '<div>📊 <b>Promedio hijos:</b> '+(n?Math.round(activos.reduce((s,e)=>s+(e.hijos||0),0)/n*10)/10:0)+'</div>';
+  analisis += '</div></div>';
+
+  // Insertar análisis después de KPIs
+  document.getElementById('kpiArea').insertAdjacentHTML('afterend', '<div id="analisisAuto">'+analisis+'</div>');
+  const prevAnalisis = document.querySelectorAll('#analisisAuto');
+  if(prevAnalisis.length > 1) prevAnalisis[0].remove();
+
+  const genero=count(activos,'genero'), civil=count(activos,'civil');
+  const instruccion=count(activos,'instruccion'), area=count(activos,'area');
+  const contrato=count(activos,'contrato'), sede=count(activos,'sede');
+  const transporte=count(activos,'transporte'), modalidad=count(activos,'modalidad');
+  const estrato=count(activos,'estrato');
+
+  const edadRangos={'18-25':0,'26-35':0,'36-45':0,'46-55':0,'56+':0};
+  edades.forEach(a=>{if(a<=25)edadRangos['18-25']++;else if(a<=35)edadRangos['26-35']++;else if(a<=45)edadRangos['36-45']++;else if(a<=55)edadRangos['46-55']++;else edadRangos['56+']++;});
+
+  const antigRangos={'<1 año':0,'1-3 años':0,'3-5 años':0,'5-10 años':0,'10+ años':0};
+  antigs.forEach(a=>{if(a<1)antigRangos['<1 año']++;else if(a<=3)antigRangos['1-3 años']++;else if(a<=5)antigRangos['3-5 años']++;else if(a<=10)antigRangos['5-10 años']++;else antigRangos['10+ años']++;});
+
+  const palette=['#1598FF','#F5821F','#1E9E5A','#6C5CE7','#E84393','#00B894','#FDCB6E','#636E72','#D63031','#0984E3'];
+
+  const allCharts = [
+    {container:'chartsRow1', items:[
+      {title:'Distribución por Género',sub:'Personal activo',type:'doughnut',data:genero},
+      {title:'Distribución por Edad',sub:'Rangos etarios',type:'bar',data:edadRangos},
+      {title:'Estado Civil',sub:'Composición',type:'doughnut',data:civil}
+    ]},
+    {container:'chartsRow2', items:[
+      {title:'Nivel de Escolaridad',sub:'Formación académica',type:'doughnut',data:instruccion},
+      {title:'Tiempo en la Organización',sub:'Antigüedad agrupada',type:'bar',data:antigRangos}
+    ]},
+    {container:'chartsRow3', items:[
+      {title:'Modalidad de Trabajo',sub:'Distribución',type:'doughnut',data:modalidad},
+      {title:'Medio de Transporte',sub:'Cómo se desplazan',type:'doughnut',data:transporte},
+      {title:'Estrato Socioeconómico',sub:'Distribución',type:'bar',data:estrato}
+    ]}
+  ];
+
+  allCharts.forEach(group => {
+    const el = document.getElementById(group.container);
+    if(!el) return;
+    el.innerHTML = group.items.map((c,i) => 
+      '<div class="chart-box"><h4>'+c.title+'</h4><div class="chart-sub">'+(c.sub||'')+'</div><canvas id="ch_'+group.container+'_'+i+'" height="'+(c.type==='doughnut'?180:160)+'"></canvas></div>'
+    ).join('');
+
+    group.items.forEach((c,i) => {
+      try {
+        const canvas = document.getElementById('ch_'+group.container+'_'+i);
+        if(!canvas) return;
+        const key = group.container+'_'+i;
+        if(charts[key]) charts[key].destroy();
+        charts[key] = new Chart(canvas, {
+          type: c.type,
+          data: {
+            labels: Object.keys(c.data),
+            datasets: [{
+              data: Object.values(c.data),
+              backgroundColor: c.type==='doughnut' ? palette : palette.slice(0,Object.keys(c.data).length).map(x=>x+'CC'),
+              borderColor: c.type==='bar' ? palette.slice(0,Object.keys(c.data).length) : undefined,
+              borderWidth: c.type==='doughnut' ? 0 : 1,
+              borderRadius: c.type==='bar' ? 4 : 0,
+              maxBarThickness: 28
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: c.type==='doughnut', position:'bottom', labels:{boxWidth:10,font:{size:10}} } },
+            scales: c.type==='bar' ? { y:{beginAtZero:true,grid:{color:'#EAEFF5'}}, x:{grid:{display:false},ticks:{font:{size:9}}} } : undefined,
+            cutout: c.type==='doughnut' ? '60%' : undefined
+          }
+        });
+      } catch(err) { console.error('Error gráfica '+c.title+':', err); }
+    });
+  });
+}
+
+function count(arr,field){const m={};arr.forEach(e=>{const k=e[field]||'Sin dato';m[k]=(m[k]||0)+1;});return m;}
+
+renderFamiliares();
+
+// ===== CONTACTOS DE EMERGENCIA (tabla dinámica) =====
+let emergencias = [];
+function addEmergencia(){
+  const n=document.getElementById('emerg_nombre').value.trim();
+  if(!n){alert('Ingrese nombre del contacto');return;}
+  emergencias.push({nombre:n, parentesco:document.getElementById('emerg_parent').value.trim()||'—', tel:document.getElementById('emerg_tel').value.trim()||'—'});
+  document.getElementById('emerg_nombre').value='';document.getElementById('emerg_parent').value='';document.getElementById('emerg_tel').value='';
+  renderEmergencias();
+}
+function removeEmergencia(i){emergencias.splice(i,1);renderEmergencias();}
+function renderEmergencias(){
+  const b=document.getElementById('emergBody');
+  if(!b)return;
+  b.innerHTML=emergencias.length?emergencias.map((c,i)=>`<tr><td style="padding:8px;border-bottom:1px solid #E3E9F0;">${c.nombre}</td><td style="padding:8px;border-bottom:1px solid #E3E9F0;">${c.parentesco}</td><td style="padding:8px;border-bottom:1px solid #E3E9F0;">${c.tel}</td><td style="padding:8px;border-bottom:1px solid #E3E9F0;"><button style="border:none;background:transparent;cursor:pointer;font-size:13px;" onclick="removeEmergencia(${i})">🗑</button></td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#5B6B7C;padding:12px;font-size:12px;">Sin contactos registrados</td></tr>';
+}
+renderEmergencias();
+
+// ===================== MÓDULO DOTACIÓN Y EPP =====================
+let dotEmpleadoActual = null;   // empleado encontrado por cédula
+let dotItemsData = [];          // elementos de la entrega en curso
+let dotFirmaCtx = null, dotDibujando = false, dotHayFirma = false;
+
+// Elementos frecuentes para sugerir
+const DOT_ELEMENTOS = ['Camisa/Camibuso','Pantalón','Botas de seguridad','Chaqueta','Casco','Guantes','Gafas de seguridad','Protección auditiva','Mascarilla/Respirador','Arnés','Overol','Impermeable','Chaleco reflectivo','Otro'];
+
+function initDotacion(){
+  if(!document.getElementById('dotFecha').value){
+    document.getElementById('dotFecha').value = new Date().toISOString().slice(0,10);
+  }
+  setupFirmaCanvas();
+}
+
+async function buscarEmpleadoDotacion(){
+  const ced = document.getElementById('dotCedula').value.trim();
+  if(!ced){ alert('Ingrese un número de cédula'); return; }
+  try{
+    const sb = getSupabase();
+    const {data} = await sb.from('empleados').select('*').eq('cedula',ced).limit(1);
+    if(!data || !data.length){
+      document.getElementById('dotEmpInfo').innerHTML = '<span style="color:#DC2626;">⚠️ No existe un empleado con esa cédula en la base.</span>';
+      document.getElementById('dotFormEntrega').style.display='none';
+      document.getElementById('dotHistorial').innerHTML='';
+      dotEmpleadoActual=null;
+      return;
+    }
+    dotEmpleadoActual = data[0];
+    const nombre = ((dotEmpleadoActual.nombres||'')+' '+(dotEmpleadoActual.apellidos||'')).trim();
+    document.getElementById('dotEmpInfo').innerHTML = '✅ '+nombre+' — CC '+ced;
+    // Sugerir tallas del empleado
+    document.getElementById('dotFormEntrega').style.display='block';
+    dotItemsData=[]; addDotItem();
+    limpiarFirma();
+    await cargarHistorialDotacion();
+  }catch(e){ alert('Error al buscar: '+e.message); }
+}
+
+function addDotItem(){
+  dotItemsData.push({elemento:'', cantidad:1, talla:'', observacion:''});
+  renderDotItems();
+}
+function delDotItem(i){ dotItemsData.splice(i,1); renderDotItems(); }
+function updDotItem(i,campo,val){ if(dotItemsData[i]) dotItemsData[i][campo]=val; }
+
+function renderDotItems(){
+  const cont=document.getElementById('dotItems');
+  const e=dotEmpleadoActual||{};
+  const tallasSug=[e.talla_camisa,e.talla_pantalon,e.talla_botas,e.talla_chaqueta].filter(Boolean).join(' / ');
+  if(!dotItemsData.length){ cont.innerHTML='<p style="font-size:12px;color:var(--slate);padding:6px 0;">Agregue al menos un elemento.</p>'; return; }
+  cont.innerHTML = (tallasSug?'<div style="font-size:11px;color:#0A6BC4;margin:4px 0;">Tallas registradas del empleado: '+tallasSug+'</div>':'')
+    + dotItemsData.map((it,i)=>{
+      const esOtro = (it.elemento||'').toLowerCase().startsWith('otro');
+      return `
+    <div style="margin-bottom:6px;">
+      <div style="display:grid;grid-template-columns:1.6fr 70px 90px 1.4fr 32px;gap:6px;align-items:center;">
+        <input list="dotElemList" placeholder="Elemento" value="${(it.elemento||'').replace(/"/g,'&quot;')}" oninput="updDotItem(${i},'elemento',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid #E2EBF3;border-radius:6px;">
+        <input type="number" min="1" value="${it.cantidad||1}" oninput="updDotItem(${i},'cantidad',this.value)" title="Cantidad" style="padding:6px 8px;font-size:12px;border:1px solid #E2EBF3;border-radius:6px;">
+        <input placeholder="Talla" value="${(it.talla||'').replace(/"/g,'&quot;')}" oninput="updDotItem(${i},'talla',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid #E2EBF3;border-radius:6px;">
+        <input placeholder="Observación" value="${(it.observacion||'').replace(/"/g,'&quot;')}" oninput="updDotItem(${i},'observacion',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid #E2EBF3;border-radius:6px;">
+        <button class="btn-sm" style="color:#DC2626;" onclick="delDotItem(${i})">🗑</button>
+      </div>
+      ${esOtro?`<input placeholder="¿Cuál elemento? (especifique)" value="${(it.especificar||'').replace(/"/g,'&quot;')}" oninput="updDotItem(${i},'especificar',this.value)" style="width:100%;margin-top:4px;padding:6px 8px;font-size:12px;border:1px solid #C4B5FD;border-radius:6px;background:#FAF5FF;">`:''}
+    </div>`;}).join('')
+    + '<datalist id="dotElemList">'+DOT_ELEMENTOS.map(x=>'<option value="'+x+'">').join('')+'</datalist>';
+}
+
+// Cambia entre entrega de Dotación y Bono
+function cambiarTipoEntrega(){
+  const tipo=document.getElementById('dotTipo').value;
+  const esBono = tipo==='BONO';
+  document.getElementById('dotBonoWrap').style.display = esBono?'block':'none';
+  document.getElementById('dotElementosWrap').style.display = esBono?'none':'block';
+}
+
+// ---- Firma en canvas ----
+function setupFirmaCanvas(){
+  const c=document.getElementById('dotFirma');
+  if(!c) return;
+  dotFirmaCtx=c.getContext('2d');
+  dotFirmaCtx.strokeStyle='#0A2540'; dotFirmaCtx.lineWidth=2; dotFirmaCtx.lineCap='round';
+  const pos=ev=>{const r=c.getBoundingClientRect();const t=ev.touches?ev.touches[0]:ev;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};};
+  const start=ev=>{ev.preventDefault();dotDibujando=true;const p=pos(ev);dotFirmaCtx.beginPath();dotFirmaCtx.moveTo(p.x,p.y);};
+  const move=ev=>{if(!dotDibujando)return;ev.preventDefault();const p=pos(ev);dotFirmaCtx.lineTo(p.x,p.y);dotFirmaCtx.stroke();dotHayFirma=true;};
+  const end=()=>{dotDibujando=false;};
+  c.onmousedown=start; c.onmousemove=move; c.onmouseup=end; c.onmouseleave=end;
+  c.ontouchstart=start; c.ontouchmove=move; c.ontouchend=end;
+}
+function limpiarFirma(){
+  const c=document.getElementById('dotFirma');
+  if(dotFirmaCtx&&c){dotFirmaCtx.clearRect(0,0,c.width,c.height);}
+  dotHayFirma=false;
+}
+
+// Texto legal de compromiso (corto, basado en la normativa colombiana de SST / EPP)
+function textoCompromiso(nombre, cedula){
+  return 'Yo, '+nombre+', identificado(a) con cédula '+cedula+', declaro que he recibido de LPS la dotación y/o los elementos de protección personal (EPP) aquí relacionados, suministrados de forma gratuita. Me comprometo a usarlos y conservarlos de manera adecuada conforme a los requerimientos legales vigentes (Ley 9 de 1979, Res. 2400 de 1979, Decreto 1072 de 2015 y demás normas de SST) y a los riesgos identificados en mi actividad, así como a reportar su deterioro o pérdida.';
+}
+
+async function guardarEntregaDotacion(firmaPresencial){
+  if(!dotEmpleadoActual){ alert('Primero busque un trabajador por cédula'); return; }
+  const tipo=document.getElementById('dotTipo').value;
+  const esBono = tipo==='BONO';
+  let items=[];
+  if(!esBono){
+    items = dotItemsData.filter(it=>it.elemento && it.elemento.trim());
+    if(!items.length){ alert('Agregue al menos un elemento a entregar'); return; }
+  } else {
+    const val=parseFloat(document.getElementById('dotBonoValor').value);
+    if(!val || val<=0){ alert('Ingrese el valor del bono de dotación'); return; }
+  }
+
+  const firma = (firmaPresencial && dotHayFirma) ? document.getElementById('dotFirma').toDataURL('image/png') : null;
+  if(firmaPresencial && !dotHayFirma){ if(!confirm('No hay firma del trabajador. ¿Guardar de todas formas?')) return; }
+
+  const nombre = ((dotEmpleadoActual.nombres||'')+' '+(dotEmpleadoActual.apellidos||'')).trim();
+  const token = firmaPresencial ? null : ('FD'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));
+
+  try{
+    const sb=getSupabase();
+    const {data:ent,error:e1}=await sb.from('dotacion_entrega').insert({
+      empleado_id:dotEmpleadoActual.id, cedula:dotEmpleadoActual.cedula, nombre:nombre,
+      fecha:document.getElementById('dotFecha').value||new Date().toISOString().slice(0,10),
+      gestor_contratista:document.getElementById('dotGestor').value.trim()||null,
+      entregado_por:document.getElementById('dotEntregadoPor').value.trim()||null,
+      observaciones:document.getElementById('dotObs').value.trim()||null,
+      tipo_entrega:tipo,
+      bono_valor:esBono?parseFloat(document.getElementById('dotBonoValor').value):null,
+      firma:firma,
+      firmado:firmaPresencial ? !!firma : false,
+      firma_token:token,
+      fecha_firma:(firmaPresencial && firma)?new Date().toISOString():null
+    }).select();
+    if(e1) throw e1;
+    const entregaId=ent[0].id;
+
+    if(!esBono){
+      const filas=items.map(it=>({entrega_id:entregaId, elemento:it.elemento.trim(), cantidad:parseInt(it.cantidad)||1, talla:it.talla||null, especificar:it.especificar||null, observacion:it.observacion||null}));
+      const {error:e2}=await sb.from('dotacion_entrega_items').insert(filas);
+      if(e2) throw e2;
+    }
+
+    if(firmaPresencial){
+      alert('✅ Entrega registrada correctamente');
+    } else {
+      // Generar link individual de firma
+      const base=location.href.split('?')[0].replace(/[^/]*$/,'');
+      const link=base+'firma-dotacion.html?token='+token;
+      mostrarLinkFirma(link, nombre);
+    }
+    cancelarEntregaDotacion();
+    await cargarHistorialDotacion();
+  }catch(e){ alert('Error al guardar: '+e.message); }
+}
+
+// Muestra el link para que el empleado firme
+function mostrarLinkFirma(link, nombre){
+  const html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:center;z-index:9999;" onclick="if(event.target===this)this.remove()">'
+    +'<div style="background:#fff;border-radius:14px;padding:24px;max-width:520px;width:90%;">'
+    +'<h3 style="margin:0 0 8px;">🔗 Link de firma para '+nombre+'</h3>'
+    +'<p style="font-size:13px;color:#5B6B7C;margin:0 0 12px;">Comparta este enlace con el trabajador. Podrá revisar y firmar su entrega sin ingresar al sistema. Al firmar, el registro se actualiza automáticamente.</p>'
+    +'<input value="'+link+'" readonly onclick="this.select()" style="width:100%;padding:10px;font-size:12px;border:1px solid #C4D8F0;border-radius:8px;margin-bottom:12px;">'
+    +'<div style="display:flex;gap:8px;">'
+    +'<button class="btn btn-p" onclick="navigator.clipboard.writeText(\''+link+'\');this.textContent=\'✅ Copiado\'">📋 Copiar link</button>'
+    +'<button class="btn btn-g" onclick="this.closest(\'div[style*=fixed]\').remove()">Cerrar</button>'
+    +'</div></div></div>';
+  const d=document.createElement('div'); d.innerHTML=html; document.body.appendChild(d.firstChild);
+}
+
+function cancelarEntregaDotacion(){
+  dotItemsData=[]; renderDotItems();
+  document.getElementById('dotEntregadoPor').value='';
+  document.getElementById('dotObs').value='';
+  document.getElementById('dotGestor').value='';
+  const bv=document.getElementById('dotBonoValor'); if(bv)bv.value='';
+  limpiarFirma();
+}
+
+async function cargarHistorialDotacion(){
+  if(!dotEmpleadoActual) return;
+  try{
+    const sb=getSupabase();
+    const {data:entregas}=await sb.from('dotacion_entrega').select('*').eq('empleado_id',dotEmpleadoActual.id).order('fecha',{ascending:false});
+    const cont=document.getElementById('dotHistorial');
+    if(!entregas || !entregas.length){ cont.innerHTML='<p style="font-size:12px;color:var(--slate);">Este trabajador aún no tiene entregas registradas.</p>'; return; }
+    // Traer items de todas las entregas
+    const ids=entregas.map(e=>e.id);
+    const {data:items}=await sb.from('dotacion_entrega_items').select('*').in('entrega_id',ids);
+    const itemsPorEntrega={};
+    (items||[]).forEach(it=>{ (itemsPorEntrega[it.entrega_id]=itemsPorEntrega[it.entrega_id]||[]).push(it); });
+
+    let h='<div class="panel" style="padding:14px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><h3 style="margin:0;">📋 Historial de entregas</h3><button class="btn btn-g" onclick="pdfDotacion()">📄 Generar PDF</button></div>';
+    h+='<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#EAF5FF;"><th style="padding:6px 8px;border:1px solid #D0DFF0;text-align:left;">Fecha</th><th style="padding:6px 8px;border:1px solid #D0DFF0;text-align:left;">Elementos</th><th style="padding:6px 8px;border:1px solid #D0DFF0;">Entregó</th><th style="padding:6px 8px;border:1px solid #D0DFF0;">Firma</th><th style="padding:6px 8px;border:1px solid #D0DFF0;"></th></tr></thead><tbody>';
+    entregas.forEach(ent=>{
+      const its=itemsPorEntrega[ent.id]||[];
+      let listaItems;
+      if(ent.tipo_entrega==='BONO'){
+        listaItems='<strong style="color:#B45309;">💵 Bono de dotación'+(ent.bono_valor?' — $'+Number(ent.bono_valor).toLocaleString('es-CO'):'')+'</strong>';
+      } else {
+        listaItems=its.map(it=>it.elemento+(it.especificar?' ('+it.especificar+')':'')+(it.cantidad>1?' x'+it.cantidad:'')+(it.talla?' - '+it.talla:'')).join(', ');
+      }
+      const firmaCell = ent.firma
+        ? '<img src="'+ent.firma+'" style="height:34px;">'
+        : (ent.firmado ? '✅' : '<span style="color:#D97706;font-size:11px;">⏳ Pendiente de firma</span>');
+      h+='<tr><td style="padding:6px 8px;border:1px solid #E2EBF3;">'+(ent.fecha||'—')+(ent.gestor_contratista?'<br><span style="font-size:10px;color:#5B6B7C;">Gestor: '+ent.gestor_contratista+'</span>':'')+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;">'+listaItems+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;">'+(ent.entregado_por||'—')+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;">'+firmaCell+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;white-space:nowrap;">'+(!ent.firmado&&ent.firma_token?'<button class="btn-sm" style="color:#6D28D9;" title="Ver link de firma" onclick="verLinkFirma(\''+ent.firma_token+'\',\''+(ent.nombre||'').replace(/\x27/g,"")+'\')">🔗</button>':'')+'<button class="btn-sm" style="color:#DC2626;" title="Eliminar entrega" onclick="eliminarEntregaDotacion(\''+ent.id+'\')">🗑</button></td></tr>';
+    });
+    h+='</tbody></table></div>';
+    cont.innerHTML=h;
+  }catch(e){ console.error('historial dotacion:', e); }
+}
+
+// Reabrir el link de firma de una entrega pendiente
+function verLinkFirma(token, nombre){
+  const base=location.href.split('?')[0].replace(/[^/]*$/,'');
+  mostrarLinkFirma(base+'firma-dotacion.html?token='+token, nombre);
+}
+
+// Eliminar una entrega de dotación (requiere clave LPS-TH)
+async function eliminarEntregaDotacion(id){
+  const k=prompt('🔐 Ingrese la clave de administrador para eliminar este registro:');
+  if(k===null)return;
+  if(k!=='LPS-TH'){alert('⚠️ Clave incorrecta. No se eliminó el registro.');return;}
+  if(!confirm('¿Eliminar definitivamente esta entrega y todos sus elementos?'))return;
+  try{
+    const sb=getSupabase();
+    // Los items se borran en cascada por la FK
+    const {error}=await sb.from('dotacion_entrega').delete().eq('id',id);
+    if(error)throw error;
+    await cargarHistorialDotacion();
+  }catch(e){ alert('Error al eliminar: '+e.message); }
+}
+
+// ---- PDF para impresión ----
+async function pdfDotacion(){
+  if(!dotEmpleadoActual) return;
+  try{
+    const sb=getSupabase();
+    const {data:entregas}=await sb.from('dotacion_entrega').select('*').eq('empleado_id',dotEmpleadoActual.id).order('fecha',{ascending:false});
+    if(!entregas||!entregas.length){ alert('Sin entregas para generar PDF'); return; }
+    const ids=entregas.map(e=>e.id);
+    const {data:items}=await sb.from('dotacion_entrega_items').select('*').in('entrega_id',ids);
+    const itemsPorEntrega={};
+    (items||[]).forEach(it=>{ (itemsPorEntrega[it.entrega_id]=itemsPorEntrega[it.entrega_id]||[]).push(it); });
+    const nombre=((dotEmpleadoActual.nombres||'')+' '+(dotEmpleadoActual.apellidos||'')).trim();
+
+    let bloques='';
+    entregas.forEach(ent=>{
+      const its=itemsPorEntrega[ent.id]||[];
+      let cuerpo;
+      if(ent.tipo_entrega==='BONO'){
+        cuerpo='<div style="font-size:13px;padding:8px 0;"><strong>💵 Bono de dotación</strong> — Valor: <strong>$'+(ent.bono_valor?Number(ent.bono_valor).toLocaleString('es-CO'):'—')+'</strong></div>';
+      } else {
+        const filas=its.map((it,i)=>'<tr><td style="border:1px solid #999;padding:5px;text-align:center;">'+(i+1)+'</td><td style="border:1px solid #999;padding:5px;">'+it.elemento+(it.especificar?' <em>('+it.especificar+')</em>':'')+'</td><td style="border:1px solid #999;padding:5px;text-align:center;">'+(it.cantidad||1)+'</td><td style="border:1px solid #999;padding:5px;text-align:center;">'+(it.talla||'—')+'</td><td style="border:1px solid #999;padding:5px;">'+(it.observacion||'')+'</td></tr>').join('');
+        cuerpo='<table style="width:100%;border-collapse:collapse;font-size:11px;"><tr style="background:#EAF5FF;"><th style="border:1px solid #999;padding:5px;">#</th><th style="border:1px solid #999;padding:5px;">Elemento</th><th style="border:1px solid #999;padding:5px;">Cant.</th><th style="border:1px solid #999;padding:5px;">Talla</th><th style="border:1px solid #999;padding:5px;">Observación</th></tr>'+filas+'</table>';
+      }
+      bloques+='<div style="margin-bottom:18px;page-break-inside:avoid;border:1px solid #ccc;border-radius:6px;padding:12px;">'
+        +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><strong>Fecha: '+(ent.fecha||'—')+'</strong><span>Entregado por: '+(ent.entregado_por||'—')+'</span></div>'
+        +(ent.gestor_contratista?'<div style="font-size:11px;margin-bottom:6px;"><strong>Gestor/Contratista:</strong> '+ent.gestor_contratista+'</div>':'')
+        +cuerpo
+        +(ent.observaciones?'<div style="font-size:11px;margin-top:6px;"><em>Obs: '+ent.observaciones+'</em></div>':'')
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;">'
+        +'<div style="text-align:center;">'+(ent.firma?'<img src="'+ent.firma+'" style="height:50px;">':'<div style="height:50px;"></div>')+'<div style="border-top:1px solid #333;width:200px;font-size:10px;padding-top:3px;">Firma del trabajador (digital)</div></div>'
+        +'<div style="text-align:center;"><div style="height:50px;"></div><div style="border-top:1px solid #333;width:200px;font-size:10px;padding-top:3px;">Firma en físico</div></div>'
+        +'</div></div>';
+    });
+
+    const compromiso=textoCompromiso(nombre, dotEmpleadoActual.cedula);
+    const w=window.open('','_blank');
+    w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Dotación '+nombre+'</title></head><body style="font-family:Arial,sans-serif;margin:24px;color:#222;">'
+      +'<div style="background:#0A2540;color:#fff;padding:16px;border-radius:8px;margin-bottom:16px;"><h1 style="margin:0;font-size:16px;">REGISTRO DE ENTREGA DE DOTACIÓN Y EPP</h1><p style="margin:4px 0 0;font-size:12px;color:#B0C9E4;">SIG HSEQ Colombia · Grupo LPS</p></div>'
+      +'<div style="font-size:13px;margin-bottom:16px;"><strong>Trabajador:</strong> '+nombre+' &nbsp;|&nbsp; <strong>Cédula:</strong> '+dotEmpleadoActual.cedula+'</div>'
+      +'<div style="font-size:11px;text-align:justify;background:#F8FAFC;border:1px solid #E2EBF3;border-radius:8px;padding:12px;margin-bottom:16px;line-height:1.5;">'+compromiso+'</div>'
+      +bloques
+      +'<p style="font-size:10px;color:#888;margin-top:20px;">Generado el '+new Date().toLocaleDateString('es-CO')+'. La firma digital fue capturada al momento de cada entrega.</p>'
+      +'<scr'+'ipt>window.print();</scr'+'ipt></body></html>');
+    w.document.close();
+  }catch(e){ alert('Error al generar PDF: '+e.message); }
+}
+
+// ===================== MÓDULO INDUCCIÓN LPS =====================
+let indEmpleado = null;
+let indTemas = {TH:[], SST:[], CARGO:[], LOGISTICA:[]};
+let indFirmas = {};        // {TH:{ctx,hay}, SST:..., CARGO:..., LOGISTICA:..., Colab:...}
+let indTemasCatalogo = {TH:[], SST:[], CARGO:[], LOGISTICA:[]};
+let indEditId = null;      // si estamos editando un registro existente
+
+async function initInduccion(){
+  // Cargar catálogo de temas
+  try{
+    const {data}=await getSupabase().from('induccion_temas_catalogo').select('*').eq('activo',true);
+    indTemasCatalogo={TH:[],SST:[],CARGO:[],LOGISTICA:[]};
+    (data||[]).forEach(t=>{ (indTemasCatalogo[t.etapa]=indTemasCatalogo[t.etapa]||[]).push(t.tema); });
+    ['TH','SST','CARGO','LOGISTICA'].forEach(llenarSelectTemas);
+  }catch(e){ console.warn('catalogo temas:', e); }
+}
+
+function llenarSelectTemas(etapa){
+  const sel=document.getElementById('indSel'+etapa);
+  if(!sel) return;
+  sel.innerHTML='<option value="">— Seleccione un tema —</option>'+(indTemasCatalogo[etapa]||[]).map(t=>'<option>'+t+'</option>').join('');
+}
+
+async function buscarEmpleadoInduccion(){
+  const ced=document.getElementById('indCedula').value.trim();
+  if(!ced){ alert('Ingrese un número de cédula'); return; }
+  try{
+    const sb=getSupabase();
+    const {data}=await sb.from('empleados').select('*').eq('cedula',ced).limit(1);
+    if(!data||!data.length){
+      document.getElementById('indEmpInfo').innerHTML='<span style="color:#DC2626;">⚠️ No existe un empleado con esa cédula.</span>';
+      document.getElementById('indForm').style.display='none';
+      return;
+    }
+    indEmpleado=data[0];
+    // Asegurar que el catálogo de temas esté cargado antes de precargarlos
+    if(!indTemasCatalogo.TH || !indTemasCatalogo.TH.length){ await initInduccion(); }
+    const nombre=((indEmpleado.nombres||'')+' '+(indEmpleado.apellidos||'')).trim();
+    document.getElementById('indEmpInfo').innerHTML='✅ '+nombre;
+    document.getElementById('indForm').style.display='block';
+    // Rellenar datos
+    document.getElementById('indNombre').value=nombre;
+    document.getElementById('indId').value=indEmpleado.cedula;
+    document.getElementById('indCargo').value=indEmpleado.cargo||'';
+    document.getElementById('indArea').value=indEmpleado.area||indEmpleado.dependencia||'';
+    // Reset: precargar TODOS los temas del catálogo de cada etapa (se pueden quitar con ✕)
+    indEditId=null;
+    indTemas={
+      TH:[...(indTemasCatalogo.TH||[])],
+      SST:[...(indTemasCatalogo.SST||[])],
+      CARGO:[...(indTemasCatalogo.CARGO||[])],
+      LOGISTICA:[...(indTemasCatalogo.LOGISTICA||[])]
+    };
+    ['TH','SST','CARGO','LOGISTICA'].forEach(renderTemas);
+    setupFirmasInduccion();
+    actualizarCompromisoInd();
+    await cargarHistorialInduccion();
+  }catch(e){ alert('Error al buscar: '+e.message); }
+}
+
+// ---- Temas ----
+function addTemaFromSelect(etapa){
+  const v=document.getElementById('indSel'+etapa).value;
+  if(!v) return;
+  if(!indTemas[etapa].includes(v)) indTemas[etapa].push(v);
+  renderTemas(etapa);
+}
+function addTemaLibre(etapa){
+  const t=prompt('Escriba el tema:');
+  if(t && t.trim()){ indTemas[etapa].push(t.trim()); renderTemas(etapa); }
+}
+
+// Panel para ver, agregar y eliminar temas del CATÁLOGO (persistente)
+const ETAPA_NOMBRE={TH:'Talento Humano',SST:'Seguridad y Salud en el Trabajo',CARGO:'Inducción al Cargo',LOGISTICA:'Logística'};
+async function gestionarTemas(etapa){
+  const sb=getSupabase();
+  const {data}=await sb.from('induccion_temas_catalogo').select('*').eq('etapa',etapa).eq('activo',true).order('tema');
+  const temas=data||[];
+  const filas=temas.map(t=>'<div style="display:flex;align-items:center;gap:8px;background:#F1F3F5;border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:12px;"><span style="flex:1;">'+t.tema+'</span><button class="btn-sm" style="color:#DC2626;" onclick="eliminarTemaCatalogo(\''+t.id+'\',\''+etapa+'\')">🗑</button></div>').join('') || '<p style="font-size:12px;color:var(--slate);">Sin temas en el catálogo.</p>';
+  const html='<div id="modalTemas" style="position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:center;z-index:9999;" onclick="if(event.target===this)this.remove()">'
+    +'<div style="background:#fff;border-radius:14px;padding:22px;max-width:560px;width:92%;max-height:85vh;overflow:auto;">'
+    +'<h3 style="margin:0 0 4px;">⚙️ Temas de catálogo — '+ETAPA_NOMBRE[etapa]+'</h3>'
+    +'<p style="font-size:12px;color:#5B6B7C;margin:0 0 14px;">Estos temas aparecerán en el desplegable para seleccionarlos en cualquier inducción.</p>'
+    +'<div>'+filas+'</div>'
+    +'<div style="display:flex;gap:6px;margin-top:12px;"><input id="nuevoTemaCat" placeholder="Escriba un tema nuevo..." style="flex:1;padding:8px 10px;font-size:12px;border:1px solid var(--line);border-radius:6px;" onkeydown="if(event.key===\'Enter\')agregarTemaCatalogo(\''+etapa+'\')"><button class="btn btn-p" onclick="agregarTemaCatalogo(\''+etapa+'\')">＋ Agregar</button></div>'
+    +'<div style="text-align:right;margin-top:14px;"><button class="btn btn-g" onclick="document.getElementById(\'modalTemas\').remove()">Cerrar</button></div>'
+    +'</div></div>';
+  const d=document.createElement('div'); d.innerHTML=html; document.body.appendChild(d.firstChild);
+}
+
+async function agregarTemaCatalogo(etapa){
+  const inp=document.getElementById('nuevoTemaCat');
+  const tema=inp.value.trim();
+  if(!tema){ return; }
+  try{
+    await getSupabase().from('induccion_temas_catalogo').insert({etapa:etapa, tema:tema, activo:true});
+    // Recargar catálogo y refrescar el selector y el modal
+    await initInduccion();
+    document.getElementById('modalTemas').remove();
+    gestionarTemas(etapa);
+  }catch(e){ alert('Error al agregar: '+e.message); }
+}
+
+async function eliminarTemaCatalogo(id, etapa){
+  if(!confirm('¿Eliminar este tema del catálogo?')) return;
+  try{
+    await getSupabase().from('induccion_temas_catalogo').update({activo:false}).eq('id',id);
+    await initInduccion();
+    document.getElementById('modalTemas').remove();
+    gestionarTemas(etapa);
+  }catch(e){ alert('Error al eliminar: '+e.message); }
+}
+function delTema(etapa,i){ indTemas[etapa].splice(i,1); renderTemas(etapa); }
+function renderTemas(etapa){
+  const cont=document.getElementById('indTemas'+etapa);
+  if(!cont) return;
+  if(!indTemas[etapa].length){ cont.innerHTML='<p style="font-size:12px;color:var(--slate);padding:4px 0;">Sin temas. Selecciónelos o agréguelos.</p>'; return; }
+  cont.innerHTML=indTemas[etapa].map((t,i)=>'<div style="display:flex;align-items:center;gap:8px;background:#F1F3F5;border-radius:6px;padding:5px 10px;margin-bottom:4px;font-size:12px;"><span style="flex:1;">'+t+'</span><button class="btn-sm" style="color:#DC2626;" onclick="delTema(\''+etapa+'\','+i+')">✕</button></div>').join('');
+}
+
+// ---- Firmas (varios canvas) ----
+function setupFirmasInduccion(){
+  ['TH','SST','CARGO','LOGISTICA','Colab'].forEach(k=>{
+    const c=document.getElementById('firma'+k);
+    if(!c) return;
+    const ctx=c.getContext('2d');
+    ctx.strokeStyle='#0A2540'; ctx.lineWidth=2; ctx.lineCap='round';
+    indFirmas[k]={ctx:ctx, hay:false, canvas:c};
+    let dib=false;
+    const pos=ev=>{const r=c.getBoundingClientRect();const t=ev.touches?ev.touches[0]:ev;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};};
+    c.onmousedown=ev=>{ev.preventDefault();dib=true;const p=pos(ev);ctx.beginPath();ctx.moveTo(p.x,p.y);};
+    c.onmousemove=ev=>{if(!dib)return;ev.preventDefault();const p=pos(ev);ctx.lineTo(p.x,p.y);ctx.stroke();indFirmas[k].hay=true;};
+    c.onmouseup=()=>dib=false; c.onmouseleave=()=>dib=false;
+    c.ontouchstart=c.onmousedown; c.ontouchmove=c.onmousemove; c.ontouchend=()=>dib=false;
+  });
+}
+function limpiarFirmaInd(k){
+  const f=indFirmas[k]; if(f){ f.ctx.clearRect(0,0,f.canvas.width,f.canvas.height); f.hay=false; }
+}
+function firmaData(k){ const f=indFirmas[k]; return (f&&f.hay)?f.canvas.toDataURL('image/png'):null; }
+
+function textoCompromisoInduccion(nombre,cedula){
+  return 'Yo, '+nombre+', identificado(a) con cédula '+cedula+', confirmo haber recibido toda la inducción arriba mencionada y necesaria para desempeñar las funciones asignadas a mi cargo.';
+}
+function actualizarCompromisoInd(){
+  const nombre=document.getElementById('indNombre').value;
+  const ced=document.getElementById('indId').value;
+  document.getElementById('indTextoCompromiso').textContent=textoCompromisoInduccion(nombre,ced);
+}
+
+function recogerDatosInduccion(){
+  const gv=id=>{const el=document.getElementById(id);return el?el.value.trim()||null:null;};
+  return {
+    empleado_id:indEmpleado.id, cedula:indEmpleado.cedula, nombre:document.getElementById('indNombre').value,
+    cargo:gv('indCargo'), area:gv('indArea'),
+    th_temas:indTemas.TH.join('\n')||null, th_fecha:gv('indFechaTH'), th_capacitador:gv('indCapTH'), th_firma:firmaData('TH'),
+    sst_temas:indTemas.SST.join('\n')||null, sst_fecha:gv('indFechaSST'), sst_capacitador:gv('indCapSST'), sst_firma:firmaData('SST'),
+    cargo_temas:indTemas.CARGO.join('\n')||null, cargo_fecha:gv('indFechaCARGO'), cargo_capacitador:gv('indCapCARGO'), cargo_firma:firmaData('CARGO'),
+    log_temas:indTemas.LOGISTICA.join('\n')||null, log_fecha:gv('indFechaLOGISTICA'), log_capacitador:gv('indCapLOGISTICA'), log_firma:firmaData('LOGISTICA'),
+    colaborador_firma:firmaData('Colab'), colaborador_firmado:!!firmaData('Colab'),
+    fecha_firma_colab:firmaData('Colab')?new Date().toISOString():null,
+    updated_at:new Date().toISOString()
+  };
+}
+
+async function guardarInduccion(){
+  if(!indEmpleado){ alert('Busque un colaborador primero'); return; }
+  const datos=recogerDatosInduccion();
+  datos.estado = datos.colaborador_firmado ? 'COMPLETO' : 'BORRADOR';
+  try{
+    const sb=getSupabase();
+    if(indEditId){
+      const {error}=await sb.from('induccion').update(datos).eq('id',indEditId);
+      if(error) throw error;
+    } else {
+      const {data,error}=await sb.from('induccion').insert(datos).select();
+      if(error) throw error;
+      indEditId=data[0].id;
+    }
+    alert('✅ Inducción guardada'+(datos.estado==='BORRADOR'?' como borrador (puede completarla luego)':' (completa)'));
+    await cargarHistorialInduccion();
+  }catch(e){ alert('Error al guardar: '+e.message); }
+}
+
+async function crearLinkInduccion(){
+  if(!indEmpleado){ alert('Busque un colaborador primero'); return; }
+  // Guardar primero para tener un id y token
+  const datos=recogerDatosInduccion();
+  datos.estado='BORRADOR';
+  const token='IND'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  datos.firma_token=token;
+  try{
+    const sb=getSupabase();
+    let id=indEditId;
+    if(id){
+      await sb.from('induccion').update(datos).eq('id',id);
+    } else {
+      const {data,error}=await sb.from('induccion').insert(datos).select();
+      if(error) throw error;
+      id=data[0].id; indEditId=id;
+    }
+    const base=location.href.split('?')[0].replace(/[^/]*$/,'');
+    const link=base+'firma-induccion.html?token='+token;
+    mostrarLinkFirma(link, document.getElementById('indNombre').value);
+    await cargarHistorialInduccion();
+  }catch(e){ alert('Error: '+e.message); }
+}
+
+function cancelarInduccion(){
+  document.getElementById('indForm').style.display='none';
+  document.getElementById('indCedula').value='';
+  document.getElementById('indEmpInfo').innerHTML='';
+  indEmpleado=null; indEditId=null;
+}
+
+async function cargarHistorialInduccion(){
+  if(!indEmpleado) return;
+  try{
+    const sb=getSupabase();
+    const {data}=await sb.from('induccion').select('*').eq('empleado_id',indEmpleado.id).order('created_at',{ascending:false});
+    const cont=document.getElementById('indHistorial');
+    if(!data||!data.length){ cont.innerHTML=''; return; }
+    let h='<div class="panel" style="padding:14px;"><h3 style="margin:0 0 10px;">📋 Inducciones registradas</h3><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#EAF5FF;"><th style="padding:6px 8px;border:1px solid #D0DFF0;text-align:left;">Fecha</th><th style="padding:6px 8px;border:1px solid #D0DFF0;">Cargo</th><th style="padding:6px 8px;border:1px solid #D0DFF0;">Estado</th><th style="padding:6px 8px;border:1px solid #D0DFF0;">Colaborador</th><th style="padding:6px 8px;border:1px solid #D0DFF0;"></th></tr></thead><tbody>';
+    data.forEach(r=>{
+      const est=r.estado==='COMPLETO'?'<span style="color:#16A34A;font-weight:700;">✅ Completo</span>':'<span style="color:#D97706;">📝 Borrador</span>';
+      const colab=r.colaborador_firmado?'✅ Firmó':(r.firma_token?'⏳ Pendiente':'—');
+      h+='<tr><td style="padding:6px 8px;border:1px solid #E2EBF3;">'+(r.created_at?r.created_at.slice(0,10):'—')+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;">'+(r.cargo||'—')+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;">'+est+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;">'+colab+'</td>'
+        +'<td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;white-space:nowrap;">'
+        +'<button class="btn-sm" title="Editar" onclick="editarInduccion(\''+r.id+'\')">✏️</button>'
+        +'<button class="btn-sm" title="PDF" onclick="pdfInduccion(\''+r.id+'\')">📄</button>'
+        +(r.firma_token&&!r.colaborador_firmado?'<button class="btn-sm" style="color:#6D28D9;" title="Link de firma" onclick="verLinkInduccion(\''+r.firma_token+'\',\''+(r.nombre||'').replace(/\x27/g,"")+'\')">🔗</button>':'')
+        +'<button class="btn-sm" style="color:#DC2626;" title="Eliminar" onclick="eliminarInduccion(\''+r.id+'\')">🗑</button>'
+        +'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    cont.innerHTML=h;
+  }catch(e){ console.error('historial induccion:', e); }
+}
+
+function verLinkInduccion(token,nombre){
+  const base=location.href.split('?')[0].replace(/[^/]*$/,'');
+  mostrarLinkFirma(base+'firma-induccion.html?token='+token, nombre);
+}
+
+async function editarInduccion(id){
+  try{
+    const sb=getSupabase();
+    const {data}=await sb.from('induccion').select('*').eq('id',id).limit(1);
+    if(!data||!data.length) return;
+    const r=data[0];
+    // Asegurar empleado cargado
+    if(!indEmpleado||indEmpleado.id!==r.empleado_id){
+      const {data:emp}=await sb.from('empleados').select('*').eq('id',r.empleado_id).limit(1);
+      if(emp&&emp.length){ indEmpleado=emp[0]; document.getElementById('indForm').style.display='block'; }
+    }
+    indEditId=id;
+    document.getElementById('indNombre').value=r.nombre||'';
+    document.getElementById('indId').value=r.cedula||'';
+    document.getElementById('indCargo').value=r.cargo||'';
+    document.getElementById('indArea').value=r.area||'';
+    indTemas={TH:(r.th_temas||'').split('\n').filter(Boolean),SST:(r.sst_temas||'').split('\n').filter(Boolean),CARGO:(r.cargo_temas||'').split('\n').filter(Boolean),LOGISTICA:(r.log_temas||'').split('\n').filter(Boolean)};
+    ['TH','SST','CARGO','LOGISTICA'].forEach(renderTemas);
+    document.getElementById('indFechaTH').value=r.th_fecha||''; document.getElementById('indCapTH').value=r.th_capacitador||'';
+    document.getElementById('indFechaSST').value=r.sst_fecha||''; document.getElementById('indCapSST').value=r.sst_capacitador||'';
+    document.getElementById('indFechaCARGO').value=r.cargo_fecha||''; document.getElementById('indCapCARGO').value=r.cargo_capacitador||'';
+    document.getElementById('indFechaLOGISTICA').value=r.log_fecha||''; document.getElementById('indCapLOGISTICA').value=r.log_capacitador||'';
+    setupFirmasInduccion();
+    // Pintar firmas guardadas
+    [['TH',r.th_firma],['SST',r.sst_firma],['CARGO',r.cargo_firma],['LOGISTICA',r.log_firma],['Colab',r.colaborador_firma]].forEach(([k,src])=>{
+      if(src&&indFirmas[k]){ const img=new Image(); img.onload=()=>{indFirmas[k].ctx.drawImage(img,0,0,indFirmas[k].canvas.width,indFirmas[k].canvas.height);indFirmas[k].hay=true;}; img.src=src; }
+    });
+    actualizarCompromisoInd();
+    document.getElementById('indForm').scrollIntoView({behavior:'smooth'});
+  }catch(e){ alert('Error: '+e.message); }
+}
+
+async function eliminarInduccion(id){
+  const k=prompt('🔐 Ingrese la clave de administrador para eliminar este registro:');
+  if(k===null)return;
+  if(k!=='LPS-TH'){ alert('⚠️ Clave incorrecta. No se eliminó.'); return; }
+  if(!confirm('¿Eliminar definitivamente esta inducción?'))return;
+  try{
+    await getSupabase().from('induccion').delete().eq('id',id);
+    await cargarHistorialInduccion();
+  }catch(e){ alert('Error: '+e.message); }
+}
+
+async function pdfInduccion(id){
+  try{
+    const sb=getSupabase();
+    let r;
+    if(typeof id==='string'){
+      const {data}=await sb.from('induccion').select('*').eq('id',id).limit(1);
+      r=data&&data[0];
+    } else {
+      r=recogerDatosInduccion(); r.created_at=new Date().toISOString();
+    }
+    if(!r){ alert('Sin datos'); return; }
+    const etapa=(titulo,color,temas,fecha,cap,firma)=>{
+      const lista=(temas||'').split('\n').filter(Boolean).map(t=>'<li>'+t+'</li>').join('');
+      return '<div style="border:1px solid #ccc;border-radius:6px;margin-bottom:14px;page-break-inside:avoid;">'
+        +'<div style="background:'+color+';color:#fff;padding:8px 12px;font-weight:700;font-size:12px;">'+titulo+'</div>'
+        +'<div style="padding:12px;">'
+        +'<div style="font-size:11px;"><strong>Temas:</strong><ul style="margin:4px 0 8px 18px;">'+(lista||'<li>—</li>')+'</ul></div>'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;">'
+        +'<div>Fecha: '+(fecha||'—')+'</div>'
+        +'<div style="text-align:center;">'+(firma?'<img src="'+firma+'" style="height:40px;">':'<div style="height:40px;"></div>')+'<div style="border-top:1px solid #333;width:180px;font-size:10px;padding-top:2px;">'+(cap||'Encargado')+'</div></div>'
+        +'</div></div></div>';
+    };
+    const compromiso=textoCompromisoInduccion(r.nombre||'', r.cedula||'');
+    const w=window.open('','_blank');
+    w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Inducción '+(r.nombre||'')+'</title></head><body style="font-family:Arial,sans-serif;margin:24px;color:#222;">'
+      +'<div style="background:#0A2540;color:#fff;padding:16px;border-radius:8px;margin-bottom:16px;"><h1 style="margin:0;font-size:16px;">INDUCCIÓN LPS</h1><p style="margin:4px 0 0;font-size:12px;color:#B0C9E4;">SIG HSEQ Colombia · Grupo LPS</p></div>'
+      +'<table style="width:100%;font-size:12px;margin-bottom:16px;"><tr><td><strong>Nombre:</strong> '+(r.nombre||'')+'</td><td><strong>Identificación:</strong> '+(r.cedula||'')+'</td></tr><tr><td><strong>Cargo:</strong> '+(r.cargo||'—')+'</td><td><strong>Área:</strong> '+(r.area||'—')+'</td></tr></table>'
+      +etapa('1. INDUCCIÓN DE TALENTO HUMANO','#1598FF',r.th_temas,r.th_fecha,r.th_capacitador,r.th_firma)
+      +etapa('2. INDUCCIÓN EN SEGURIDAD Y SALUD EN EL TRABAJO','#16A34A',r.sst_temas,r.sst_fecha,r.sst_capacitador,r.sst_firma)
+      +etapa('3. INDUCCIÓN AL CARGO','#6D28D9',r.cargo_temas,r.cargo_fecha,r.cargo_capacitador,r.cargo_firma)
+      +etapa('INDUCCIÓN LOGÍSTICA','#D97706',r.log_temas,r.log_fecha,r.log_capacitador,r.log_firma)
+      +'<div style="font-size:12px;text-align:justify;background:#F8FAFC;border:1px solid #E2EBF3;border-radius:8px;padding:14px;margin:16px 0;line-height:1.5;">'+compromiso+'</div>'
+      +'<div style="text-align:center;margin-top:30px;">'+(r.colaborador_firma?'<img src="'+r.colaborador_firma+'" style="height:55px;">':'<div style="height:55px;"></div>')
+      +'<div style="border-top:1px solid #333;width:280px;margin:0 auto;font-size:11px;padding-top:3px;">'+(r.nombre||'')+' — C.C. '+(r.cedula||'')+'<br>'+(r.cargo||'')+'</div></div>'
+      +'<scr'+'ipt>window.print();</scr'+'ipt></body></html>');
+    w.document.close();
+  }catch(e){ alert('Error al generar PDF: '+e.message); }
+}
+
+// Actualizar el texto de compromiso cuando cambian nombre/cédula
+document.addEventListener('input',e=>{ if(e.target && (e.target.id==='indCargo')) {} });
+
+// ===================== MÓDULO PAZ Y SALVO =====================
+let psEmpleado=null, psEditId=null, psData={equipos:[],epp:[]}, psFirmas={};
+const PS_EQUIPOS=['Computador','Teclado','Mouse','Base','Pantalla','Celular corporativo','Otros'];
+const PS_EPP=['Botas','Guantes','Jeans','Camisas','Buzos','Gafas','Casco','Kit motorizado','Kit trabajo en alturas','Otros'];
+
+function initPazSalvo(){}
+
+async function buscarEmpleadoPS(){
+  const ced=document.getElementById('psCedula').value.trim();
+  if(!ced){ alert('Ingrese una cédula'); return; }
+  try{
+    const {data}=await getSupabase().from('empleados').select('*').eq('cedula',ced).limit(1);
+    if(!data||!data.length){ document.getElementById('psEmpInfo').innerHTML='<span style="color:#DC2626;">⚠️ No existe empleado con esa cédula.</span>'; document.getElementById('psForm').style.display='none'; return; }
+    psEmpleado=data[0]; psEditId=null;
+    const nombre=((psEmpleado.nombres||'')+' '+(psEmpleado.apellidos||'')).trim();
+    document.getElementById('psEmpInfo').innerHTML='✅ '+nombre;
+    document.getElementById('psForm').style.display='block';
+    document.getElementById('psNombre').value=nombre;
+    document.getElementById('psId').value=psEmpleado.cedula;
+    document.getElementById('psCargo').value=psEmpleado.cargo||'';
+    document.getElementById('psArea').value=psEmpleado.area||psEmpleado.dependencia||'';
+    // Precargar equipos y EPP estándar
+    psData={equipos:PS_EQUIPOS.map(x=>({item:x,entregado:false,detalle:''})), epp:PS_EPP.map(x=>({item:x,entregado:false,detalle:''}))};
+    renderPsRows('equipos'); renderPsRows('epp');
+    setupFirmasPS();
+    await cargarHistorialPS();
+  }catch(e){ alert('Error: '+e.message); }
+}
+
+function addPsRow(tipo){ psData[tipo].push({item:'',entregado:false,detalle:''}); renderPsRows(tipo); }
+function delPsRow(tipo,i){ psData[tipo].splice(i,1); renderPsRows(tipo); }
+function updPsRow(tipo,i,campo,val){ if(psData[tipo][i]) psData[tipo][i][campo]=val; }
+function renderPsRows(tipo){
+  const cont=document.getElementById(tipo==='equipos'?'psEquipos':'psEpp');
+  if(!cont) return;
+  cont.innerHTML=psData[tipo].map((r,i)=>`<div style="display:grid;grid-template-columns:26px 1.4fr 1.6fr 32px;gap:8px;align-items:center;margin-bottom:5px;">
+    <input type="checkbox" ${r.entregado?'checked':''} onchange="updPsRow('${tipo}',${i},'entregado',this.checked)" title="Entregado">
+    <input placeholder="Elemento" value="${(r.item||'').replace(/"/g,'&quot;')}" oninput="updPsRow('${tipo}',${i},'item',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;">
+    <input placeholder="Detalle / cantidad" value="${(r.detalle||'').replace(/"/g,'&quot;')}" oninput="updPsRow('${tipo}',${i},'detalle',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;">
+    <button class="btn-sm" style="color:#DC2626;" onclick="delPsRow('${tipo}',${i})">🗑</button></div>`).join('');
+}
+
+function setupFirmasPS(){
+  ['Almacen','Hse','Ti','Th','Colaborador','Jefe'].forEach(k=>{
+    const c=document.getElementById('firmaPs'+k); if(!c) return;
+    const ctx=c.getContext('2d'); ctx.strokeStyle='#0A2540'; ctx.lineWidth=2; ctx.lineCap='round';
+    psFirmas[k]={ctx,hay:false,canvas:c}; let dib=false;
+    const pos=ev=>{const r=c.getBoundingClientRect();const t=ev.touches?ev.touches[0]:ev;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};};
+    c.onmousedown=ev=>{ev.preventDefault();dib=true;const p=pos(ev);ctx.beginPath();ctx.moveTo(p.x,p.y);};
+    c.onmousemove=ev=>{if(!dib)return;ev.preventDefault();const p=pos(ev);ctx.lineTo(p.x,p.y);ctx.stroke();psFirmas[k].hay=true;};
+    c.onmouseup=()=>dib=false;c.onmouseleave=()=>dib=false;
+    c.ontouchstart=c.onmousedown;c.ontouchmove=c.onmousemove;c.ontouchend=()=>dib=false;
+  });
+}
+function limpiarFirmaPS(k){ const f=psFirmas[k]; if(f){f.ctx.clearRect(0,0,f.canvas.width,f.canvas.height);f.hay=false;} }
+function firmaPSData(k){ const f=psFirmas[k]; return (f&&f.hay)?f.canvas.toDataURL('image/png'):null; }
+
+function recogerPS(){
+  const gv=id=>{const el=document.getElementById(id);return el?el.value.trim()||null:null;};
+  const examen=document.querySelector('input[name="psExamen"]:checked');
+  return {
+    empleado_id:psEmpleado.id, cedula:psEmpleado.cedula, nombre:document.getElementById('psNombre').value,
+    cargo:gv('psCargo'), jefe_inmediato:gv('psJefe'), cargo_jefe:gv('psCargoJefe'), area:gv('psArea'),
+    fecha_salida:gv('psFechaSalida'),
+    equipos:psData.equipos, epp:psData.epp,
+    correo_desactivado:document.getElementById('psCorreo').checked,
+    apps_desactivadas:document.getElementById('psApps').checked,
+    buk_desactivado:document.getElementById('psBuk').checked,
+    examen_medico:examen?examen.value==='si':null,
+    observaciones:gv('psObs'),
+    firma_almacen:firmaPSData('Almacen'), firma_hse:firmaPSData('Hse'), firma_ti:firmaPSData('Ti'),
+    firma_th:firmaPSData('Th'), firma_colaborador:firmaPSData('Colaborador'), firma_jefe:firmaPSData('Jefe'),
+    colaborador_firmado:!!firmaPSData('Colaborador'), updated_at:new Date().toISOString()
+  };
+}
+
+async function guardarPS(){
+  if(!psEmpleado){ alert('Busque un colaborador'); return; }
+  const d=recogerPS(); d.estado=d.colaborador_firmado?'COMPLETO':'BORRADOR';
+  try{
+    const sb=getSupabase();
+    if(psEditId){ await sb.from('paz_salvo').update(d).eq('id',psEditId); }
+    else { const {data}=await sb.from('paz_salvo').insert(d).select(); psEditId=data[0].id; }
+    alert('✅ Paz y Salvo guardado'+(d.estado==='BORRADOR'?' como borrador':''));
+    await cargarHistorialPS();
+  }catch(e){ alert('Error: '+e.message); }
+}
+async function crearLinkPS(){
+  if(!psEmpleado){ alert('Busque un colaborador'); return; }
+  const d=recogerPS(); d.estado='BORRADOR'; const token='PS'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); d.firma_token=token;
+  try{
+    const sb=getSupabase(); let id=psEditId;
+    if(id){ await sb.from('paz_salvo').update(d).eq('id',id); }
+    else { const {data}=await sb.from('paz_salvo').insert(d).select(); id=data[0].id; psEditId=id; }
+    const base=location.href.split('?')[0].replace(/[^/]*$/,'');
+    mostrarLinkFirma(base+'firma-pazsalvo.html?token='+token, document.getElementById('psNombre').value);
+    await cargarHistorialPS();
+  }catch(e){ alert('Error: '+e.message); }
+}
+function cancelarPS(){ document.getElementById('psForm').style.display='none'; document.getElementById('psCedula').value=''; document.getElementById('psEmpInfo').innerHTML=''; psEmpleado=null; psEditId=null; }
+
+async function cargarHistorialPS(){
+  if(!psEmpleado) return;
+  try{
+    const {data}=await getSupabase().from('paz_salvo').select('*').eq('empleado_id',psEmpleado.id).order('created_at',{ascending:false});
+    const cont=document.getElementById('psHistorial');
+    if(!data||!data.length){ cont.innerHTML=''; return; }
+    cont.innerHTML='<div class="panel" style="padding:14px;"><h3 style="margin:0 0 10px;">📋 Paz y Salvo registrados</h3><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#EAF5FF;"><th style="padding:6px 8px;border:1px solid #D0DFF0;">Fecha</th><th style="padding:6px 8px;border:1px solid #D0DFF0;">Estado</th><th style="padding:6px 8px;border:1px solid #D0DFF0;">Colaborador</th><th style="padding:6px 8px;border:1px solid #D0DFF0;"></th></tr></thead><tbody>'
+      +data.map(r=>{const est=r.estado==='COMPLETO'?'<span style="color:#16A34A;font-weight:700;">✅ Completo</span>':'<span style="color:#D97706;">📝 Borrador</span>';const colab=r.colaborador_firmado?'✅':(r.firma_token?'⏳':'—');return '<tr><td style="padding:6px 8px;border:1px solid #E2EBF3;">'+(r.created_at?r.created_at.slice(0,10):'—')+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;">'+est+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;">'+colab+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;white-space:nowrap;"><button class="btn-sm" onclick="editarPS(\''+r.id+'\')">✏️</button><button class="btn-sm" onclick="pdfPS(\''+r.id+'\')">📄</button>'+(r.firma_token&&!r.colaborador_firmado?'<button class="btn-sm" style="color:#6D28D9;" onclick="verLinkPS(\''+r.firma_token+'\',\''+(r.nombre||'').replace(/\x27/g,"")+'\')">🔗</button>':'')+'<button class="btn-sm" style="color:#DC2626;" onclick="eliminarPS(\''+r.id+'\')">🗑</button></td></tr>';}).join('')
+      +'</tbody></table></div>';
+  }catch(e){ console.error(e); }
+}
+function verLinkPS(token,nombre){ const base=location.href.split('?')[0].replace(/[^/]*$/,''); mostrarLinkFirma(base+'firma-pazsalvo.html?token='+token,nombre); }
+async function editarPS(id){
+  try{
+    const {data}=await getSupabase().from('paz_salvo').select('*').eq('id',id).limit(1); if(!data||!data.length)return; const r=data[0];
+    if(!psEmpleado||psEmpleado.id!==r.empleado_id){ const {data:e}=await getSupabase().from('empleados').select('*').eq('id',r.empleado_id).limit(1); if(e&&e.length){psEmpleado=e[0];document.getElementById('psForm').style.display='block';} }
+    psEditId=id;
+    document.getElementById('psNombre').value=r.nombre||''; document.getElementById('psId').value=r.cedula||'';
+    document.getElementById('psCargo').value=r.cargo||''; document.getElementById('psJefe').value=r.jefe_inmediato||'';
+    document.getElementById('psCargoJefe').value=r.cargo_jefe||''; document.getElementById('psArea').value=r.area||'';
+    document.getElementById('psFechaSalida').value=r.fecha_salida||'';
+    psData={equipos:r.equipos||[], epp:r.epp||[]}; renderPsRows('equipos'); renderPsRows('epp');
+    document.getElementById('psCorreo').checked=r.correo_desactivado; document.getElementById('psApps').checked=r.apps_desactivadas; document.getElementById('psBuk').checked=r.buk_desactivado;
+    if(r.examen_medico!==null){ const rb=document.querySelector('input[name="psExamen"][value="'+(r.examen_medico?'si':'no')+'"]'); if(rb)rb.checked=true; }
+    document.getElementById('psObs').value=r.observaciones||'';
+    setupFirmasPS();
+    [['Almacen',r.firma_almacen],['Hse',r.firma_hse],['Ti',r.firma_ti],['Th',r.firma_th],['Colaborador',r.firma_colaborador],['Jefe',r.firma_jefe]].forEach(([k,src])=>{ if(src&&psFirmas[k]){const img=new Image();img.onload=()=>{psFirmas[k].ctx.drawImage(img,0,0,psFirmas[k].canvas.width,psFirmas[k].canvas.height);psFirmas[k].hay=true;};img.src=src;} });
+    document.getElementById('psForm').scrollIntoView({behavior:'smooth'});
+  }catch(e){ alert('Error: '+e.message); }
+}
+async function eliminarPS(id){
+  const k=prompt('🔐 Ingrese la clave de administrador para eliminar este registro:'); if(k===null)return;
+  if(k!=='LPS-TH'){ alert('⚠️ Clave incorrecta.'); return; }
+  if(!confirm('¿Eliminar definitivamente este Paz y Salvo?'))return;
+  try{ await getSupabase().from('paz_salvo').delete().eq('id',id); await cargarHistorialPS(); }catch(e){ alert('Error: '+e.message); }
+}
+
+async function pdfPS(id){
+  try{
+    let r; const sb=getSupabase();
+    if(typeof id==='string'){ const {data}=await sb.from('paz_salvo').select('*').eq('id',id).limit(1); r=data&&data[0]; }
+    else { r=recogerPS(); }
+    if(!r){ alert('Sin datos'); return; }
+    const chk=(arr)=>(arr||[]).filter(x=>x.entregado||x.item).map(x=>'<div style="font-size:11px;">'+(x.entregado?'☑':'☐')+' '+x.item+(x.detalle?': '+x.detalle:'')+'</div>').join('');
+    const firmaBox=(t,src)=>'<div style="text-align:center;">'+(src?'<img src="'+src+'" style="height:44px;">':'<div style="height:44px;"></div>')+'<div style="border-top:1px solid #333;width:150px;font-size:10px;padding-top:2px;margin:0 auto;">'+t+'</div></div>';
+    const w=window.open('','_blank');
+    w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Paz y Salvo '+(r.nombre||'')+'</title></head><body style="font-family:Arial,sans-serif;margin:24px;color:#222;font-size:12px;">'
+      +'<div style="background:#0A2540;color:#fff;padding:14px;border-radius:8px;margin-bottom:14px;"><h1 style="margin:0;font-size:15px;">ENTREGA DE PUESTO DE TRABAJO · PAZ Y SALVO</h1><p style="margin:3px 0 0;font-size:11px;color:#B0C9E4;">SIG HSEQ Colombia · Grupo LPS</p></div>'
+      +'<table style="width:100%;margin-bottom:12px;"><tr><td><strong>Nombre:</strong> '+(r.nombre||'')+'</td><td><strong>Cédula:</strong> '+(r.cedula||'')+'</td></tr><tr><td><strong>Cargo:</strong> '+(r.cargo||'—')+'</td><td><strong>Jefe:</strong> '+(r.jefe_inmediato||'—')+'</td></tr><tr><td><strong>Área:</strong> '+(r.area||'—')+'</td><td><strong>Fecha salida:</strong> '+(r.fecha_salida||'—')+'</td></tr></table>'
+      +'<h3 style="font-size:12px;background:#EAF5FF;padding:5px 8px;">3. Equipos de cómputo</h3>'+chk(r.equipos)
+      +'<h3 style="font-size:12px;background:#EAF5FF;padding:5px 8px;margin-top:10px;">4. EPP</h3>'+chk(r.epp)
+      +'<h3 style="font-size:12px;background:#EAF5FF;padding:5px 8px;margin-top:10px;">5. Tecnología</h3><div style="font-size:11px;">'+(r.correo_desactivado?'☑':'☐')+' Correo corporativo desactivado &nbsp; '+(r.apps_desactivadas?'☑':'☐')+' Aplicaciones &nbsp; '+(r.buk_desactivado?'☑':'☐')+' Buk</div>'
+      +'<h3 style="font-size:12px;background:#EAF5FF;padding:5px 8px;margin-top:10px;">6. Examen médico de retiro</h3><div style="font-size:11px;">'+(r.examen_medico===true?'Sí se realiza':r.examen_medico===false?'No se realiza':'—')+'</div>'
+      +(r.observaciones?'<p style="font-size:11px;margin-top:8px;"><strong>Obs:</strong> '+r.observaciones+'</p>':'')
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:30px;">'+firmaBox('Almacén',r.firma_almacen)+firmaBox('HSE',r.firma_hse)+firmaBox('TI',r.firma_ti)+firmaBox('Talento Humano',r.firma_th)+firmaBox(r.nombre||'Colaborador',r.firma_colaborador)+firmaBox(r.jefe_inmediato||'Jefe inmediato',r.firma_jefe)+'</div>'
+      +'<scr'+'ipt>window.print();</scr'+'ipt></body></html>');
+    w.document.close();
+  }catch(e){ alert('Error PDF: '+e.message); }
+}
+
+// ===================== MÓDULO ACTA DE ENTREGA =====================
+let acEmpleado=null, acEditId=null, acData={items:[],creds:[]}, acFirmas={};
+function initActa(){}
+
+async function buscarEmpleadoActa(){
+  const ced=document.getElementById('acCedula').value.trim();
+  if(!ced){ alert('Ingrese una cédula'); return; }
+  try{
+    const {data}=await getSupabase().from('empleados').select('*').eq('cedula',ced).limit(1);
+    if(!data||!data.length){ document.getElementById('acEmpInfo').innerHTML='<span style="color:#DC2626;">⚠️ No existe empleado con esa cédula.</span>'; document.getElementById('acForm').style.display='none'; return; }
+    acEmpleado=data[0]; acEditId=null;
+    const nombre=((acEmpleado.nombres||'')+' '+(acEmpleado.apellidos||'')).trim();
+    document.getElementById('acEmpInfo').innerHTML='✅ '+nombre;
+    document.getElementById('acForm').style.display='block';
+    document.getElementById('acNombre').value=nombre;
+    document.getElementById('acId').value=acEmpleado.cedula;
+    document.getElementById('acCargo').value=acEmpleado.cargo||'';
+    document.getElementById('acArea').value=acEmpleado.area||acEmpleado.dependencia||'';
+    document.getElementById('acNombreColab').value=nombre;
+    acData={items:[{descripcion:'',estado:'En proceso',ruta:''}], creds:[{entidad:'',usuario:'',clave:'',pagina:''}]};
+    renderActaItems(); renderActaCreds(); setupFirmasAc();
+    await cargarHistorialActa();
+  }catch(e){ alert('Error: '+e.message); }
+}
+
+function addActaItem(){ acData.items.push({descripcion:'',estado:'En proceso',ruta:''}); renderActaItems(); }
+function delActaItem(i){ acData.items.splice(i,1); renderActaItems(); }
+function updActaItem(i,c,v){ if(acData.items[i]) acData.items[i][c]=v; }
+function renderActaItems(){
+  const cont=document.getElementById('acItems'); if(!cont)return;
+  cont.innerHTML='<div style="display:grid;grid-template-columns:2fr 130px 1.4fr 32px;gap:8px;font-size:10px;font-weight:700;color:var(--slate);margin-bottom:4px;"><span>DESCRIPCIÓN</span><span>ESTADO</span><span>RUTA DE ACCESO</span><span></span></div>'
+    +acData.items.map((it,i)=>`<div style="display:grid;grid-template-columns:2fr 130px 1.4fr 32px;gap:8px;align-items:center;margin-bottom:5px;">
+    <input placeholder="Tarea / función" value="${(it.descripcion||'').replace(/"/g,'&quot;')}" oninput="updActaItem(${i},'descripcion',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;">
+    <select onchange="updActaItem(${i},'estado',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;"><option ${it.estado==='En proceso'?'selected':''}>En proceso</option><option ${it.estado==='Culminado'?'selected':''}>Culminado</option><option ${it.estado==='No iniciado'?'selected':''}>No iniciado</option></select>
+    <input placeholder="Ruta de acceso" value="${(it.ruta||'').replace(/"/g,'&quot;')}" oninput="updActaItem(${i},'ruta',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;">
+    <button class="btn-sm" style="color:#DC2626;" onclick="delActaItem(${i})">🗑</button></div>`).join('');
+}
+function addActaCred(){ acData.creds.push({entidad:'',usuario:'',clave:'',pagina:''}); renderActaCreds(); }
+function delActaCred(i){ acData.creds.splice(i,1); renderActaCreds(); }
+function updActaCred(i,c,v){ if(acData.creds[i]) acData.creds[i][c]=v; }
+function renderActaCreds(){
+  const cont=document.getElementById('acCreds'); if(!cont)return;
+  cont.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 32px;gap:8px;font-size:10px;font-weight:700;color:var(--slate);margin-bottom:4px;"><span>ENTIDAD</span><span>USUARIO</span><span>CONTRASEÑA</span><span>PÁGINA</span><span></span></div>'
+    +acData.creds.map((c,i)=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 32px;gap:8px;align-items:center;margin-bottom:5px;">
+    <input placeholder="Entidad" value="${(c.entidad||'').replace(/"/g,'&quot;')}" oninput="updActaCred(${i},'entidad',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;">
+    <input placeholder="Usuario" value="${(c.usuario||'').replace(/"/g,'&quot;')}" oninput="updActaCred(${i},'usuario',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;">
+    <input placeholder="Contraseña" value="${(c.clave||'').replace(/"/g,'&quot;')}" oninput="updActaCred(${i},'clave',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;">
+    <input placeholder="Página web" value="${(c.pagina||'').replace(/"/g,'&quot;')}" oninput="updActaCred(${i},'pagina',this.value)" style="padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;">
+    <button class="btn-sm" style="color:#DC2626;" onclick="delActaCred(${i})">🗑</button></div>`).join('');
+}
+function setupFirmasAc(){
+  ['Jefe','Colab'].forEach(k=>{
+    const c=document.getElementById('firmaAc'+k); if(!c)return;
+    const ctx=c.getContext('2d'); ctx.strokeStyle='#0A2540';ctx.lineWidth=2;ctx.lineCap='round';
+    acFirmas[k]={ctx,hay:false,canvas:c}; let dib=false;
+    const pos=ev=>{const r=c.getBoundingClientRect();const t=ev.touches?ev.touches[0]:ev;return {x:(t.clientX-r.left)*(c.width/r.width),y:(t.clientY-r.top)*(c.height/r.height)};};
+    c.onmousedown=ev=>{ev.preventDefault();dib=true;const p=pos(ev);ctx.beginPath();ctx.moveTo(p.x,p.y);};
+    c.onmousemove=ev=>{if(!dib)return;ev.preventDefault();const p=pos(ev);ctx.lineTo(p.x,p.y);ctx.stroke();acFirmas[k].hay=true;};
+    c.onmouseup=()=>dib=false;c.onmouseleave=()=>dib=false;
+    c.ontouchstart=c.onmousedown;c.ontouchmove=c.onmousemove;c.ontouchend=()=>dib=false;
+  });
+}
+function limpiarFirmaAc(k){ const f=acFirmas[k]; if(f){f.ctx.clearRect(0,0,f.canvas.width,f.canvas.height);f.hay=false;} }
+function firmaAcData(k){ const f=acFirmas[k]; return (f&&f.hay)?f.canvas.toDataURL('image/png'):null; }
+
+function recogerActa(){
+  return {
+    empleado_id:acEmpleado.id, cedula:acEmpleado.cedula, nombre:document.getElementById('acNombre').value,
+    cargo:document.getElementById('acCargo').value.trim()||null, area:document.getElementById('acArea').value.trim()||null,
+    jefe_inmediato:document.getElementById('acNombreJefe').value.trim()||null,
+    items:acData.items, credenciales:acData.creds,
+    firma_jefe:firmaAcData('Jefe'), firma_colaborador:firmaAcData('Colab'),
+    colaborador_firmado:!!firmaAcData('Colab'), updated_at:new Date().toISOString()
+  };
+}
+async function guardarActa(){
+  if(!acEmpleado){ alert('Busque un colaborador'); return; }
+  const d=recogerActa(); d.estado=d.colaborador_firmado?'COMPLETO':'BORRADOR';
+  try{
+    const sb=getSupabase();
+    if(acEditId){ await sb.from('acta_entrega').update(d).eq('id',acEditId); }
+    else { const {data}=await sb.from('acta_entrega').insert(d).select(); acEditId=data[0].id; }
+    alert('✅ Acta guardada'+(d.estado==='BORRADOR'?' como borrador':''));
+    await cargarHistorialActa();
+  }catch(e){ alert('Error: '+e.message); }
+}
+async function crearLinkActa(){
+  if(!acEmpleado){ alert('Busque un colaborador'); return; }
+  const d=recogerActa(); d.estado='BORRADOR'; const token='AC'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); d.firma_token=token;
+  try{
+    const sb=getSupabase(); let id=acEditId;
+    if(id){ await sb.from('acta_entrega').update(d).eq('id',id); }
+    else { const {data}=await sb.from('acta_entrega').insert(d).select(); id=data[0].id; acEditId=id; }
+    const base=location.href.split('?')[0].replace(/[^/]*$/,'');
+    mostrarLinkFirma(base+'firma-acta.html?token='+token, document.getElementById('acNombre').value);
+    await cargarHistorialActa();
+  }catch(e){ alert('Error: '+e.message); }
+}
+function cancelarActa(){ document.getElementById('acForm').style.display='none'; document.getElementById('acCedula').value=''; document.getElementById('acEmpInfo').innerHTML=''; acEmpleado=null; acEditId=null; }
+
+async function cargarHistorialActa(){
+  if(!acEmpleado) return;
+  try{
+    const {data}=await getSupabase().from('acta_entrega').select('*').eq('empleado_id',acEmpleado.id).order('created_at',{ascending:false});
+    const cont=document.getElementById('acHistorial');
+    if(!data||!data.length){ cont.innerHTML=''; return; }
+    cont.innerHTML='<div class="panel" style="padding:14px;"><h3 style="margin:0 0 10px;">📋 Actas registradas</h3><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#EAF5FF;"><th style="padding:6px 8px;border:1px solid #D0DFF0;">Fecha</th><th style="padding:6px 8px;border:1px solid #D0DFF0;">Estado</th><th style="padding:6px 8px;border:1px solid #D0DFF0;">Colaborador</th><th style="padding:6px 8px;border:1px solid #D0DFF0;"></th></tr></thead><tbody>'
+      +data.map(r=>{const est=r.estado==='COMPLETO'?'<span style="color:#16A34A;font-weight:700;">✅ Completo</span>':'<span style="color:#D97706;">📝 Borrador</span>';const colab=r.colaborador_firmado?'✅':(r.firma_token?'⏳':'—');return '<tr><td style="padding:6px 8px;border:1px solid #E2EBF3;">'+(r.created_at?r.created_at.slice(0,10):'—')+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;">'+est+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;">'+colab+'</td><td style="padding:6px 8px;border:1px solid #E2EBF3;text-align:center;white-space:nowrap;"><button class="btn-sm" onclick="editarActa(\''+r.id+'\')">✏️</button><button class="btn-sm" onclick="pdfActa(\''+r.id+'\')">📄</button>'+(r.firma_token&&!r.colaborador_firmado?'<button class="btn-sm" style="color:#6D28D9;" onclick="verLinkActa(\''+r.firma_token+'\',\''+(r.nombre||'').replace(/\x27/g,"")+'\')">🔗</button>':'')+'<button class="btn-sm" style="color:#DC2626;" onclick="eliminarActa(\''+r.id+'\')">🗑</button></td></tr>';}).join('')
+      +'</tbody></table></div>';
+  }catch(e){ console.error(e); }
+}
+function verLinkActa(token,nombre){ const base=location.href.split('?')[0].replace(/[^/]*$/,''); mostrarLinkFirma(base+'firma-acta.html?token='+token,nombre); }
+async function editarActa(id){
+  try{
+    const {data}=await getSupabase().from('acta_entrega').select('*').eq('id',id).limit(1); if(!data||!data.length)return; const r=data[0];
+    if(!acEmpleado||acEmpleado.id!==r.empleado_id){ const {data:e}=await getSupabase().from('empleados').select('*').eq('id',r.empleado_id).limit(1); if(e&&e.length){acEmpleado=e[0];document.getElementById('acForm').style.display='block';} }
+    acEditId=id;
+    document.getElementById('acNombre').value=r.nombre||''; document.getElementById('acId').value=r.cedula||'';
+    document.getElementById('acCargo').value=r.cargo||''; document.getElementById('acArea').value=r.area||'';
+    document.getElementById('acNombreJefe').value=r.jefe_inmediato||''; document.getElementById('acNombreColab').value=r.nombre||'';
+    acData={items:r.items||[], creds:r.credenciales||[]}; renderActaItems(); renderActaCreds();
+    setupFirmasAc();
+    [['Jefe',r.firma_jefe],['Colab',r.firma_colaborador]].forEach(([k,src])=>{ if(src&&acFirmas[k]){const img=new Image();img.onload=()=>{acFirmas[k].ctx.drawImage(img,0,0,acFirmas[k].canvas.width,acFirmas[k].canvas.height);acFirmas[k].hay=true;};img.src=src;} });
+    document.getElementById('acForm').scrollIntoView({behavior:'smooth'});
+  }catch(e){ alert('Error: '+e.message); }
+}
+async function eliminarActa(id){
+  const k=prompt('🔐 Ingrese la clave de administrador para eliminar este registro:'); if(k===null)return;
+  if(k!=='LPS-TH'){ alert('⚠️ Clave incorrecta.'); return; }
+  if(!confirm('¿Eliminar definitivamente esta acta?'))return;
+  try{ await getSupabase().from('acta_entrega').delete().eq('id',id); await cargarHistorialActa(); }catch(e){ alert('Error: '+e.message); }
+}
+async function pdfActa(id){
+  try{
+    let r; const sb=getSupabase();
+    if(typeof id==='string'){ const {data}=await sb.from('acta_entrega').select('*').eq('id',id).limit(1); r=data&&data[0]; }
+    else { r=recogerActa(); }
+    if(!r){ alert('Sin datos'); return; }
+    const itemsRows=(r.items||[]).map(it=>'<tr><td style="border:1px solid #999;padding:5px;">'+(it.descripcion||'')+'</td><td style="border:1px solid #999;padding:5px;text-align:center;">'+(it.estado||'')+'</td><td style="border:1px solid #999;padding:5px;">'+(it.ruta||'')+'</td></tr>').join('');
+    const credRows=(r.credenciales||[]).map(c=>'<tr><td style="border:1px solid #999;padding:5px;">'+(c.entidad||'')+'</td><td style="border:1px solid #999;padding:5px;">'+(c.usuario||'')+'</td><td style="border:1px solid #999;padding:5px;">'+(c.clave||'')+'</td><td style="border:1px solid #999;padding:5px;">'+(c.pagina||'')+'</td></tr>').join('');
+    const firmaBox=(t,n,src)=>'<div style="text-align:center;">'+(src?'<img src="'+src+'" style="height:48px;">':'<div style="height:48px;"></div>')+'<div style="border-top:1px solid #333;width:220px;font-size:10px;padding-top:3px;margin:0 auto;">'+t+'<br>'+(n||'')+'</div></div>';
+    const w=window.open('','_blank');
+    w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Acta '+(r.nombre||'')+'</title></head><body style="font-family:Arial,sans-serif;margin:24px;color:#222;font-size:12px;">'
+      +'<div style="background:#0A2540;color:#fff;padding:14px;border-radius:8px;margin-bottom:14px;"><h1 style="margin:0;font-size:15px;">ACTA DE ENTREGA</h1><p style="margin:3px 0 0;font-size:11px;color:#B0C9E4;">SIG HSEQ Colombia · Grupo LPS</p></div>'
+      +'<table style="width:100%;margin-bottom:12px;"><tr><td><strong>Nombre:</strong> '+(r.nombre||'')+'</td><td><strong>Documento:</strong> '+(r.cedula||'')+'</td></tr><tr><td><strong>Cargo:</strong> '+(r.cargo||'—')+'</td><td><strong>Área/Proyecto:</strong> '+(r.area||'—')+'</td></tr></table>'
+      +'<h3 style="font-size:12px;background:#EAF5FF;padding:5px 8px;">Descripción del contenido</h3>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:11px;"><tr style="background:#EAF5FF;"><th style="border:1px solid #999;padding:5px;">Descripción</th><th style="border:1px solid #999;padding:5px;">Estado</th><th style="border:1px solid #999;padding:5px;">Ruta de acceso</th></tr>'+itemsRows+'</table>'
+      +'<h3 style="font-size:12px;background:#EAF5FF;padding:5px 8px;margin-top:12px;">Entrega de usuarios y contraseñas</h3>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:11px;"><tr style="background:#EAF5FF;"><th style="border:1px solid #999;padding:5px;">Entidad</th><th style="border:1px solid #999;padding:5px;">Usuario</th><th style="border:1px solid #999;padding:5px;">Contraseña</th><th style="border:1px solid #999;padding:5px;">Página</th></tr>'+credRows+'</table>'
+      +'<div style="display:flex;justify-content:space-around;margin-top:40px;">'+firmaBox('Jefe inmediato',r.jefe_inmediato,r.firma_jefe)+firmaBox('Colaborador',r.nombre,r.firma_colaborador)+'</div>'
+      +'<scr'+'ipt>window.print();</scr'+'ipt></body></html>');
+    w.document.close();
+  }catch(e){ alert('Error PDF: '+e.message); }
+}
+
+// ===== INICIALIZACIÓN DESDE SUPABASE =====
+</script>
+
+<!-- MODAL DE ACCESO -->
+<div class="lock-bg" id="lockModal">
+  <div class="lock-box">
+    <div class="lock-icon">🔐</div>
+    <h3>Acceso restringido</h3>
+    <p>Ingrese la clave para acceder a este módulo</p>
+    <input type="password" id="lockInput" placeholder="••••••" maxlength="10" onkeydown="if(event.key==='Enter')checkAccess()">
+    <button class="lock-btn" onclick="checkAccess()">Ingresar</button>
+    <div class="lock-err" id="lockErr">⚠️ Clave incorrecta</div>
+  </div>
+</div>
+
+</body>
+</html>
