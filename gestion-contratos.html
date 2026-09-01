@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gestión de Contratos · LPS</title>
+<style>
+  :root{--navy:#0A2540;--blue:#1598FF;--blue-d:#0C6BC4;--green:#16A34A;--amber:#D97706;--danger:#DC2626;--slate:#5B6B7C;--line:#E2EBF3;--bg:#EEF1F6;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--navy);}
+  .hidden{display:none!important;}
+  input,select,textarea{width:100%;border:0.5px solid #D0DBE7;border-radius:7px;padding:9px 10px;font-size:12.5px;color:var(--navy);font-family:inherit;background:#fff;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);}
+  input[readonly]{background:#F1F5F9;color:#5B6B7C;}
+  label{font-size:10px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;}
+  .req{color:var(--danger);}
+  .btn{border:none;border-radius:8px;padding:10px 18px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn-p{background:var(--blue);color:#fff;}.btn-navy{background:var(--navy);color:#fff;}.btn-green{background:var(--green);color:#fff;}
+  .btn-g{background:#EEF3F8;color:#42505E;border:0.5px solid #D0DBE7;}
+  .btn-sm{border:none;background:#EAF5FF;color:var(--blue-d);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;}
+  .pill{padding:2px 10px;border-radius:20px;font-size:10.5px;font-weight:600;display:inline-block;}
+  .pill-plan{background:#DBEAFE;color:#1E40AF;}.pill-ejec{background:#FEF3C7;color:#92600A;}.pill-term{background:#DCFCE7;color:#166534;}.pill-gray{background:#EEF3F8;color:#5B6B7C;}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{text-align:left;padding:9px 8px;font-weight:600;color:var(--slate);border-bottom:1px solid #EEF3F8;font-size:10.5px;text-transform:uppercase;cursor:pointer;}
+  td{padding:8px;border-bottom:1px solid #F4F7FB;vertical-align:top;}
+  .card{background:#fff;border:0.5px solid var(--line);border-radius:12px;padding:18px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;}
+  .topbar{background:var(--navy);color:#fff;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar .logo{height:30px;background:#fff;border-radius:6px;padding:2px 5px;margin-right:10px;}
+  .wrap{max-width:1140px;margin:0 auto;padding:22px;}
+  .sec-title{font-size:18px;font-weight:600;margin-bottom:3px;}
+  .sec-sub{font-size:11.5px;color:var(--slate);margin-bottom:16px;}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+  .kpi{background:#fff;border:0.5px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;transition:.15s;border-left:4px solid var(--slate);}
+  .kpi:hover{box-shadow:0 4px 14px rgba(10,37,64,.08);}
+  .kpi.k-plan{border-left-color:#1E40AF;}.kpi.k-ejec{border-left-color:var(--amber);}.kpi.k-term{border-left-color:var(--green);}
+  .kpi .n{font-size:26px;font-weight:700;}
+  .kpi .t{font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:.3px;}
+  .modal-bg{position:fixed;inset:0;background:rgba(10,37,64,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
+  .modal{background:#fff;border-radius:14px;padding:22px;width:640px;max-width:96vw;max-height:92vh;overflow:auto;}
+  .filtros{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .code-box{font-family:ui-monospace,monospace;font-weight:700;color:var(--navy);background:#F1F5F9;border-radius:7px;padding:9px 10px;font-size:13px;}
+  a.codelink{color:var(--blue-d);font-weight:700;font-family:ui-monospace,monospace;cursor:pointer;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div style="display:flex;align-items:center;"><img id="logoTop" class="logo"><div><div style="font-size:15px;font-weight:600;">Gestión de Contratos</div><div style="font-size:10px;color:#7FA8D4;" id="barRol">Acceso general</div></div></div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <div id="adminBtn"></div>
+    <a href="procesos-gestion.html" style="color:#fff;font-size:11px;text-decoration:none;opacity:.8;">← Volver</a>
+  </div>
+</div>
+<div class="wrap">
+  <div class="sec-title">Contratos</div>
+  <div class="sec-sub" id="subFiltros">Código automático CON-{SIGLA}-{CONSECUTIVO} · estado calculado por vigencia</div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card" style="padding:12px 14px;margin-bottom:12px;">
+    <div class="filtros">
+      <div><label>Tipo</label><select id="fl_tipo" onchange="onFiltroTipo();render()"><option value="">Todos</option><option value="area">Área</option><option value="cliente">Cliente</option></select></div>
+      <div><label>Área / Cliente</label><select id="fl_ent" onchange="render()"><option value="">Todos</option></select></div>
+      <div><label>Estado</label><select id="fl_est" onchange="render()"><option value="">Todos</option><option value="Planeado">Planeado</option><option value="Ejecutado">Ejecutado</option><option value="Terminado">Terminado</option></select></div>
+      <div><label>Buscar (código u objeto)</label><input id="fl_txt" oninput="render()" placeholder="Texto…"></div>
+      <div><label>Segmentar / agrupar por</label><select id="fl_seg" onchange="render()"><option value="">Sin agrupar</option><option value="contratista_gestor">Contratista/Gestor</option><option value="entidad_nombre">Área / Cliente</option><option value="tipo_contrato">Tipo de contrato</option></select></div>
+      <div><label>Inicio desde</label><input type="date" id="fl_ini_d" onchange="render()"></div>
+      <div><label>Inicio hasta</label><input type="date" id="fl_ini_h" onchange="render()"></div>
+      <div><label>Terminación desde</label><input type="date" id="fl_fin_d" onchange="render()"></div>
+      <div style="display:flex;align-items:flex-end;gap:6px;"><button class="btn btn-g" style="flex:1;" onclick="limpiarFiltros()">Limpiar</button><button class="btn btn-navy" style="flex:1;" onclick="modalPDF()">⬇ PDF</button></div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-bottom:8px;"><button class="btn btn-p" id="btnNuevo" onclick="formContrato()">＋ Nuevo contrato</button></div>
+
+  <div class="card" style="padding:6px 14px 14px;overflow-x:auto;">
+    <table>
+      <thead><tr>
+        <th onclick="ordenarPor('codigo')">Código</th>
+        <th onclick="ordenarPor('entidad_nombre')">Área / Cliente</th>
+        <th>Sigla</th>
+        <th onclick="ordenarPor('fecha_inicio')">Inicio</th>
+        <th onclick="ordenarPor('fecha_terminacion')">Terminación</th>
+        <th>Estado</th>
+        <th onclick="ordenarPor('valor')" style="text-align:right;">Valor contrato</th>
+        <th style="text-align:right;">Valor ejecutado</th>
+        <th>Objeto del contrato</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+<div id="modalRoot"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const LOGO_LPS='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEEAAAAoCAYAAAChDJfXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARTSURBVGhD7ZltTJVlGMd/13OAA4UBSrBJaNPRMhWVOc2FOZnLMnKu2rK15UzZilxv9MnUrZq9aFlfWl9ac+U0k3Q4tZKpaWENBk1bDJFASYgQ5OUAh/P2XH24D6HHD22n5zSbz+/T2Tn3ue/r+T3X/T/3syOqqtzkWLFv3Iy4ElwJBleCK8HgSnAlGFwJrgSDK8GVYHAluBIMroR4JSjwx7DSMQROP4grcNmv+MOxnySO+CQovHISyo8rEQclqMJwEMqqhYqTMByKHZEY4pIA0BeA/lGwHZKgCi39sPqI0tANh9rgnTrFF4wd6TxxS4glbIM/DMEIDIWgN9rStpoWtxUCEegegc4hZSR0rUB/GDacgLM9whuLYMVUZWejsLXWzJlIHJFgKxz8TSmpNFtk8V6Yv1t4YD/sboKIDRcGlMcPwbKvlNIqePAAHG4bt/DdJWi8AmvvUZ6aAW8tFmZOUvacgzd/MgIThSMSiN7Jiz5ougLbFyv7SiHLq2w6DbVdsPccnL0MVSuFmieE6Zmwo0H+bve7s5SMFKg8D819yvcdSkuf4BH4tBE+aFBCduyqzuCYBIBkCzYvFJZOEYpy4LUFELKhplNJT4Gwwvv1cKBFKS+Ej0ogLcl8d2qG8PZ9ylBIWPMNVJwS8icoux9S7s9TPj4jHG5VxzLoav6VhNh6kiyYlAYeARG4/RYBYCAAjxUIq6Yrv/YqW2uFddVK24CSFK3AI7A0X1h+p037kBC24fVFUJQjfLgEkiyluv36NZ0gbgkpFgwGhWBkPOBGw1DbZdo2bENdlyJAQaZwrN1mTray/xHhyCpIT4ZtdSYvACIKu5qUby9aTL5VCdqwqQZaB5Tnjwv+iLAkz8znNHFJEIGSfOgZhTVHlX3NxoICO+qhrFp56YSy+UcTbkungC8kbKu32NmofH1B8YWEolzBilZQ06G8Vy8UZitVK4XtxdA5IpRWCae74NnZ8GiBhZUAC/FJANbPEspmKf6wELZNZUkCW+4Vki2T9E/PMEF4RzqsnSlsmAOVzfDJL/DkXfBusZkLzPhABFYXKHnpsGwq5KcrgQg8V6hsXACeuKr9ZyTef6DGfvvHtsKX55SNp4XPlsP8XBgIKKlJRohHFEsEf1gZDgmZqeALwkQveKPB2OOH9dVwtgcqiuDY79DQDS/OhfK54PVcs7yjxC3hamyFPU1GwufLYTCoqMLP3cq0DMhOE7K8wsFWpSgXctKgYwj+HIEX5gki5sR4vh+eOQqtg5DqgVeLlLJCIzKRODr9WGtneYXeUUjxwMPTLHpH4UyPYiMMBiDDK/hCMCFl3L8IFGTCFytgxkRly0Jl3ezEC8CpTlCFUx3Kribh5Xkm6S/5lMJsYXL6+NH5hw4ozjN7O2ybDJGYoFNgMAC3ecelJhpHJBDdEhGNnhGiFyPR12OoXn/RNwKOSfg/8x/suBsfV4IrweBKcCUYXAmuBIMrAfgLhJ7NVYtfXl4AAAAASUVORK5CYII=';
+const CLAVE_ADMIN='LPS-ADMIN';
+let esAdmin=false, usuario='Usuario';
+let catalogo=[], contratos=[], orden={campo:'created_at',dir:'desc'};
+
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function abrirModal(html){ document.getElementById('modalRoot').innerHTML='<div class="modal-bg" onclick="if(event.target===this)cerrarModal()"><div class="modal">'+html+'</div></div>'; }
+function cerrarModal(){ document.getElementById('modalRoot').innerHTML=''; }
+function hoy(){ return new Date().toISOString().slice(0,10); }
+
+// Estado calculado por fechas
+function calcEstado(ini,fin){
+  const h=hoy();
+  if(h<ini) return 'Planeado';
+  if(h>=ini && h<=fin) return 'Ejecutado';
+  return 'Terminado';
+}
+function pillEstado(e){ const m={Planeado:'pill-plan',Ejecutado:'pill-ejec',Terminado:'pill-term'}; return '<span class="pill '+(m[e]||'pill-gray')+'">'+e+'</span>'; }
+
+// ===== Admin =====
+function pintarAdminBtn(){
+  document.getElementById('adminBtn').innerHTML=esAdmin
+    ? '<span class="pill pill-term" style="margin-right:6px;">🔓 Admin</span><button class="btn-sm" onclick="bloquearAdmin()">Bloquear</button>'
+    : '<button class="btn-sm" onclick="pedirAdmin()">🔒 Modo administrador</button>';
+  document.getElementById('btnNuevo').style.display=esAdmin?'':'none';
+}
+function pedirAdmin(){
+  abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:10px;">Modo administrador</div>'+
+    '<div style="font-size:11.5px;color:var(--slate);margin-bottom:12px;">Solo el administrador crea/edita contratos y catálogos.</div>'+
+    '<label>Su nombre</label><input id="ad_nom" value="'+esc(usuario==='Usuario'?'':usuario)+'">'+
+    '<div style="height:8px;"></div><label>Clave</label><input type="password" id="ad_clave" onkeydown="if(event.key===\'Enter\')validarAdmin()">'+
+    '<div id="adErr" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;"><button class="btn btn-p" onclick="validarAdmin()">Desbloquear</button><button class="btn btn-g" onclick="cerrarModal()">Cancelar</button></div>');
+}
+function validarAdmin(){
+  if(document.getElementById('ad_clave').value!==CLAVE_ADMIN){ document.getElementById('adErr').textContent='Clave incorrecta.'; return; }
+  esAdmin=true; const n=document.getElementById('ad_nom').value.trim(); if(n)usuario=n;
+  cerrarModal(); pintarAdminBtn();
+}
+function bloquearAdmin(){ esAdmin=false; pintarAdminBtn(); }
+
+// ===== Carga =====
+let adiciones=[];
+function money(n){ n=Number(n)||0; return '$'+n.toLocaleString('es-CO'); }
+function totalContrato(c){ return Number(c.valor)||0; } // Valor del contrato = solo la base
+function valorEjecutado(c){ return adiciones.filter(a=>a.contrato_id===c.id).reduce((s,a)=>s+(Number(a.valor)||0),0); }
+function pctEjecutado(c){ const base=Number(c.valor)||0; if(base<=0)return null; return Math.round(valorEjecutado(c)/base*1000)/10; }
+function saldoContrato(c){ return (Number(c.valor)||0)-valorEjecutado(c); }
+
+async function cargar(){
+  document.getElementById('logoTop').src=LOGO_LPS;
+  const [cat,con,adi]=await Promise.all([
+    sb.from('con_catalogo').select('*').eq('activo',true).order('tipo').order('nombre'),
+    sb.from('con_contratos').select('*').eq('anulado',false),
+    sb.from('con_adiciones').select('*').order('fecha')
+  ]);
+  catalogo=cat.data||[]; contratos=con.data||[]; adiciones=adi.data||[];
+  pintarAdminBtn();
+  render();
+}
+
+function onFiltroTipo(){
+  const t=document.getElementById('fl_tipo').value;
+  const ents=catalogo.filter(c=>!t||c.tipo===t);
+  document.getElementById('fl_ent').innerHTML='<option value="">Todos</option>'+ents.map(c=>'<option value="'+esc(c.nombre)+'">'+esc(c.nombre)+' ('+esc(c.sigla)+')</option>').join('');
+}
+function limpiarFiltros(){
+  ['fl_tipo','fl_ent','fl_est','fl_txt','fl_seg','fl_ini_d','fl_ini_h','fl_fin_d'].forEach(id=>document.getElementById(id).value='');
+  onFiltroTipo(); render();
+}
+function ordenarPor(campo){
+  if(orden.campo===campo) orden.dir=orden.dir==='desc'?'asc':'desc'; else { orden.campo=campo; orden.dir='desc'; }
+  render();
+}
+
+function filtrar(){
+  const t=document.getElementById('fl_tipo').value, ent=document.getElementById('fl_ent').value, est=document.getElementById('fl_est').value;
+  const txt=(document.getElementById('fl_txt').value||'').toLowerCase();
+  const id_=document.getElementById('fl_ini_d').value, ih=document.getElementById('fl_ini_h').value, fd=document.getElementById('fl_fin_d').value;
+  return contratos.filter(c=>{
+    const estado=calcEstado(c.fecha_inicio,c.fecha_terminacion);
+    if(t&&c.tipo_entidad!==t) return false;
+    if(ent&&c.entidad_nombre!==ent) return false;
+    if(est&&estado!==est) return false;
+    if(txt&&!((c.codigo||'').toLowerCase().includes(txt)||(c.objeto||'').toLowerCase().includes(txt))) return false;
+    if(id_&&c.fecha_inicio<id_) return false;
+    if(ih&&c.fecha_inicio>ih) return false;
+    if(fd&&c.fecha_terminacion<fd) return false;
+    return true;
+  });
+}
+
+function render(){
+  let rows=filtrar();
+  // KPIs sobre el conjunto filtrado
+  let plan=0,ejec=0,term=0;
+  rows.forEach(c=>{ const e=calcEstado(c.fecha_inicio,c.fecha_terminacion); if(e==='Planeado')plan++;else if(e==='Ejecutado')ejec++;else term++; });
+  document.getElementById('kpis').innerHTML=
+    '<div class="kpi k-plan" onclick="setEstadoFiltro(\'Planeado\')"><div class="t">Contratos Planeados</div><div class="n" style="color:#1E40AF;">'+plan+'</div></div>'+
+    '<div class="kpi k-ejec" onclick="setEstadoFiltro(\'Ejecutado\')"><div class="t">Contratos Ejecutados</div><div class="n" style="color:var(--amber);">'+ejec+'</div></div>'+
+    '<div class="kpi k-term" onclick="setEstadoFiltro(\'Terminado\')"><div class="t">Contratos Terminados</div><div class="n" style="color:var(--green);">'+term+'</div></div>';
+  // Orden
+  rows.sort((a,b)=>{
+    let va=a[orden.campo], vb=b[orden.campo];
+    if(orden.campo==='codigo'){ va=a.codigo; vb=b.codigo; }
+    va=va||''; vb=vb||'';
+    if(va<vb) return orden.dir==='desc'?1:-1;
+    if(va>vb) return orden.dir==='desc'?-1:1;
+    return 0;
+  });
+  const seg=document.getElementById('fl_seg')?document.getElementById('fl_seg').value:'';
+  if(!seg){
+    document.getElementById('tbody').innerHTML=rows.length?rows.map(c=>filaContrato(c)).join(''):'<tr><td colspan="10" style="text-align:center;color:var(--slate);padding:20px;">Sin contratos que coincidan</td></tr>';
+  } else {
+    // Agrupar por el criterio seleccionado
+    const grupos={};
+    rows.forEach(c=>{
+      let k;
+      if(seg==='tipo_contrato') k=c.tipo_contrato==='Otros'?(c.tipo_contrato_otro||'Otros'):(c.tipo_contrato||'(Sin tipo)');
+      else k=c[seg]||'(Sin dato)';
+      (grupos[k]=grupos[k]||[]).push(c);
+    });
+    let html='';
+    Object.keys(grupos).sort().forEach(k=>{
+      const totalGrupo=grupos[k].reduce((s,c)=>s+totalContrato(c),0);
+      const ejecGrupo=grupos[k].reduce((s,c)=>s+valorEjecutado(c),0);
+      html+='<tr style="background:#EEF3F8;"><td colspan="10" style="padding:8px 12px;font-weight:700;font-size:12px;color:var(--navy);">'+esc(k)+' <span style="color:var(--slate);font-weight:400;">· '+grupos[k].length+' contrato(s) · Contratado: '+money(totalGrupo)+' · Ejecutado: '+money(ejecGrupo)+'</span></td></tr>';
+      html+=grupos[k].map(c=>filaContrato(c)).join('');
+    });
+    document.getElementById('tbody').innerHTML=rows.length?html:'<tr><td colspan="10" style="text-align:center;color:var(--slate);padding:20px;">Sin contratos que coincidan</td></tr>';
+  }
+}
+function filaContrato(c){
+    const estado=calcEstado(c.fecha_inicio,c.fecha_terminacion);
+    const tipoTxt=c.tipo_entidad==='area'?'Área':'Cliente';
+    const adis=adiciones.filter(a=>a.contrato_id===c.id);
+    const total=totalContrato(c);
+    const ejec=valorEjecutado(c);
+    const pct=pctEjecutado(c);
+    const saldo=saldoContrato(c);
+    const supera=(ejec>total && total>0);
+    const tipoConTxt=c.tipo_contrato==='Otros'?(c.tipo_contrato_otro||'Otros'):(c.tipo_contrato||'—');
+    let acc='';
+    if(esAdmin) acc='<button class="btn-sm" onclick="formContrato(\''+c.id+'\')">✏️</button> <button class="btn-sm" style="background:#DCFCE7;color:#166534;" onclick="formAdicion(\''+c.id+'\')">＋ Acta</button> <button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="eliminarContrato(\''+c.id+'\')">🗑</button>';
+    let filaPrincipal='<tr>'+
+      '<td><a class="codelink" onclick="copiar(\''+esc(c.codigo)+'\')" title="Clic para copiar">'+esc(c.codigo)+'</a>'+(adis.length?'<div style="font-size:9px;"><a onclick="toggleAdi(\''+c.id+'\')" style="color:var(--blue-d);cursor:pointer;">▸ '+adis.length+' acta(s)</a></div>':'')+'</td>'+
+      '<td>'+esc(c.entidad_nombre)+'<div style="font-size:9px;color:var(--slate);">'+tipoTxt+(c.contratista_gestor?' · '+esc(c.contratista_gestor):'')+'</div></td>'+
+      '<td>'+esc(c.sigla)+'</td>'+
+      '<td>'+esc(c.fecha_inicio)+'</td><td>'+esc(c.fecha_terminacion)+'</td>'+
+      '<td>'+pillEstado(estado)+'</td>'+
+      '<td style="text-align:right;font-weight:600;white-space:nowrap;">'+money(total)+'</td>'+
+      '<td style="text-align:right;font-weight:600;white-space:nowrap;color:'+(supera?'var(--danger)':'var(--green)')+';">'+money(ejec)+
+        '<div style="font-size:9px;color:'+(supera?'var(--danger)':'var(--slate)')+';font-weight:400;">'+(pct!=null?pct+'% ejec.':adis.length+' acta(s)')+(supera?' ⚠ excede':(saldo>=0&&total>0?' · saldo '+money(saldo):''))+'</div></td>'+
+      '<td style="max-width:220px;font-size:11px;white-space:normal;">'+esc(c.objeto)+'<div style="font-size:9px;color:var(--slate);">'+esc(tipoConTxt)+(c.administrador_contrato?' · Adm: '+esc(c.administrador_contrato):'')+'</div></td>'+
+      '<td style="white-space:nowrap;">'+acc+'</td></tr>';
+    let filaAdi='';
+    if(adis.length){
+      filaAdi='<tr id="adi-'+c.id+'" style="display:none;"><td colspan="10" style="background:#F8FAFC;padding:8px 14px;">'+
+        '<div style="font-size:10px;font-weight:700;color:var(--slate);margin-bottom:4px;">ACTAS DE CONCILIACIÓN</div>'+
+        '<table style="width:100%;font-size:11px;"><thead><tr><th style="padding:3px;">Fecha del acta</th><th style="padding:3px;">Archivo</th><th style="padding:3px;text-align:right;">Valor</th>'+(esAdmin?'<th></th>':'')+'</tr></thead><tbody>'+
+        adis.map(a=>'<tr><td style="padding:3px;">'+esc(a.fecha||'—')+'</td><td style="padding:3px;">'+(a.adjunto_url?'<a href="'+esc(a.adjunto_url)+'" target="_blank" style="color:var(--blue-d);">📎 '+esc(a.adjunto_nombre||'Ver acta')+'</a>':'—')+'</td><td style="padding:3px;text-align:right;">'+money(a.valor)+'</td>'+(esAdmin?'<td style="padding:3px;"><button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delAdicion(\''+a.id+'\')">🗑</button></td>':'')+'</tr>').join('')+
+        '<tr style="border-top:1.5px solid #E2EBF3;font-weight:700;"><td colspan="2" style="padding:4px;text-align:right;">Valor ejecutado (suma de actas):</td><td style="padding:4px;text-align:right;color:'+(supera?'var(--danger)':'var(--green)')+';">'+money(ejec)+'</td>'+(esAdmin?'<td></td>':'')+'</tr>'+
+        '<tr style="font-weight:600;"><td colspan="2" style="padding:4px;text-align:right;color:var(--slate);">Valor del contrato: '+money(total)+' · '+(pct!=null?pct+'% ejecutado':'')+'</td><td style="padding:4px;text-align:right;color:'+(saldo<0?'var(--danger)':'var(--slate)')+';">Saldo: '+money(saldo)+'</td>'+(esAdmin?'<td></td>':'')+'</tr>'+
+        '</tbody></table></div></td></tr>';
+    }
+    return filaPrincipal+filaAdi;
+}
+function toggleAdi(id){ const r=document.getElementById('adi-'+id); if(r)r.style.display=r.style.display==='none'?'table-row':'none'; }
+function setEstadoFiltro(e){ document.getElementById('fl_est').value=e; render(); }
+function copiar(cod){ navigator.clipboard.writeText(cod).then(()=>{ const s=document.getElementById('subFiltros'); const o=s.textContent; s.textContent='✅ Código copiado: '+cod; setTimeout(()=>s.textContent=o,1500); }); }
+
+// ===== Formulario de contrato =====
+function formContrato(id){
+  if(!esAdmin){ alert('Solo el administrador puede crear o editar contratos.'); return; }
+  const d=id?contratos.find(x=>x.id===id):{};
+  const editar=!!id;
+  const areas=catalogo.filter(c=>c.tipo==='area'), clientes=catalogo.filter(c=>c.tipo==='cliente');
+  abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:4px;">'+(editar?'Editar':'Nuevo')+' contrato</div>'+
+    '<div class="sec-sub">El código se genera automáticamente al guardar, según la sigla.</div>'+
+    '<div class="grid2">'+
+      '<div><label>Tipo de entidad <span class="req">*</span></label><select id="c_tipo" onchange="onTipoEntidad()" '+(editar?'disabled':'')+'><option value="">— Seleccione —</option><option value="area">Área / Dependencia</option><option value="cliente">Cliente</option></select></div>'+
+      '<div><label>Área / Cliente <span class="req">*</span></label><select id="c_ent" onchange="onEntidad()" '+(editar?'disabled':'')+'><option value="">— Seleccione —</option></select></div>'+
+      '<div><label>Sigla</label><input id="c_sigla" readonly value="'+esc(d.sigla||'')+'"></div>'+
+      '<div><label>Código de contrato</label><input id="c_cod" readonly value="'+esc(d.codigo||'(se genera al guardar)')+'"></div>'+
+    '</div>'+
+    '<div style="margin-top:10px;"><label>Objeto del contrato <span class="req">*</span></label><textarea id="c_obj" rows="3" placeholder="Describa el alcance contractual">'+esc(d.objeto||'')+'</textarea></div>'+
+    '<div class="grid2" style="margin-top:10px;">'+
+      '<div><label>Contratista / Gestor</label><input id="c_gestor" value="'+esc(d.contratista_gestor||'')+'" placeholder="Nombre del contratista o gestor"></div>'+
+      '<div><label>Administrador del contrato</label><input id="c_admin" value="'+esc(d.administrador_contrato||'')+'" placeholder="Responsable del seguimiento"></div>'+
+      '<div><label>Tipo de contrato</label><select id="c_tipocon" onchange="onTipoContrato()"><option value="">— Seleccione —</option><option>Administrativo</option><option>Obras</option><option>Bienes</option><option>Prestación de servicios</option><option>Llave en mano</option><option>Otros</option></select></div>'+
+      '<div id="wrapTipoOtro" style="display:none;"><label>¿Cuál tipo? <span class="req">*</span></label><input id="c_tipootro" value="'+esc(d.tipo_contrato_otro||'')+'"></div>'+
+      '<div><label>Valor del contrato (COP)</label><input type="number" id="c_valor" min="0" value="'+(d.valor||'')+'" placeholder="0"></div>'+
+    '</div>'+
+    '<div class="grid2" style="margin-top:10px;">'+
+      '<div><label>Fecha de inicio <span class="req">*</span></label><input type="date" id="c_ini" value="'+esc(d.fecha_inicio||'')+'"></div>'+
+      '<div><label>Fecha de terminación <span class="req">*</span></label><input type="date" id="c_fin" value="'+esc(d.fecha_terminacion||'')+'"></div>'+
+    '</div>'+
+    '<div id="c_err" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;"><button class="btn btn-p" onclick="guardarContrato('+(editar?"'"+id+"'":'null')+')">💾 Guardar</button><button class="btn btn-g" onclick="cerrarModal()">Cancelar</button></div>');
+  // llenar selects
+  if(editar){
+    document.getElementById('c_tipo').innerHTML='<option value="'+d.tipo_entidad+'">'+(d.tipo_entidad==='area'?'Área / Dependencia':'Cliente')+'</option>';
+    document.getElementById('c_ent').innerHTML='<option>'+esc(d.entidad_nombre)+'</option>';
+    if(d.tipo_contrato){ document.getElementById('c_tipocon').value=d.tipo_contrato; onTipoContrato(); }
+  }
+}
+function onTipoContrato(){
+  const v=document.getElementById('c_tipocon').value;
+  document.getElementById('wrapTipoOtro').style.display = v==='Otros'?'block':'none';
+}
+function onTipoEntidad(){
+  const t=document.getElementById('c_tipo').value;
+  const ents=catalogo.filter(c=>c.tipo===t);
+  document.getElementById('c_ent').innerHTML='<option value="">— Seleccione —</option>'+ents.map(c=>'<option value="'+esc(c.nombre)+'" data-sigla="'+esc(c.sigla)+'">'+esc(c.nombre)+' ('+esc(c.sigla)+')</option>').join('');
+  document.getElementById('c_sigla').value='';
+}
+function onEntidad(){
+  const sel=document.getElementById('c_ent'); const opt=sel.options[sel.selectedIndex];
+  document.getElementById('c_sigla').value=opt?opt.getAttribute('data-sigla')||'':'';
+}
+async function guardarContrato(id){
+  const err=document.getElementById('c_err'); err.textContent='';
+  const editar=!!id;
+  const tipo=document.getElementById('c_tipo').value;
+  const ent=document.getElementById('c_ent').value;
+  const sigla=document.getElementById('c_sigla').value;
+  const obj=document.getElementById('c_obj').value.trim();
+  const ini=document.getElementById('c_ini').value;
+  const fin=document.getElementById('c_fin').value;
+  const gestor=document.getElementById('c_gestor').value.trim();
+  const admin=document.getElementById('c_admin').value.trim();
+  const tipocon=document.getElementById('c_tipocon').value;
+  const tipootro=tipocon==='Otros'?document.getElementById('c_tipootro').value.trim():'';
+  const valor=Number(document.getElementById('c_valor').value)||0;
+  if(!editar&&(!tipo||!ent||!sigla)){ err.textContent='Seleccione tipo de entidad y área/cliente.'; return; }
+  if(!obj){ err.textContent='El objeto del contrato es obligatorio.'; return; }
+  if(!ini||!fin){ err.textContent='Las fechas de inicio y terminación son obligatorias.'; return; }
+  if(fin<ini){ err.textContent='La fecha de terminación no puede ser anterior a la de inicio.'; return; }
+  if(tipocon==='Otros'&&!tipootro){ err.textContent='Indique cuál tipo de contrato.'; return; }
+  const campos={objeto:obj,fecha_inicio:ini,fecha_terminacion:fin,contratista_gestor:gestor,administrador_contrato:admin,tipo_contrato:tipocon||null,tipo_contrato_otro:tipootro||null,valor};
+  try{
+    if(editar){
+      await sb.from('con_contratos').update(Object.assign({},campos,{modificado_por:usuario,updated_at:new Date().toISOString()})).eq('id',id);
+    } else {
+      const {data:cod,error:e1}=await sb.rpc('con_siguiente_codigo',{p_sigla:sigla});
+      if(e1)throw e1;
+      const {error:e2}=await sb.from('con_contratos').insert(Object.assign({},campos,{codigo:cod,tipo_entidad:tipo,entidad_nombre:ent,sigla,creado_por:usuario}));
+      if(e2)throw e2;
+    }
+    cerrarModal(); await cargar();
+  }catch(e){ err.textContent='Error: '+e.message; }
+}
+async function eliminarContrato(id){
+  if(!esAdmin){ alert('Solo el administrador puede eliminar contratos.'); return; }
+  const c=contratos.find(x=>x.id===id);
+  if(!confirm('¿Eliminar definitivamente el contrato '+c.codigo+'?\n\nSe borrará de la base de datos junto con sus otrosíes. Los demás contratos de la sigla '+c.sigla+' se renumerarán sin huecos.\n\nEsta acción no se puede deshacer.')) return;
+  const clave=prompt('Para confirmar, escriba la clave de administrador:');
+  if(clave!==CLAVE_ADMIN){ alert('Clave incorrecta. No se eliminó.'); return; }
+  try{
+    // Borrar el contrato (los otrosíes se borran en cascada) y renumerar la sigla
+    await sb.from('con_contratos').delete().eq('id',id);
+    const {data:n}=await sb.rpc('con_renumerar_sigla',{p_sigla:c.sigla});
+    await cargar();
+    const s=document.getElementById('subFiltros'); const o=s.textContent;
+    s.textContent='✅ Contrato eliminado. Sigla '+c.sigla+' renumerada ('+(n!=null?n:'?')+' contratos).';
+    setTimeout(()=>s.textContent=o,2500);
+  }catch(e){ alert('Error al eliminar: '+e.message); }
+}
+
+// ===== Adiciones (otrosíes) =====
+function formAdicion(contratoId){
+  if(!esAdmin){ alert('Solo el administrador puede agregar actas de conciliación.'); return; }
+  const c=contratos.find(x=>x.id===contratoId);
+  abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:4px;">Nueva acta de conciliación · '+esc(c.codigo)+'</div>'+
+    '<div class="sec-sub">Valor base del contrato: '+money(c.valor)+' · Valor ejecutado actual: '+money(valorEjecutado(c))+'</div>'+
+    '<div><label>Fecha del acta <span class="req">*</span></label><input type="date" id="ad_fecha" min="2000-01-01" max="2100-12-31"></div>'+
+    '<div style="margin-top:10px;"><label>Valor del acta (COP) <span class="req">*</span></label><input type="number" id="ad_valor" min="0" placeholder="0"></div>'+
+    '<div style="margin-top:10px;"><label>Archivo del acta (PDF/imagen)</label><input type="file" id="ad_file" accept=".pdf,image/*"><div id="ad_festado" style="font-size:10px;color:var(--slate);margin-top:3px;"></div></div>'+
+    '<div id="ad_err" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;"><button class="btn btn-p" id="ad_btn" onclick="guardarAdicion(\''+contratoId+'\')">💾 Agregar acta</button><button class="btn btn-g" onclick="cerrarModal()">Cancelar</button></div>');
+}
+async function guardarAdicion(contratoId){
+  const err=document.getElementById('ad_err'); err.textContent='';
+  const fecha=document.getElementById('ad_fecha').value;
+  const valor=Number(document.getElementById('ad_valor').value)||0;
+  if(!fecha){ err.textContent='La fecha del acta es obligatoria.'; return; }
+  if(!(valor>0)){ err.textContent='El valor debe ser mayor que cero.'; return; }
+  const btn=document.getElementById('ad_btn'); const fileInput=document.getElementById('ad_file');
+  let adjunto_url=null, adjunto_nombre=null;
+  try{
+    if(fileInput&&fileInput.files.length){
+      const f=fileInput.files[0];
+      if(btn){ btn.disabled=true; btn.textContent='Subiendo acta…'; }
+      const est=document.getElementById('ad_festado'); if(est)est.textContent='Subiendo archivo…';
+      const path='actas/'+contratoId+'/'+Date.now()+'_'+f.name.replace(/[^\w.\-]/g,'_');
+      const {error}=await sb.storage.from('con-actas').upload(path,f,{upsert:true});
+      if(error)throw error;
+      const {data}=sb.storage.from('con-actas').getPublicUrl(path);
+      adjunto_url=data.publicUrl; adjunto_nombre=f.name;
+    }
+    await sb.from('con_adiciones').insert({contrato_id:contratoId,fecha,valor,objeto:'Acta de conciliación',adjunto_url,adjunto_nombre,creado_por:usuario});
+    cerrarModal(); await cargar();
+    setTimeout(()=>{ const r=document.getElementById('adi-'+contratoId); if(r)r.style.display='table-row'; },100);
+  }catch(e){ if(btn){ btn.disabled=false; btn.textContent='💾 Agregar acta'; } err.textContent='Error: '+e.message; }
+}
+async function delAdicion(id){
+  if(!esAdmin){ alert('Solo el administrador.'); return; }
+  if(!confirm('¿Eliminar esta acta de conciliación?')) return;
+  try{ await sb.from('con_adiciones').delete().eq('id',id); await cargar(); }
+  catch(e){ alert('Error: '+e.message); }
+}
+
+// ===== Exportación PDF por grupos =====
+function modalPDF(){
+  const rows=filtrar();
+  if(!rows.length){ alert('No hay contratos para exportar con los filtros actuales.'); return; }
+  abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:8px;">Exportar PDF ('+rows.length+' contratos)</div>'+
+    '<label>Agrupar por</label><select id="pdf_grupo"><option value="">Sin agrupar</option><option value="entidad_nombre">Área / Cliente</option><option value="sigla">Sigla</option><option value="estado">Estado</option><option value="tipo_entidad">Tipo de entidad</option></select>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;"><button class="btn btn-navy" onclick="generarPDF()">📄 Generar</button><button class="btn btn-g" onclick="cerrarModal()">Cancelar</button></div>');
+}
+function generarPDF(){
+  const grupo=document.getElementById('pdf_grupo').value;
+  let rows=filtrar();
+  // Orden descendente activo
+  rows.sort((a,b)=>{ let va=a[orden.campo]||'',vb=b[orden.campo]||''; return va<vb?1:(va>vb?-1:0); });
+  // Agrupar
+  const grupos={};
+  rows.forEach(c=>{
+    let k='Todos';
+    if(grupo==='estado') k=calcEstado(c.fecha_inicio,c.fecha_terminacion);
+    else if(grupo==='tipo_entidad') k=c.tipo_entidad==='area'?'Áreas':'Clientes';
+    else if(grupo) k=c[grupo]||'—';
+    (grupos[k]=grupos[k]||[]).push(c);
+  });
+  // Filtros activos (para encabezado)
+  const fA=[];
+  const t=document.getElementById('fl_tipo').value; if(t)fA.push('Tipo: '+t);
+  const ent=document.getElementById('fl_ent').value; if(ent)fA.push('Entidad: '+ent);
+  const est=document.getElementById('fl_est').value; if(est)fA.push('Estado: '+est);
+  const txt=document.getElementById('fl_txt').value; if(txt)fA.push('Texto: '+txt);
+  let html='<div style="font-family:Arial,sans-serif;color:#0A2540;padding:20px;">'+
+    '<div style="display:flex;align-items:center;gap:10px;border-bottom:3px solid #0A2540;padding-bottom:10px;"><img src="'+LOGO_LPS+'" style="height:34px;"><div><div style="font-size:18px;font-weight:bold;">Relación de Contratos</div><div style="font-size:10px;color:#5B6B7C;">Grupo LPS · Generado: '+new Date().toLocaleString('es-CO')+'</div></div></div>'+
+    (fA.length?'<div style="font-size:10px;color:#5B6B7C;margin-top:6px;">Filtros: '+esc(fA.join(' · '))+'</div>':'');
+  Object.keys(grupos).sort().forEach(k=>{
+    if(grupo) html+='<div style="font-size:12px;font-weight:bold;background:#EEF3F8;padding:5px 8px;margin-top:12px;border-radius:5px;">'+esc(k)+' ('+grupos[k].length+')</div>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:6px;"><thead><tr style="background:#0A2540;color:#fff;"><th style="padding:4px;text-align:left;">Código</th><th style="padding:4px;text-align:left;">Área/Cliente</th><th style="padding:4px;">Sigla</th><th style="padding:4px;">Inicio</th><th style="padding:4px;">Terminación</th><th style="padding:4px;">Estado</th><th style="padding:4px;text-align:right;">Valor contrato</th><th style="padding:4px;text-align:right;">Valor ejecutado</th><th style="padding:4px;text-align:left;">Objeto</th></tr></thead><tbody>';
+    grupos[k].forEach(c=>{ const e=calcEstado(c.fecha_inicio,c.fecha_terminacion); html+='<tr><td style="padding:4px;border-bottom:1px solid #eee;font-family:monospace;">'+esc(c.codigo)+'</td><td style="padding:4px;border-bottom:1px solid #eee;">'+esc(c.entidad_nombre)+'</td><td style="padding:4px;border-bottom:1px solid #eee;text-align:center;">'+esc(c.sigla)+'</td><td style="padding:4px;border-bottom:1px solid #eee;">'+esc(c.fecha_inicio)+'</td><td style="padding:4px;border-bottom:1px solid #eee;">'+esc(c.fecha_terminacion)+'</td><td style="padding:4px;border-bottom:1px solid #eee;">'+e+'</td><td style="padding:4px;border-bottom:1px solid #eee;text-align:right;">'+money(totalContrato(c))+'</td><td style="padding:4px;border-bottom:1px solid #eee;text-align:right;">'+money(valorEjecutado(c))+'</td><td style="padding:4px;border-bottom:1px solid #eee;">'+esc(c.objeto)+'</td></tr>'; });
+    html+='</tbody></table>';
+  });
+  html+='</div>';
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>Relación de Contratos</title></head><body>'+html+'<scr'+'ipt>window.onload=function(){window.print();}</scr'+'ipt></body></html>');
+  w.document.close();
+  cerrarModal();
+}
+
+onFiltroTipo();
+cargar();
+</script>
+</body>
+</html>
