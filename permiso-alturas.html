@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Permiso de Trabajo en Alturas · LPS</title>
+<style>
+  :root{--navy:#0A2540;--blue:#1598FF;--blue-d:#0C6BC4;--green:#16A34A;--amber:#D97706;--danger:#DC2626;--slate:#5B6B7C;--line:#E2EBF3;--bg:#EEF1F6;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--navy);}
+  .hidden{display:none!important;}
+  input,select,textarea{width:100%;border:0.5px solid #D0DBE7;border-radius:7px;padding:9px 10px;font-size:12.5px;color:var(--navy);font-family:inherit;background:#fff;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);}
+  input[readonly]{background:#F1F5F9;}
+  label{font-size:10px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;}
+  .req{color:var(--danger);}
+  .btn{border:none;border-radius:8px;padding:10px 18px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn-p{background:var(--blue);color:#fff;}.btn-navy{background:var(--navy);color:#fff;}.btn-green{background:var(--green);color:#fff;}
+  .btn-g{background:#EEF3F8;color:#42505E;border:0.5px solid #D0DBE7;}
+  .btn-sm{border:none;background:#EAF5FF;color:var(--blue-d);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;}
+  .pill{padding:2px 10px;border-radius:20px;font-size:10.5px;font-weight:600;display:inline-block;}
+  .pill-ok{background:#DCFCE7;color:#166534;}.pill-no{background:#FEE2E2;color:#991B1B;}.pill-warn{background:#FEF3C7;color:#92600A;}.pill-gray{background:#EEF3F8;color:#5B6B7C;}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{text-align:left;padding:9px 8px;font-weight:600;color:var(--slate);border-bottom:1px solid #EEF3F8;font-size:10.5px;text-transform:uppercase;}
+  td{padding:8px;border-bottom:1px solid #F4F7FB;vertical-align:top;}
+  .card{background:#fff;border:0.5px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 14px;}
+  .topbar{background:var(--navy);color:#fff;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar .logo{height:30px;background:#fff;border-radius:6px;padding:2px 5px;margin-right:10px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px;}
+  .sec-title{font-size:18px;font-weight:600;margin-bottom:3px;}
+  .sec-sub{font-size:11.5px;color:var(--slate);margin-bottom:16px;}
+  .field-sec{margin-bottom:14px;}.field-sec h3{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--blue-d);border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:10px;}
+  .modal-bg{position:fixed;inset:0;background:rgba(10,37,64,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
+  .modal{background:#fff;border-radius:14px;padding:22px;width:680px;max-width:96vw;max-height:92vh;overflow:auto;}
+  a.codelink{color:var(--blue-d);font-weight:700;font-family:ui-monospace,monospace;cursor:pointer;text-decoration:none;}
+  .chk-row{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12px;border-bottom:1px solid #F4F7FB;}
+  .chk-row .opts{margin-left:auto;display:flex;gap:4px;}
+  .chk-opt{padding:3px 9px;border-radius:6px;font-size:10.5px;cursor:pointer;border:1px solid #D0DBE7;background:#fff;}
+  .chk-opt.sel-si{background:var(--green);color:#fff;border-color:var(--green);}
+  .chk-opt.sel-no{background:var(--danger);color:#fff;border-color:var(--danger);}
+  .chk-opt.sel-na{background:var(--slate);color:#fff;border-color:var(--slate);}
+  canvas.firma{border:1px dashed #B9C7D6;border-radius:8px;width:100%;height:120px;touch-action:none;background:#fff;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div style="display:flex;align-items:center;"><img id="logoTop" class="logo"><div><div style="font-size:15px;font-weight:600;">Permiso de Trabajo en Alturas</div><div style="font-size:10px;color:#7FA8D4;">Res. 4272/2021 · SIG</div></div></div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <div id="adminBtn"></div>
+    <a href="procesos-gestion.html" style="color:#fff;font-size:11px;text-decoration:none;opacity:.8;">← Volver</a>
+  </div>
+</div>
+<div class="wrap">
+  <div id="v-listado"></div>
+  <div id="v-form" class="hidden"></div>
+</div>
+<div id="modalRoot"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const LOGO_LPS='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEEAAAAoCAYAAAChDJfXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARTSURBVGhD7ZltTJVlGMd/13OAA4UBSrBJaNPRMhWVOc2FOZnLMnKu2rK15UzZilxv9MnUrZq9aFlfWl9ac+U0k3Q4tZKpaWENBk1bDJFASYgQ5OUAh/P2XH24D6HHD22n5zSbz+/T2Tn3ue/r+T3X/T/3syOqqtzkWLFv3Iy4ElwJBleCK8HgSnAlGFwJrgSDK8GVYHAluBIMroR4JSjwx7DSMQROP4grcNmv+MOxnySO+CQovHISyo8rEQclqMJwEMqqhYqTMByKHZEY4pIA0BeA/lGwHZKgCi39sPqI0tANh9rgnTrFF4wd6TxxS4glbIM/DMEIDIWgN9rStpoWtxUCEegegc4hZSR0rUB/GDacgLM9whuLYMVUZWejsLXWzJlIHJFgKxz8TSmpNFtk8V6Yv1t4YD/sboKIDRcGlMcPwbKvlNIqePAAHG4bt/DdJWi8AmvvUZ6aAW8tFmZOUvacgzd/MgIThSMSiN7Jiz5ougLbFyv7SiHLq2w6DbVdsPccnL0MVSuFmieE6Zmwo0H+bve7s5SMFKg8D819yvcdSkuf4BH4tBE+aFBCduyqzuCYBIBkCzYvFJZOEYpy4LUFELKhplNJT4Gwwvv1cKBFKS+Ej0ogLcl8d2qG8PZ9ylBIWPMNVJwS8icoux9S7s9TPj4jHG5VxzLoav6VhNh6kiyYlAYeARG4/RYBYCAAjxUIq6Yrv/YqW2uFddVK24CSFK3AI7A0X1h+p037kBC24fVFUJQjfLgEkiyluv36NZ0gbgkpFgwGhWBkPOBGw1DbZdo2bENdlyJAQaZwrN1mTray/xHhyCpIT4ZtdSYvACIKu5qUby9aTL5VCdqwqQZaB5Tnjwv+iLAkz8znNHFJEIGSfOgZhTVHlX3NxoICO+qhrFp56YSy+UcTbkungC8kbKu32NmofH1B8YWEolzBilZQ06G8Vy8UZitVK4XtxdA5IpRWCae74NnZ8GiBhZUAC/FJANbPEspmKf6wELZNZUkCW+4Vki2T9E/PMEF4RzqsnSlsmAOVzfDJL/DkXfBusZkLzPhABFYXKHnpsGwq5KcrgQg8V6hsXACeuKr9ZyTef6DGfvvHtsKX55SNp4XPlsP8XBgIKKlJRohHFEsEf1gZDgmZqeALwkQveKPB2OOH9dVwtgcqiuDY79DQDS/OhfK54PVcs7yjxC3hamyFPU1GwufLYTCoqMLP3cq0DMhOE7K8wsFWpSgXctKgYwj+HIEX5gki5sR4vh+eOQqtg5DqgVeLlLJCIzKRODr9WGtneYXeUUjxwMPTLHpH4UyPYiMMBiDDK/hCMCFl3L8IFGTCFytgxkRly0Jl3ezEC8CpTlCFUx3Kribh5Xkm6S/5lMJsYXL6+NH5hw4ozjN7O2ybDJGYoFNgMAC3ecelJhpHJBDdEhGNnhGiFyPR12OoXn/RNwKOSfg/8x/suBsfV4IrweBKcCUYXAmuBIMrAfgLhJ7NVYtfXl4AAAAASUVORK5CYII=';
+const CLAVE_ADMIN='LPS-SIG';
+// Lista de chequeo (Res. 4272/2021)
+const CHEQUEO_ITEMS=[
+  {g:'EPP y protección contra caídas',items:['Los trabajadores están entrenados en el uso de EPP y del sistema de protección contra caídas','Todos los elementos de protección contra caídas están en buen estado','Casco con barbuquejo, guantes, botas y gafas de seguridad disponibles','Protección auditiva cuando se requiere']},
+  {g:'Puntos de anclaje y conectores',items:['Si el trabajo requiere línea de vida o dispositivo fijo, está debidamente certificada','Existen puntos de anclaje seguros (certificados, estructurales, autorizados)','Se tienen adaptadores de anclaje certificados y en buen estado']},
+  {g:'Condiciones del área y medidas de prevención contra caídas',items:['Delimitación del área','Señalización del área','Barandas','Control de acceso','Manejo de desniveles','Control de superficies con huecos o aberturas']},
+  {g:'Sistema de acceso',items:['Escaleras','Andamios','Elevadores de personal']},
+  {g:'Condiciones del área',items:['Se conoce el plan de respuesta a emergencia del área','En el desarrollo de la tarea el trabajador es observado de forma continua','Las condiciones ambientales permiten el trabajo (viento, lluvia, tormenta eléctrica)']}
+];
+let esAdmin=false, usuario='Usuario';
+let permisos=[], empleados=[], equipos=[], cfg={};
+const ARL_OPCIONES=['Colmena','Positiva','Sura','Bolívar','Colpatria','Equidad','La Previsora','Mapfre','Otras'];
+
+// Calcula el 4° día hábil de un mes/año (lun-vie), como fecha límite de pago de seg. social
+function cuartoDiaHabil(anio, mesIndex){
+  let d=new Date(anio, mesIndex, 1); let habiles=0;
+  while(true){ const dia=d.getDay(); if(dia!==0&&dia!==6){ habiles++; if(habiles===4)break; } d.setDate(d.getDate()+1); }
+  return d;
+}
+// Estado de la seguridad social para el mes en curso
+function estadoSegSocial(){
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  const limite=cuartoDiaHabil(hoy.getFullYear(), hoy.getMonth());
+  const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const mesTxt=meses[hoy.getMonth()]+' '+hoy.getFullYear();
+  const limTxt=limite.toISOString().slice(0,10);
+  // Si hoy es posterior al 4° día hábil, el pago del mes ya debió realizarse
+  return {mes:mesTxt, limite:limTxt, vencePago:(hoy>limite)};
+}
+
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function abrirModal(html,ancho){ document.getElementById('modalRoot').innerHTML='<div class="modal-bg" onclick="if(event.target===this)cerrarModal()"><div class="modal" style="'+(ancho?'width:'+ancho+';':'')+'">'+html+'</div></div>'; }
+function cerrarModal(){ document.getElementById('modalRoot').innerHTML=''; }
+function hoy(){ return new Date().toISOString().slice(0,10); }
+
+// ===== Admin =====
+function pintarAdminBtn(){
+  document.getElementById('adminBtn').innerHTML=esAdmin
+    ? '<span class="pill pill-ok" style="margin-right:6px;">🔓 SIG</span><button class="btn-sm" onclick="bloquearAdmin()">Bloquear</button>'
+    : '<button class="btn-sm" onclick="pedirAdmin()">🔒 Modo administrador</button>';
+}
+function pedirAdmin(){
+  abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:10px;">Modo administrador (SIG)</div>'+
+    '<label>Su nombre</label><input id="ad_nom" value="'+esc(usuario==='Usuario'?'':usuario)+'">'+
+    '<div style="height:8px;"></div><label>Clave</label><input type="password" id="ad_clave" onkeydown="if(event.key===\'Enter\')validarAdmin()">'+
+    '<div id="adErr" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;"><button class="btn btn-p" onclick="validarAdmin()">Desbloquear</button><button class="btn btn-g" onclick="cerrarModal()">Cancelar</button></div>');
+}
+function validarAdmin(){
+  if(document.getElementById('ad_clave').value!==CLAVE_ADMIN){ document.getElementById('adErr').textContent='Clave incorrecta.'; return; }
+  esAdmin=true; const n=document.getElementById('ad_nom').value.trim(); if(n)usuario=n;
+  cerrarModal(); pintarAdminBtn(); renderListado();
+}
+function bloquearAdmin(){ esAdmin=false; pintarAdminBtn(); renderListado(); }
+
+// ===== Carga =====
+async function cargar(){
+  document.getElementById('logoTop').src=LOGO_LPS;
+  const [pm,emp,eq,cf]=await Promise.all([
+    sb.from('pta_permisos').select('*').order('created_at',{ascending:false}),
+    sb.from('empleados').select('cedula,nombres,apellidos,cargo').order('apellidos'),
+    sb.from('alt_equipos').select('id,codigo,tipo,tipo_otro').eq('estado','activo').order('codigo'),
+    sb.from('pta_config').select('*')
+  ]);
+  permisos=pm.data||[]; empleados=emp.data||[]; equipos=eq.data||[];
+  cfg={}; (cf.data||[]).forEach(r=>cfg[r.clave]=r.valor);
+  pintarAdminBtn(); renderListado();
+}
+
+function pillEstado(e){
+  const m={borrador:'pill-gray',emitido:'pill-warn',firmado:'pill-ok',cerrado:'pill-ok',anulado:'pill-no'};
+  const t={borrador:'Borrador',emitido:'Emitido',firmado:'Firmado',cerrado:'Cerrado',anulado:'Anulado'};
+  return '<span class="pill '+(m[e]||'pill-gray')+'">'+(t[e]||e)+'</span>';
+}
+
+function renderListado(){
+  const c=document.getElementById('v-listado'); c.classList.remove('hidden'); document.getElementById('v-form').classList.add('hidden');
+  let html='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">'+
+    '<div><div class="sec-title">Permisos de trabajo en alturas</div><div class="sec-sub">Res. 4272/2021 · '+permisos.length+' registro(s)</div></div>'+
+    '<button class="btn btn-p" onclick="nuevoPermiso()">＋ Nuevo permiso</button></div>';
+  html+='<div class="card" style="padding:6px 14px 14px;overflow-x:auto;"><table><thead><tr><th>N°</th><th>Fecha</th><th>Sitio</th><th>Tarea</th><th>Trabajadores</th><th>Estado</th><th></th></tr></thead><tbody>';
+  if(permisos.length){
+    html+=permisos.map(p=>{
+      const nt=(p.trabajadores||[]).length;
+      let acc='<button class="btn-sm" onclick="verPermiso(\''+p.id+'\')">👁</button> <button class="btn-sm" style="background:#EDE9FE;color:#6D28D9;" onclick="pdfPermiso(\''+p.id+'\')">📄</button>';
+      acc+=' <button class="btn-sm" onclick="editarPermiso(\''+p.id+'\')">✏️</button>';
+      if(p.firma_token) acc+=' <button class="btn-sm" style="background:#EDE9FE;color:#6D28D9;" onclick="copiarLink(\''+esc(p.firma_token)+'\')">🔗</button>';
+      if(esAdmin) acc+=' <button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="eliminarPermiso(\''+p.id+'\')">🗑</button>';
+      return '<tr><td><a class="codelink" onclick="verPermiso(\''+p.id+'\')">'+esc(p.consecutivo||'(borrador)')+'</a></td>'+
+        '<td>'+esc(p.fecha||'—')+(p.vigencia_tipo==='periodo'&&p.fecha_fin?' → '+esc(p.fecha_fin):'')+'</td>'+
+        '<td>'+esc(p.sitio||'—')+'</td>'+
+        '<td style="max-width:200px;font-size:11px;">'+esc((p.descripcion_tarea||'').slice(0,60))+'</td>'+
+        '<td>'+nt+'</td>'+
+        '<td>'+pillEstado(p.estado)+'</td>'+
+        '<td style="white-space:nowrap;">'+acc+'</td></tr>';
+    }).join('');
+  } else {
+    html+='<tr><td colspan="7" style="text-align:center;color:var(--slate);padding:20px;">Sin permisos. Cree el primero.</td></tr>';
+  }
+  html+='</tbody></table></div>';
+  c.innerHTML=html;
+}
+function copiarLink(token){ const url=location.origin+location.pathname.replace('permiso-alturas.html','firma-permiso.html')+'?token='+token; navigator.clipboard.writeText(url).then(()=>alert('🔗 Enlace de firma copiado:\n'+url)); }
+
+// ===== Formulario del permiso =====
+let pAct={}, pTrab=[], pEquip=[], pChequeo={}, pValid=[], firmasCanvas={};
+
+function nuevoPermiso(){
+  pAct={estado:'borrador',fecha:hoy(),vigencia_tipo:'evento',empresa:cfg.empresa||'LPS Ingeniería S.A.S.'};
+  pTrab=[]; pEquip=[]; pChequeo={}; pValid=[];
+  formPermiso();
+}
+async function editarPermiso(id){
+  const p=permisos.find(x=>x.id===id); if(!p)return;
+  pAct={...p};
+  pTrab=(p.trabajadores||[]).slice();
+  pEquip=(p.equipos||[]).slice();
+  pChequeo=Object.assign({},p.chequeo||{});
+  pValid=(p.validaciones||[]).slice();
+  formPermiso();
+}
+function verPermiso(id){ editarPermiso(id); }
+
+// Validación: certificación de alturas del trabajador (por cursos/exámenes de su ficha)
+async function certificacionAlturas(cedula){
+  try{
+    const [{data:cu},{data:ex}]=await Promise.all([
+      sb.from('empleado_cursos').select('fecha_vencimiento,curso').eq('cedula',String(cedula)).ilike('curso','%altura%'),
+      sb.from('empleado_examenes').select('fecha_vencimiento,tipo,tipo_otro').eq('cedula',String(cedula))
+    ]);
+    const hoyD=new Date(); hoyD.setHours(0,0,0,0);
+    let vigente=false, vence=null, tiene=false;
+    (cu||[]).forEach(c=>{ tiene=true; if(c.fecha_vencimiento){ const v=new Date(c.fecha_vencimiento+'T00:00:00'); if(v>=hoyD){vigente=true; if(!vence||v<new Date(vence))vence=c.fecha_vencimiento;} } });
+    (ex||[]).forEach(e=>{ const t=((e.tipo||'')+' '+(e.tipo_otro||'')).toLowerCase(); if(t.includes('altura')){ tiene=true; if(e.fecha_vencimiento){ const v=new Date(e.fecha_vencimiento+'T00:00:00'); if(v>=hoyD)vigente=true; } } });
+    // Examen médico ocupacional: el más reciente por vencimiento (cualquier tipo)
+    let examen_vence=null, examen_vigente=false, examen_tiene=false;
+    (ex||[]).forEach(e=>{ if(e.fecha_vencimiento){ examen_tiene=true; if(!examen_vence||e.fecha_vencimiento>examen_vence)examen_vence=e.fecha_vencimiento; } });
+    if(examen_vence){ examen_vigente=(new Date(examen_vence+'T00:00:00')>=hoyD); }
+    return {tiene,vigente,vence,examen_tiene,examen_vigente,examen_vence};
+  }catch(e){ return {tiene:false,vigente:false,vence:null,examen_tiene:false,examen_vigente:false,examen_vence:null}; }
+}
+// Validación: inspección vencida de un equipo
+async function inspeccionVencida(equipoId){
+  try{
+    const {data}=await sb.from('alt_inspecciones').select('proxima_inspeccion').eq('equipo_id',equipoId).order('fecha',{ascending:false}).limit(1);
+    if(!data||!data[0]||!data[0].proxima_inspeccion) return {sinInsp:true};
+    const v=new Date(data[0].proxima_inspeccion+'T00:00:00'); const hoyD=new Date(); hoyD.setHours(0,0,0,0);
+    return {sinInsp:false,vencida:v<hoyD,proxima:data[0].proxima_inspeccion};
+  }catch(e){ return {sinInsp:true}; }
+}
+
+function formPermiso(){
+  const editar=!!pAct.id;
+  const c=document.getElementById('v-form'); c.classList.remove('hidden'); document.getElementById('v-listado').classList.add('hidden');
+  let html='<div style="display:flex;justify-content:space-between;align-items:center;"><div class="sec-title">'+(editar?'Editar':'Nuevo')+' permiso de trabajo en alturas</div><button class="btn btn-g" onclick="renderListado()">← Volver</button></div>'+
+    '<div class="sec-sub">'+(pAct.consecutivo||'(el número se asigna al emitir)')+' · Res. 4272/2021</div>';
+
+  // Encabezado
+  html+='<div class="card"><div class="field-sec"><h3>Datos generales</h3><div class="grid3">'+
+    '<div><label>Fecha <span class="req">*</span></label><input type="date" id="p_fecha" value="'+esc(pAct.fecha||hoy())+'"></div>'+
+    '<div><label>Vigencia</label><select id="p_vigtipo" onchange="onVigencia()"><option value="evento" '+(pAct.vigencia_tipo==='evento'?'selected':'')+'>Por evento (un día)</option><option value="periodo" '+(pAct.vigencia_tipo==='periodo'?'selected':'')+'>Por periodo</option></select></div>'+
+    '<div id="wrapFin" style="'+(pAct.vigencia_tipo==='periodo'?'':'display:none;')+'"><label>Fecha fin</label><input type="date" id="p_fechafin" value="'+esc(pAct.fecha_fin||'')+'"></div>'+
+    '<div><label>Hora inicio</label><input type="time" id="p_hini" value="'+esc(pAct.hora_inicio||'')+'"></div>'+
+    '<div><label>Hora fin</label><input type="time" id="p_hfin" value="'+esc(pAct.hora_fin||'')+'"></div>'+
+    '<div><label>Empresa</label><input id="p_empresa" value="'+esc(pAct.empresa||cfg.empresa||'')+'"></div>'+
+    '<div><label>Sitio / lugar <span class="req">*</span></label><input id="p_sitio" value="'+esc(pAct.sitio||'')+'"></div>'+
+    '<div><label>Altura aproximada</label><input id="p_altura" value="'+esc(pAct.altura_aprox||'')+'" placeholder="Ej. 12 m"></div>'+
+    '</div><div style="margin-top:10px;"><label>Descripción de la tarea <span class="req">*</span></label><textarea id="p_tarea" rows="2">'+esc(pAct.descripcion_tarea||'')+'</textarea></div></div></div>';
+
+  // Trabajadores
+  html+='<div class="card"><div class="field-sec"><h3>Trabajadores autorizados</h3>'+
+    '<div style="display:flex;gap:8px;align-items:end;margin-bottom:8px;flex-wrap:wrap;"><div style="flex:1;min-width:160px;"><label>Documento de identidad</label><input id="p_cedtrab" placeholder="Escriba la cédula" onkeydown="if(event.key===\'Enter\')agregarTrabajador()"></div>'+
+    '<button class="btn-sm" onclick="agregarTrabajador()">🔍 Buscar y agregar</button></div>'+
+    '<div id="trabList"></div></div></div>';
+
+  // Equipos
+  html+='<div class="card"><div class="field-sec"><h3>Equipos / EPP contra caídas</h3>'+
+    '<div style="display:flex;gap:8px;align-items:end;margin-bottom:8px;"><div style="flex:1;"><label>Agregar equipo (de equipos registrados)</label><select id="p_seleq"><option value="">— Seleccione —</option>'+
+    equipos.map(e=>'<option value="'+e.id+'">'+esc(e.codigo)+' · '+esc(e.tipo==='Otros'?(e.tipo_otro||'Otros'):e.tipo)+'</option>').join('')+'</select></div>'+
+    '<button class="btn-sm" onclick="agregarEquipo()">＋ Agregar</button></div>'+
+    '<div id="equipList"></div></div></div>';
+
+  // Lista de chequeo
+  html+='<div class="card"><div class="field-sec"><h3>Lista de chequeo (verificación previa)</h3><div id="chequeoList"></div></div></div>';
+
+  // Condiciones y rescate
+  html+='<div class="card"><div class="field-sec"><h3>Análisis de riesgos y rescate</h3>'+
+    '<div style="background:#FEF3C7;border:1px solid #E5B94A;border-radius:8px;padding:10px 12px;font-size:11px;color:#7A5A11;margin-bottom:10px;">⚡ El permiso de trabajo en alturas debe tener en cuenta las medidas para garantizar que se mantenga una distancia segura entre el trabajo y líneas o equipos eléctricos energizados, y que se cuente con los elementos de protección necesarios, acordes con el nivel de riesgo (escaleras dieléctricas, parrillas, EPP dieléctrico, arco eléctrico, entre otros).</div>'+
+    '<div><label>Condiciones ambientales</label><textarea id="p_ambiental" rows="2">'+esc(pAct.condiciones_ambientales||'')+'</textarea></div>'+
+    '<div style="margin-top:10px;"><label>Análisis de otros riesgos (ARO / ATS) · incluir riesgo eléctrico si aplica</label><textarea id="p_riesgos" rows="2">'+esc(pAct.analisis_riesgos||'')+'</textarea></div>'+
+    '<div style="margin-top:10px;"><label>Plan de rescate / emergencias</label><textarea id="p_rescate" rows="2">'+esc(pAct.plan_rescate||'')+'</textarea></div>'+
+    '</div></div>';
+
+  // Observaciones
+  html+='<div class="card"><div class="field-sec"><h3>Observaciones</h3>'+
+    '<textarea id="p_obs" rows="3" placeholder="Observaciones generales del permiso">'+esc(pAct.observaciones_generales||'')+'</textarea></div></div>';
+
+  // Roles y firmas
+  html+='<div class="card"><div class="field-sec"><h3>Roles y responsables</h3><div class="grid2">'+
+    '<div><label>Persona que autoriza — documento</label><div style="display:flex;gap:6px;"><input id="p_autoriza_ced" value="'+esc(pAct.autoriza_ced||'')+'" placeholder="Cédula"><button class="btn-sm" onclick="buscarRol(\'autoriza\')">🔍</button></div></div>'+
+    '<div><label>Nombre de quien autoriza <span class="req">*</span></label><input id="p_autoriza" value="'+esc(pAct.autoriza_nombre||'')+'"></div>'+
+    '<div><label>Cargo de quien autoriza</label><input id="p_autorizacargo" value="'+esc(pAct.autoriza_cargo||'')+'"></div>'+
+    '<div></div>'+
+    '<div><label>Responsable de emergencias — documento</label><div style="display:flex;gap:6px;"><input id="p_emergencias_ced" value="'+esc(pAct.emergencias_ced||'')+'" placeholder="Cédula"><button class="btn-sm" onclick="buscarRol(\'emergencias\')">🔍</button></div></div>'+
+    '<div><label>Nombre responsable de emergencias <span class="req">*</span></label><input id="p_emergencias" value="'+esc(pAct.emergencias_nombre||'')+'"></div>'+
+    '<div><label>Coordinador alturas — documento</label><div style="display:flex;gap:6px;"><input id="p_coordinador_ced" value="'+esc(pAct.coordinador_ced||'')+'" placeholder="Cédula"><button class="btn-sm" onclick="buscarRol(\'coordinador\')">🔍</button></div></div>'+
+    '<div><label>Nombre del coordinador <span class="req">*</span></label><input id="p_coordinador" value="'+esc(pAct.coordinador_nombre||'')+'"></div>'+
+    '<div><label>Cargo del coordinador</label><input id="p_coordcargo" value="'+esc(pAct.coordinador_cargo||'')+'"></div>'+
+    '<div></div>'+
+    '<div><label>Ayudante de seguridad — documento (si aplica)</label><div style="display:flex;gap:6px;"><input id="p_ayudante_ced" value="'+esc(pAct.ayudante_ced||'')+'" placeholder="Cédula"><button class="btn-sm" onclick="buscarRol(\'ayudante\')">🔍</button></div></div>'+
+    '<div><label>Nombre del ayudante de seguridad</label><input id="p_ayudante" value="'+esc(pAct.ayudante_nombre||'')+'"></div>'+
+    '</div></div></div>';
+
+  // Validaciones (cancelación / suspensión)
+  html+='<div class="card"><div class="field-sec"><h3>Validaciones (cancelación / suspensión)</h3>'+
+    '<div style="font-size:11px;color:var(--slate);margin-bottom:8px;">Registre cancelaciones o suspensiones del permiso. Puede buscar por cédula (trae los datos) o escribir manualmente.</div>'+
+    '<button class="btn-sm" onclick="formValidacion()">＋ Agregar validación</button>'+
+    '<div id="validList" style="margin-top:8px;"></div></div></div>';
+
+  html+='<div id="p_err" style="color:var(--danger);font-size:12px;margin-bottom:8px;"></div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px;">'+
+    '<button class="btn btn-navy" onclick="guardarPermiso(\'borrador\')">💾 Guardar borrador</button>'+
+    '<button class="btn btn-green" onclick="emitirPermiso()">✔ Emitir permiso</button>'+
+    '<button class="btn btn-g" onclick="firmasPresenciales()">✍ Firmas presenciales</button>'+
+    '<button class="btn btn-g" onclick="renderListado()">Cancelar</button></div>';
+
+  c.innerHTML=html;
+  renderTrab(); renderEquip(); renderChequeo(); renderValidaciones();
+}
+function formValidacion(){
+  abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:8px;">Cancelación / suspensión</div>'+
+    '<div class="grid2">'+
+      '<div><label>Acción</label><select id="v_accion"><option>Cancelación</option><option>Suspensión</option></select></div>'+
+      '<div><label>Fecha/hora</label><input type="datetime-local" id="v_fecha"></div>'+
+    '</div>'+
+    '<div style="margin-top:8px;"><label>Buscar por cédula (opcional)</label><div style="display:flex;gap:6px;"><input id="v_ced" placeholder="Cédula"><button class="btn-sm" onclick="buscarCedValidacion()">Buscar</button></div></div>'+
+    '<div class="grid2" style="margin-top:8px;">'+
+      '<div><label>Nombre</label><input id="v_nombre"></div>'+
+      '<div><label>Cargo</label><input id="v_cargo"></div>'+
+      '<div><label>Empresa</label><input id="v_empresa" value="'+esc(pAct.empresa||cfg.empresa||'')+'"></div>'+
+    '</div>'+
+    '<div style="margin-top:8px;"><label>Motivo</label><textarea id="v_motivo" rows="2"></textarea></div>'+
+    '<div id="v_err" style="color:var(--danger);font-size:11px;margin-top:6px;"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:12px;"><button class="btn btn-p" onclick="guardarValidacion()">Agregar</button><button class="btn btn-g" onclick="cerrarModal()">Cancelar</button></div>');
+}
+function buscarCedValidacion(){
+  const ced=document.getElementById('v_ced').value.trim();
+  const e=empleados.find(x=>String(x.cedula)===String(ced));
+  if(e){ document.getElementById('v_nombre').value=((e.apellidos||'')+' '+(e.nombres||'')).trim(); document.getElementById('v_cargo').value=e.cargo||''; }
+  else { alert('No se encontró en la base. Puede escribir los datos manualmente.'); }
+}
+function guardarValidacion(){
+  const nombre=document.getElementById('v_nombre').value.trim();
+  const motivo=document.getElementById('v_motivo').value.trim();
+  if(!nombre){ document.getElementById('v_err').textContent='El nombre es obligatorio.'; return; }
+  if(!motivo){ document.getElementById('v_err').textContent='El motivo es obligatorio.'; return; }
+  pValid.push({accion:document.getElementById('v_accion').value,fecha:document.getElementById('v_fecha').value||'',cedula:document.getElementById('v_ced').value.trim(),nombre,cargo:document.getElementById('v_cargo').value.trim(),empresa:document.getElementById('v_empresa').value.trim(),motivo});
+  cerrarModal(); renderValidaciones();
+}
+function quitarValidacion(i){ pValid.splice(i,1); renderValidaciones(); }
+function renderValidaciones(){
+  const el=document.getElementById('validList'); if(!el)return;
+  el.innerHTML=pValid.length?('<table style="font-size:11px;"><thead><tr><th>Acción</th><th>Fecha</th><th>Persona</th><th>Empresa</th><th>Motivo</th><th></th></tr></thead><tbody>'+
+    pValid.map((v,i)=>'<tr><td><span class="pill '+(v.accion==='Cancelación'?'pill-no':'pill-warn')+'">'+esc(v.accion)+'</span></td><td>'+esc((v.fecha||'').replace('T',' '))+'</td><td>'+esc(v.nombre)+(v.cargo?'<div style="font-size:9px;color:var(--slate);">'+esc(v.cargo)+'</div>':'')+'</td><td>'+esc(v.empresa||'—')+'</td><td style="font-size:10px;">'+esc(v.motivo)+'</td><td><button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="quitarValidacion('+i+')">✕</button></td></tr>').join('')+'</tbody></table>'):'<div style="font-size:11px;color:var(--slate);">Sin validaciones registradas.</div>';
+}
+function onVigencia(){ document.getElementById('wrapFin').style.display=document.getElementById('p_vigtipo').value==='periodo'?'':'none'; }
+function buscarRol(rol){
+  const ced=(document.getElementById('p_'+rol+'_ced').value||'').trim();
+  if(!ced){ alert('Escriba el documento'); return; }
+  const e=empleados.find(x=>String(x.cedula)===String(ced));
+  if(!e){ alert('El documento '+ced+' no está en la base de personal. Puede escribir el nombre manualmente.'); return; }
+  const nombre=((e.apellidos||'')+' '+(e.nombres||'')).trim();
+  document.getElementById('p_'+rol).value=nombre;
+  // Cargo solo para autoriza y coordinador (los que tienen campo de cargo)
+  if(rol==='autoriza'&&document.getElementById('p_autorizacargo')) document.getElementById('p_autorizacargo').value=e.cargo||'';
+  if(rol==='coordinador'&&document.getElementById('p_coordcargo')) document.getElementById('p_coordcargo').value=e.cargo||'';
+}
+
+async function agregarTrabajador(){
+  const ced=(document.getElementById('p_cedtrab').value||'').trim(); if(!ced){ alert('Escriba el documento de identidad'); return; }
+  if(pTrab.find(t=>String(t.cedula)===String(ced))){ alert('Ese trabajador ya está agregado'); return; }
+  const e=empleados.find(x=>String(x.cedula)===String(ced));
+  let nombre='', cargo='';
+  if(e){ nombre=((e.apellidos||'')+' '+(e.nombres||'')).trim(); cargo=e.cargo||''; }
+  else {
+    nombre=prompt('El documento '+ced+' no está en la base de personal.\nEscriba el NOMBRE del trabajador (o cancele):');
+    if(nombre===null||!nombre.trim()) return;
+    nombre=nombre.trim();
+    cargo=(prompt('Cargo del trabajador (opcional):')||'').trim();
+  }
+  const cert=await certificacionAlturas(ced);
+  const ss=estadoSegSocial();
+  pTrab.push({cedula:ced,nombre,cargo,
+    cert_vigente:cert.vigente,cert_tiene:cert.tiene,cert_vence:cert.vence,
+    examen_vigente:cert.examen_vigente,examen_tiene:cert.examen_tiene,examen_vence:cert.examen_vence,
+    arl:'Colmena',arl_otra:'',ss_mes:ss.mes,ss_pagada:false,firma:null});
+  document.getElementById('p_cedtrab').value='';
+  renderTrab();
+}
+function setTrab(i,campo,val){ pTrab[i][campo]=val; if(campo==='arl')renderTrab(); }
+function quitarTrab(i){ pTrab.splice(i,1); renderTrab(); }
+function renderTrab(){
+  const el=document.getElementById('trabList'); if(!el)return;
+  const ss=estadoSegSocial();
+  el.innerHTML=pTrab.length?('<div style="font-size:10px;color:var(--slate);margin-bottom:4px;">Seguridad social del mes ('+ss.mes+'): pago hasta el 4° día hábil ('+ss.limite+').</div><div style="overflow-x:auto;"><table style="min-width:820px;"><thead><tr><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Cert. alturas</th><th>Examen médico</th><th>ARL</th><th>Seg. social '+ss.mes+'</th><th></th></tr></thead><tbody>'+
+    pTrab.map((t,i)=>{
+      let cert;
+      if(t.cert_vigente) cert='<span class="pill pill-ok">Vigente'+(t.cert_vence?' ('+t.cert_vence+')':'')+'</span>';
+      else if(t.cert_tiene) cert='<span class="pill pill-no">Vencida</span>';
+      else cert='<span class="pill pill-warn">Sin registro</span>';
+      let exm;
+      if(t.examen_vigente) exm='<span class="pill pill-ok">Vigente'+(t.examen_vence?' ('+t.examen_vence+')':'')+'</span>';
+      else if(t.examen_tiene) exm='<span class="pill pill-no">Vencido</span>';
+      else exm='<span class="pill pill-warn">Sin registro</span>';
+      const arlSel='<select style="min-width:110px;" onchange="setTrab('+i+',\'arl\',this.value)">'+ARL_OPCIONES.map(a=>'<option '+(t.arl===a?'selected':'')+'>'+a+'</option>').join('')+'</select>'+(t.arl==='Otras'?'<input placeholder="¿Cuál ARL?" value="'+esc(t.arl_otra||'')+'" onchange="setTrab('+i+',\'arl_otra\',this.value)" style="margin-top:3px;">':'');
+      const ssChk='<label style="display:flex;align-items:center;gap:5px;font-size:11px;text-transform:none;font-weight:400;"><input type="checkbox" '+(t.ss_pagada?'checked':'')+' onchange="setTrab('+i+',\'ss_pagada\',this.checked)" style="width:auto;"> Al día</label>'+(ss.vencePago&&!t.ss_pagada?'<div style="font-size:9px;color:var(--danger);">Pago pendiente</div>':'');
+      return '<tr><td>'+esc(t.nombre)+'</td><td>'+esc(t.cedula)+'</td><td>'+esc(t.cargo||'—')+'</td><td>'+cert+'</td><td>'+exm+'</td><td>'+arlSel+'</td><td>'+ssChk+'</td><td><button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="quitarTrab('+i+')">✕</button></td></tr>';
+    }).join('')+'</tbody></table></div>'):'<div style="font-size:11px;color:var(--slate);">Sin trabajadores. Agréguelos desde la lista de personal.</div>';
+}
+
+async function agregarEquipo(){
+  const id=document.getElementById('p_seleq').value; if(!id)return;
+  if(pEquip.find(x=>x.id===id)){ alert('Ese equipo ya está agregado'); return; }
+  const e=equipos.find(x=>x.id===id);
+  const insp=await inspeccionVencida(id);
+  pEquip.push({id,codigo:e.codigo,tipo:e.tipo==='Otros'?(e.tipo_otro||'Otros'):e.tipo,estado_ok:true,vencida:insp.vencida,sinInsp:insp.sinInsp,proxima:insp.proxima});
+  renderEquip();
+}
+function quitarEquip(i){ pEquip.splice(i,1); renderEquip(); }
+function renderEquip(){
+  const el=document.getElementById('equipList'); if(!el)return;
+  el.innerHTML=pEquip.length?('<table><thead><tr><th>Código</th><th>Tipo</th><th>Inspección</th><th></th></tr></thead><tbody>'+
+    pEquip.map((e,i)=>{
+      let insp;
+      if(e.vencida) insp='<span class="pill pill-no">⚠ Inspección vencida'+(e.proxima?' ('+e.proxima+')':'')+'</span>';
+      else if(e.sinInsp) insp='<span class="pill pill-warn">Sin inspección</span>';
+      else insp='<span class="pill pill-ok">Vigente'+(e.proxima?' ('+e.proxima+')':'')+'</span>';
+      return '<tr><td style="font-family:ui-monospace,monospace;">'+esc(e.codigo)+'</td><td>'+esc(e.tipo)+'</td><td>'+insp+'</td><td><button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="quitarEquip('+i+')">✕</button></td></tr>';
+    }).join('')+'</tbody></table>'):'<div style="font-size:11px;color:var(--slate);">Sin equipos. Agréguelos desde los equipos registrados.</div>';
+}
+
+function renderChequeo(){
+  const el=document.getElementById('chequeoList'); if(!el)return;
+  let html='';
+  CHEQUEO_ITEMS.forEach((grupo,gi)=>{
+    html+='<div style="font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;margin:8px 0 2px;">'+esc(grupo.g)+'</div>';
+    grupo.items.forEach((item,ii)=>{
+      const key='g'+gi+'_'+ii; const val=pChequeo[key]||'';
+      html+='<div class="chk-row"><span>'+esc(item)+'</span><div class="opts">'+
+        '<span class="chk-opt '+(val==='si'?'sel-si':'')+'" onclick="setChequeo(\''+key+'\',\'si\')">Sí</span>'+
+        '<span class="chk-opt '+(val==='no'?'sel-no':'')+'" onclick="setChequeo(\''+key+'\',\'no\')">No</span>'+
+        '<span class="chk-opt '+(val==='na'?'sel-na':'')+'" onclick="setChequeo(\''+key+'\',\'na\')">N/A</span>'+
+        '</div></div>';
+    });
+  });
+  el.innerHTML=html;
+}
+function setChequeo(key,val){ pChequeo[key]=val; renderChequeo(); }
+
+function recolectarPermiso(){
+  pAct.fecha=document.getElementById('p_fecha').value;
+  pAct.vigencia_tipo=document.getElementById('p_vigtipo').value;
+  pAct.fecha_fin=pAct.vigencia_tipo==='periodo'?(document.getElementById('p_fechafin').value||null):null;
+  pAct.hora_inicio=document.getElementById('p_hini').value||null;
+  pAct.hora_fin=document.getElementById('p_hfin').value||null;
+  pAct.empresa=document.getElementById('p_empresa').value.trim();
+  pAct.sitio=document.getElementById('p_sitio').value.trim();
+  pAct.altura_aprox=document.getElementById('p_altura').value.trim();
+  pAct.descripcion_tarea=document.getElementById('p_tarea').value.trim();
+  pAct.condiciones_ambientales=document.getElementById('p_ambiental').value.trim();
+  pAct.analisis_riesgos=document.getElementById('p_riesgos').value.trim();
+  pAct.plan_rescate=document.getElementById('p_rescate').value.trim();
+  pAct.observaciones_generales=document.getElementById('p_obs')?document.getElementById('p_obs').value.trim():'';
+  pAct.autoriza_nombre=document.getElementById('p_autoriza').value.trim();
+  pAct.autoriza_ced=document.getElementById('p_autoriza_ced')?document.getElementById('p_autoriza_ced').value.trim():'';
+  pAct.autoriza_cargo=document.getElementById('p_autorizacargo').value.trim();
+  pAct.emergencias_nombre=document.getElementById('p_emergencias').value.trim();
+  pAct.emergencias_ced=document.getElementById('p_emergencias_ced')?document.getElementById('p_emergencias_ced').value.trim():'';
+  pAct.coordinador_nombre=document.getElementById('p_coordinador').value.trim();
+  pAct.coordinador_ced=document.getElementById('p_coordinador_ced')?document.getElementById('p_coordinador_ced').value.trim():'';
+  pAct.coordinador_cargo=document.getElementById('p_coordcargo').value.trim();
+  pAct.ayudante_nombre=document.getElementById('p_ayudante').value.trim();
+  pAct.ayudante_ced=document.getElementById('p_ayudante_ced')?document.getElementById('p_ayudante_ced').value.trim():'';
+}
+function rowPermiso(){
+  return {fecha:pAct.fecha,vigencia_tipo:pAct.vigencia_tipo,fecha_fin:pAct.fecha_fin,hora_inicio:pAct.hora_inicio,hora_fin:pAct.hora_fin,
+    empresa:pAct.empresa,sitio:pAct.sitio,altura_aprox:pAct.altura_aprox,descripcion_tarea:pAct.descripcion_tarea,
+    condiciones_ambientales:pAct.condiciones_ambientales,analisis_riesgos:pAct.analisis_riesgos,plan_rescate:pAct.plan_rescate,
+    autoriza_nombre:pAct.autoriza_nombre,autoriza_cargo:pAct.autoriza_cargo,autoriza_ced:pAct.autoriza_ced,emergencias_nombre:pAct.emergencias_nombre,emergencias_ced:pAct.emergencias_ced,
+    coordinador_nombre:pAct.coordinador_nombre,coordinador_cargo:pAct.coordinador_cargo,coordinador_ced:pAct.coordinador_ced,ayudante_nombre:pAct.ayudante_nombre,ayudante_ced:pAct.ayudante_ced,
+    trabajadores:pTrab,equipos:pEquip,chequeo:pChequeo,validaciones:pValid,observaciones_generales:pAct.observaciones_generales,updated_at:new Date().toISOString()};
+}
+function validarPermiso(){
+  recolectarPermiso();
+  const f=[];
+  if(!pAct.sitio)f.push('Sitio/lugar');
+  if(!pAct.descripcion_tarea)f.push('Descripción de la tarea');
+  if(!pTrab.length)f.push('Al menos un trabajador');
+  if(!pAct.autoriza_nombre)f.push('Persona que autoriza');
+  if(!pAct.emergencias_nombre)f.push('Responsable de emergencias');
+  if(!pAct.coordinador_nombre)f.push('Coordinador de trabajo en alturas');
+  // Vigencia por periodo: máximo 7 días
+  if(pAct.vigencia_tipo==='periodo'){
+    if(!pAct.fecha_fin){ f.push('Fecha fin (por ser vigencia por periodo)'); }
+    else if(pAct.fecha && pAct.fecha_fin){
+      if(pAct.fecha_fin<pAct.fecha){ f.push('La fecha fin no puede ser anterior a la inicial'); }
+      else{ const d=Math.round((new Date(pAct.fecha_fin+'T00:00:00')-new Date(pAct.fecha+'T00:00:00'))/(1000*60*60*24))+1; if(d>7) f.push('El periodo no puede ser mayor a 7 días (actual: '+d+' días)'); }
+    }
+  }
+  return f;
+}
+
+async function guardarPermiso(estado){
+  recolectarPermiso();
+  try{
+    let id=pAct.id;
+    const row=rowPermiso(); if(estado)row.estado=estado;
+    if(id){ await sb.from('pta_permisos').update(row).eq('id',id); }
+    else { row.creado_por=usuario; const {data,error}=await sb.from('pta_permisos').insert(row).select(); if(error)throw error; id=data[0].id; pAct.id=id; }
+    await cargar();
+    alert('✅ Guardado.');
+    return id;
+  }catch(e){ document.getElementById('p_err').textContent='Error: '+e.message; throw e; }
+}
+async function emitirPermiso(){
+  const faltan=validarPermiso();
+  if(faltan.length){ document.getElementById('p_err').innerHTML='Faltan datos obligatorios:<br>· '+faltan.join('<br>· '); return; }
+  // Advertencias de validación (no bloqueantes, pero se avisan)
+  const trabVenc=pTrab.filter(t=>!t.cert_vigente).map(t=>t.nombre);
+  const eqVenc=pEquip.filter(e=>e.vencida).map(e=>e.codigo);
+  let aviso='';
+  if(trabVenc.length)aviso+='\n⚠ Trabajadores SIN certificación de alturas vigente: '+trabVenc.join(', ');
+  if(eqVenc.length)aviso+='\n⚠ Equipos con inspección VENCIDA: '+eqVenc.join(', ');
+  if(aviso){ if(!confirm('El permiso tiene alertas:'+aviso+'\n\n¿Emitir de todas formas?')) return; }
+  try{
+    if(!pAct.consecutivo){ const {data,error}=await sb.rpc('pta_siguiente'); if(error)throw error; pAct.consecutivo=data; }
+    const token=pAct.firma_token||('pta_'+Math.random().toString(36).slice(2)+Date.now().toString(36));
+    recolectarPermiso();
+    const row=Object.assign({},rowPermiso(),{consecutivo:pAct.consecutivo,estado:'emitido',firma_token:token});
+    let id=pAct.id;
+    if(id){ await sb.from('pta_permisos').update(row).eq('id',id); }
+    else { row.creado_por=usuario; const {data,error}=await sb.from('pta_permisos').insert(row).select(); if(error)throw error; id=data[0].id; pAct.id=id; }
+    pAct.firma_token=token;
+    await cargar();
+    const url=location.origin+location.pathname.replace('permiso-alturas.html','firma-permiso.html')+'?token='+token;
+    abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:8px;">✅ Permiso emitido: '+esc(pAct.consecutivo)+'</div>'+
+      '<div class="sec-sub">Comparta este enlace para las firmas remotas, o use «Firmas presenciales».</div>'+
+      '<input readonly value="'+esc(url)+'" onclick="this.select()" style="font-size:11px;">'+
+      '<div style="display:flex;gap:8px;margin-top:12px;"><button class="btn btn-p" onclick="navigator.clipboard.writeText(\''+url+'\');this.textContent=\'✅ Copiado\'">📋 Copiar enlace</button><button class="btn btn-g" onclick="cerrarModal();renderListado()">Cerrar</button></div>');
+  }catch(e){ document.getElementById('p_err').textContent='Error al emitir: '+e.message; }
+}
+
+async function eliminarPermiso(id){
+  if(!esAdmin){ alert('Solo el administrador.'); return; }
+  const p=permisos.find(x=>x.id===id);
+  if(!confirm('¿Eliminar el permiso '+(p.consecutivo||'(borrador)')+'?')) return;
+  const clave=prompt('Clave de administrador (LPS-SIG):');
+  if(clave!==CLAVE_ADMIN){ alert('Clave incorrecta.'); return; }
+  try{ await sb.from('pta_permisos').delete().eq('id',id); await cargar(); }catch(e){ alert('Error: '+e.message); }
+}
+
+// ===== Firmas presenciales =====
+function firmasPresenciales(){
+  recolectarPermiso();
+  if(!pTrab.length){ alert('Agregue trabajadores antes de firmar.'); return; }
+  let html='<div style="font-size:15px;font-weight:600;margin-bottom:8px;">Firmas presenciales</div><div class="sec-sub">Cada persona firma en su recuadro.</div>';
+  pTrab.forEach((t,i)=>{ html+='<div style="margin-bottom:10px;"><label>'+esc(t.nombre)+' (trabajador)</label><canvas class="firma" id="fc_trab_'+i+'"></canvas></div>'; });
+  if(pAct.coordinador_nombre) html+='<div style="margin-bottom:10px;"><label>'+esc(pAct.coordinador_nombre)+' (coordinador)</label><canvas class="firma" id="fc_coord"></canvas></div>';
+  if(pAct.autoriza_nombre) html+='<div style="margin-bottom:10px;"><label>'+esc(pAct.autoriza_nombre)+' (autoriza)</label><canvas class="firma" id="fc_autoriza"></canvas></div>';
+  html+='<div style="display:flex;gap:8px;margin-top:10px;"><button class="btn btn-p" onclick="guardarFirmas()">\u{1F4BE} Guardar firmas</button><button class="btn btn-g" onclick="cerrarModal()">Cerrar</button></div>';
+  abrirModal(html,'560px');
+  setTimeout(function(){ pTrab.forEach((t,i)=>setupCanvas('fc_trab_'+i)); if(pAct.coordinador_nombre)setupCanvas('fc_coord'); if(pAct.autoriza_nombre)setupCanvas('fc_autoriza'); },80);
+}
+function setupCanvas(id){
+  const canvas=document.getElementById(id); if(!canvas)return;
+  const rect=canvas.getBoundingClientRect(); canvas.width=rect.width; canvas.height=rect.height;
+  const ctx=canvas.getContext('2d'); ctx.lineWidth=2; ctx.lineCap='round'; ctx.strokeStyle='#0A2540';
+  let dib=false; canvas._hay=false;
+  function pos(e){ const r=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left,y:t.clientY-r.top}; }
+  function start(e){ dib=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault(); }
+  function move(e){ if(!dib)return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); canvas._hay=true; e.preventDefault(); }
+  function end(){ dib=false; }
+  canvas.onmousedown=start; canvas.onmousemove=move; canvas.onmouseup=end; canvas.onmouseout=end;
+  canvas.ontouchstart=start; canvas.ontouchmove=move; canvas.ontouchend=end;
+}
+async function guardarFirmas(){
+  pTrab.forEach((t,i)=>{ const cv=document.getElementById('fc_trab_'+i); if(cv&&cv._hay)t.firma=cv.toDataURL('image/png'); });
+  if(pAct.coordinador_nombre){ const cv=document.getElementById('fc_coord'); if(cv&&cv._hay)pAct.coordinador_firma=cv.toDataURL('image/png'); }
+  if(pAct.autoriza_nombre){ const cv=document.getElementById('fc_autoriza'); if(cv&&cv._hay)pAct.autoriza_firma=cv.toDataURL('image/png'); }
+  try{
+    const row=Object.assign({},rowPermiso(),{coordinador_firma:pAct.coordinador_firma||null,autoriza_firma:pAct.autoriza_firma||null});
+    const todosTrab=pTrab.every(t=>t.firma);
+    if(todosTrab&&pAct.coordinador_firma)row.estado='firmado';
+    let id=pAct.id;
+    if(id){ await sb.from('pta_permisos').update(row).eq('id',id); }
+    else { row.creado_por=usuario; if(!pAct.consecutivo){const r=await sb.rpc('pta_siguiente');row.consecutivo=r.data;pAct.consecutivo=r.data;} const {data,error}=await sb.from('pta_permisos').insert(row).select(); if(error)throw error; id=data[0].id; pAct.id=id; }
+    cerrarModal(); await cargar(); alert('\u2705 Firmas guardadas.');
+  }catch(e){ alert('Error: '+e.message); }
+}
+function pdfPermiso(id){
+  const p=permisos.find(x=>x.id===id); if(!p)return;
+  const trab=p.trabajadores||[]; const eq=p.equipos||[]; const chk=p.chequeo||{};
+  const filT=trab.map(t=>'<tr><td style="border:1px solid #ccc;padding:3px;">'+esc(t.nombre)+'</td><td style="border:1px solid #ccc;padding:3px;">'+esc(t.cedula)+'</td><td style="border:1px solid #ccc;padding:3px;">'+esc(t.cargo||'')+'</td><td style="border:1px solid #ccc;padding:3px;">'+(t.cert_vigente?'Vigente':(t.cert_tiene?'Vencida':'Sin registro'))+'</td><td style="border:1px solid #ccc;padding:3px;text-align:center;">'+(t.firma?'<img src="'+t.firma+'" style="height:34px;">':'')+'</td></tr>').join('');
+  const filE=eq.map(e=>'<tr><td style="border:1px solid #ccc;padding:3px;font-family:monospace;">'+esc(e.codigo)+'</td><td style="border:1px solid #ccc;padding:3px;">'+esc(e.tipo)+'</td><td style="border:1px solid #ccc;padding:3px;">'+(e.vencida?'INSPECCION VENCIDA':(e.sinInsp?'Sin inspeccion':'Vigente'))+'</td></tr>').join('');
+  let chkHtml='';
+  CHEQUEO_ITEMS.forEach((g,gi)=>{ chkHtml+='<tr style="background:#F1F5F9;"><td colspan="2" style="border:1px solid #ccc;padding:3px;font-weight:bold;">'+esc(g.g)+'</td></tr>'; g.items.forEach((it,ii)=>{ const v=chk['g'+gi+'_'+ii]||'\u2014'; chkHtml+='<tr><td style="border:1px solid #ccc;padding:3px;">'+esc(it)+'</td><td style="border:1px solid #ccc;padding:3px;text-align:center;width:50px;">'+(v==='si'?'SI':(v==='no'?'NO':(v==='na'?'N/A':'\u2014')))+'</td></tr>'; }); });
+  const html='<div style="font-family:Arial,sans-serif;color:#0A2540;padding:20px;max-width:820px;font-size:11px;">'+
+    '<div style="display:flex;align-items:center;gap:10px;border-bottom:3px solid #0A2540;padding-bottom:8px;"><img src="'+LOGO_LPS+'" style="height:38px;"><div><div style="font-size:16px;font-weight:bold;">PERMISO DE TRABAJO EN ALTURAS</div><div style="font-size:12px;font-weight:bold;color:#1598FF;">'+esc(p.consecutivo||'')+' \u00b7 Res. 4272/2021</div></div><div style="margin-left:auto;text-align:right;font-size:10px;">Fecha: '+esc(p.fecha||'')+(p.vigencia_tipo==='periodo'&&p.fecha_fin?' \u2192 '+esc(p.fecha_fin):'')+'<br>Hora: '+esc(p.hora_inicio||'')+' - '+esc(p.hora_fin||'')+'</div></div>'+
+    '<table style="width:100%;margin-top:8px;"><tr><td style="padding:2px;"><b>Empresa:</b> '+esc(p.empresa||'')+'</td><td style="padding:2px;"><b>Sitio:</b> '+esc(p.sitio||'')+'</td><td style="padding:2px;"><b>Altura:</b> '+esc(p.altura_aprox||'')+'</td></tr></table>'+
+    '<div style="margin-top:4px;"><b>Tarea:</b> '+esc(p.descripcion_tarea||'')+'</div>'+
+    '<div style="font-weight:bold;margin-top:10px;">TRABAJADORES AUTORIZADOS</div>'+
+    '<table style="width:100%;border-collapse:collapse;"><tr style="background:#0A2540;color:#fff;"><th style="border:1px solid #ccc;padding:3px;">Nombre</th><th style="border:1px solid #ccc;padding:3px;">Cedula</th><th style="border:1px solid #ccc;padding:3px;">Cargo</th><th style="border:1px solid #ccc;padding:3px;">Cert. alturas</th><th style="border:1px solid #ccc;padding:3px;">Firma</th></tr>'+filT+'</table>'+
+    '<div style="font-weight:bold;margin-top:10px;">EQUIPOS / EPP CONTRA CAIDAS</div>'+
+    '<table style="width:100%;border-collapse:collapse;"><tr style="background:#0A2540;color:#fff;"><th style="border:1px solid #ccc;padding:3px;">Codigo</th><th style="border:1px solid #ccc;padding:3px;">Tipo</th><th style="border:1px solid #ccc;padding:3px;">Inspeccion</th></tr>'+(filE||'<tr><td colspan="3" style="border:1px solid #ccc;padding:3px;text-align:center;">Sin equipos</td></tr>')+'</table>'+
+    '<div style="font-weight:bold;margin-top:10px;">LISTA DE CHEQUEO</div>'+
+    '<table style="width:100%;border-collapse:collapse;">'+chkHtml+'</table>'+
+    (p.condiciones_ambientales?'<div style="margin-top:8px;"><b>Condiciones ambientales:</b> '+esc(p.condiciones_ambientales)+'</div>':'')+
+    (p.analisis_riesgos?'<div style="margin-top:4px;"><b>Analisis de riesgos:</b> '+esc(p.analisis_riesgos)+'</div>':'')+
+    (p.plan_rescate?'<div style="margin-top:4px;"><b>Plan de rescate:</b> '+esc(p.plan_rescate)+'</div>':'')+
+    (p.observaciones_generales?'<div style="margin-top:6px;"><b>Observaciones:</b> '+esc(p.observaciones_generales)+'</div>':'')+
+    ((p.validaciones&&p.validaciones.length)?'<div style="font-weight:bold;margin-top:10px;">VALIDACIONES (CANCELACIÓN / SUSPENSIÓN)</div><table style="width:100%;border-collapse:collapse;"><tr style="background:#0A2540;color:#fff;"><th style="border:1px solid #ccc;padding:3px;">Acción</th><th style="border:1px solid #ccc;padding:3px;">Fecha</th><th style="border:1px solid #ccc;padding:3px;">Persona</th><th style="border:1px solid #ccc;padding:3px;">Empresa</th><th style="border:1px solid #ccc;padding:3px;">Motivo</th></tr>'+p.validaciones.map(v=>'<tr><td style="border:1px solid #ccc;padding:3px;">'+esc(v.accion)+'</td><td style="border:1px solid #ccc;padding:3px;">'+esc((v.fecha||'').replace('T',' '))+'</td><td style="border:1px solid #ccc;padding:3px;">'+esc(v.nombre)+' '+esc(v.cargo||'')+'</td><td style="border:1px solid #ccc;padding:3px;">'+esc(v.empresa||'')+'</td><td style="border:1px solid #ccc;padding:3px;">'+esc(v.motivo||'')+'</td></tr>').join('')+'</table>':'')+
+    '<table style="width:100%;margin-top:20px;"><tr>'+
+    '<td style="width:33%;text-align:center;padding:8px;">'+(p.autoriza_firma?'<img src="'+p.autoriza_firma+'" style="height:44px;"><br>':'<div style="height:44px;"></div>')+'<div style="border-top:1px solid #333;padding-top:2px;">Autoriza<br>'+esc(p.autoriza_nombre||'')+'<br>'+esc(p.autoriza_cargo||'')+'</div></td>'+
+    '<td style="width:33%;text-align:center;padding:8px;">'+(p.coordinador_firma?'<img src="'+p.coordinador_firma+'" style="height:44px;"><br>':'<div style="height:44px;"></div>')+'<div style="border-top:1px solid #333;padding-top:2px;">Coordinador alturas<br>'+esc(p.coordinador_nombre||'')+'<br>'+esc(p.coordinador_cargo||'')+'</div></td>'+
+    '<td style="width:33%;text-align:center;padding:8px;"><div style="height:44px;"></div><div style="border-top:1px solid #333;padding-top:2px;">Responsable emergencias<br>'+esc(p.emergencias_nombre||'')+'</div></td>'+
+    '</tr></table>'+
+    (p.ayudante_nombre?'<div style="font-size:10px;">Ayudante de seguridad designado: '+esc(p.ayudante_nombre)+'</div>':'')+
+    '<div style="font-size:9px;color:#5B6B7C;margin-top:12px;border-top:1px solid #ccc;padding-top:5px;">LPS Grupo \u00b7 SIG \u00b7 Documento conforme a Res. 4272/2021 \u00b7 Generado: '+new Date().toLocaleString('es-CO')+'</div>'+
+    '</div>';
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>'+esc(p.consecutivo||'Permiso')+'</title></head><body>'+html+'<scr'+'ipt>window.onload=function(){window.print();}</scr'+'ipt></body></html>');
+  w.document.close();
+}
+
+
+cargar();
+</script>
+</body>
+</html>
