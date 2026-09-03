@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro de Entrega de Dotación · LPS</title>
+<style>
+  :root{--navy:#0A2540;--blue:#1598FF;--blue-d:#0C6BC4;--green:#16A34A;--amber:#D97706;--danger:#DC2626;--slate:#5B6B7C;--line:#E2EBF3;--bg:#EEF1F6;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--navy);}
+  input,select,textarea{width:100%;border:0.5px solid #D0DBE7;border-radius:7px;padding:9px 10px;font-size:13px;color:var(--navy);font-family:inherit;background:#fff;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);}
+  input[readonly]{background:#F1F5F9;}
+  label{font-size:10px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;}
+  .req{color:var(--danger);}
+  .btn{border:none;border-radius:8px;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn-p{background:var(--blue);color:#fff;}.btn-green{background:var(--green);color:#fff;}
+  .btn-g{background:#EEF3F8;color:#42505E;border:0.5px solid #D0DBE7;}
+  .btn-sm{border:none;background:#EAF5FF;color:var(--blue-d);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;}
+  .card{background:#fff;border:0.5px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px;}
+  .bar{background:var(--navy);color:#fff;font-size:12px;font-weight:600;padding:10px 14px;border-radius:8px 8px 0 0;margin:-18px -18px 14px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 14px;}
+  .topbar{background:var(--navy);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:10px;}
+  .topbar .logo{height:30px;background:#fff;border-radius:6px;padding:2px 5px;}
+  .wrap{max-width:820px;margin:0 auto;padding:22px;}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{text-align:left;padding:6px;color:var(--slate);font-size:9.5px;text-transform:uppercase;}
+  td{padding:5px 6px;}
+  canvas{border:1px dashed #B9C7D6;border-radius:8px;width:100%;height:150px;touch-action:none;background:#fff;}
+  .msg{padding:16px;border-radius:10px;font-size:13px;text-align:center;}
+  .msg.ok{background:#DCFCE7;color:#166534;}.msg.err{background:#FEE2E2;color:#991B1B;}
+</style>
+</head>
+<body>
+<div class="topbar"><img id="logoTop" class="logo"><div><div style="font-size:15px;font-weight:600;">Registro de Entrega de Dotación y EPP</div><div style="font-size:10px;color:#7FA8D4;">Registro público · LPS Grupo</div></div></div>
+<div class="wrap">
+  <div class="card">
+    <div class="bar">🔍 BUSCAR TRABAJADOR</div>
+    <div class="grid3">
+      <div style="grid-column:1/3;"><label>Número de cédula</label><input id="cedula" placeholder="Escriba la cédula" onkeydown="if(event.key==='Enter')buscar()"></div>
+      <div style="display:flex;align-items:end;"><button class="btn btn-p" onclick="buscar()" style="width:100%;">Buscar</button></div>
+    </div>
+    <div id="empInfo" style="font-size:13px;font-weight:600;margin-top:10px;"></div>
+  </div>
+
+  <div id="formEntrega" style="display:none;">
+    <div class="card">
+      <div class="bar">📦 NUEVA ENTREGA</div>
+      <div class="grid3">
+        <div><label>Tipo de entrega</label><select id="tipo" onchange="onTipo()"><option value="DOTACION">Dotación y EPP</option><option value="BONO">Bono de dotación</option></select></div>
+        <div><label>Fecha de entrega</label><input type="date" id="fecha"></div>
+        <div><label>Gestor / Contratista</label><input id="gestor" placeholder="Gestor responsable"></div>
+        <div><label>Entregado por</label><input id="entregadoPor" placeholder="Nombre de quien entrega"></div>
+        <div style="grid-column:2/4;"><label>Observaciones</label><input id="obs" placeholder="Opcional"></div>
+      </div>
+      <div id="bonoWrap" style="display:none;margin-top:10px;"><label>Valor del bono (COP)</label><input type="number" id="bonoValor" min="0" placeholder="0"></div>
+      <div id="itemsWrap" style="margin-top:12px;">
+        <label>Elementos a entregar</label>
+        <div id="tallasInfo" style="font-size:11px;color:var(--blue-d);margin-bottom:6px;"></div>
+        <div id="itemsList"></div>
+        <button class="btn-sm" style="margin-top:8px;" onclick="addItem()">＋ Agregar elemento</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="bar">✍ FIRMA DEL TRABAJADOR</div>
+      <div id="compromiso" style="font-size:10.5px;color:var(--slate);margin-bottom:8px;line-height:1.5;"></div>
+      <canvas id="firma"></canvas>
+      <div style="display:flex;gap:8px;margin-top:8px;"><button class="btn btn-g" onclick="limpiarFirma()">🗑 Borrar firma</button><span style="font-size:11px;color:var(--slate);align-self:center;">Firme con el mouse o el dedo</span></div>
+    </div>
+    <div id="err" style="color:var(--danger);font-size:12px;margin-bottom:8px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:30px;"><button class="btn btn-green" id="btnGuardar" onclick="guardar()">💾 Guardar entrega</button><button class="btn btn-g" onclick="reiniciar()">Cancelar</button></div>
+  </div>
+  <div id="resultado"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const LOGO_LPS='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEEAAAAoCAYAAAChDJfXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARTSURBVGhD7ZltTJVlGMd/13OAA4UBSrBJaNPRMhWVOc2FOZnLMnKu2rK15UzZilxv9MnUrZq9aFlfWl9ac+U0k3Q4tZKpaWENBk1bDJFASYgQ5OUAh/P2XH24D6HHD22n5zSbz+/T2Tn3ue/r+T3X/T/3syOqqtzkWLFv3Iy4ElwJBleCK8HgSnAlGFwJrgSDK8GVYHAluBIMroR4JSjwx7DSMQROP4grcNmv+MOxnySO+CQovHISyo8rEQclqMJwEMqqhYqTMByKHZEY4pIA0BeA/lGwHZKgCi39sPqI0tANh9rgnTrFF4wd6TxxS4glbIM/DMEIDIWgN9rStpoWtxUCEegegc4hZSR0rUB/GDacgLM9whuLYMVUZWejsLXWzJlIHJFgKxz8TSmpNFtk8V6Yv1t4YD/sboKIDRcGlMcPwbKvlNIqePAAHG4bt/DdJWi8AmvvUZ6aAW8tFmZOUvacgzd/MgIThSMSiN7Jiz5ougLbFyv7SiHLq2w6DbVdsPccnL0MVSuFmieE6Zmwo0H+bve7s5SMFKg8D819yvcdSkuf4BH4tBE+aFBCduyqzuCYBIBkCzYvFJZOEYpy4LUFELKhplNJT4Gwwvv1cKBFKS+Ej0ogLcl8d2qG8PZ9ylBIWPMNVJwS8icoux9S7s9TPj4jHG5VxzLoav6VhNh6kiyYlAYeARG4/RYBYCAAjxUIq6Yrv/YqW2uFddVK24CSFK3AI7A0X1h+p037kBC24fVFUJQjfLgEkiyluv36NZ0gbgkpFgwGhWBkPOBGw1DbZdo2bENdlyJAQaZwrN1mTray/xHhyCpIT4ZtdSYvACIKu5qUby9aTL5VCdqwqQZaB5Tnjwv+iLAkz8znNHFJEIGSfOgZhTVHlX3NxoICO+qhrFp56YSy+UcTbkungC8kbKu32NmofH1B8YWEolzBilZQ06G8Vy8UZitVK4XtxdA5IpRWCae74NnZ8GiBhZUAC/FJANbPEspmKf6wELZNZUkCW+4Vki2T9E/PMEF4RzqsnSlsmAOVzfDJL/DkXfBusZkLzPhABFYXKHnpsGwq5KcrgQg8V6hsXACeuKr9ZyTef6DGfvvHtsKX55SNp4XPlsP8XBgIKKlJRohHFEsEf1gZDgmZqeALwkQveKPB2OOH9dVwtgcqiuDY79DQDS/OhfK54PVcs7yjxC3hamyFPU1GwufLYTCoqMLP3cq0DMhOE7K8wsFWpSgXctKgYwj+HIEX5gki5sR4vh+eOQqtg5DqgVeLlLJCIzKRODr9WGtneYXeUUjxwMPTLHpH4UyPYiMMBiDDK/hCMCFl3L8IFGTCFytgxkRly0Jl3ezEC8CpTlCFUx3Kribh5Xkm6S/5lMJsYXL6+NH5hw4ozjN7O2ybDJGYoFNgMAC3ecelJhpHJBDdEhGNnhGiFyPR12OoXn/RNwKOSfg/8x/suBsfV4IrweBKcCUYXAmuBIMrAfgLhJ7NVYtfXl4AAAAASUVORK5CYII=';
+const DOT_ELEMENTOS=['Camisa/Camibuso','Pantalón','Botas de seguridad','Chaqueta','Casco','Barbuquejo','Guantes','Gafas de seguridad','Protección auditiva','Mascarilla/Respirador','Arnés','Overol','Impermeable','Chaleco reflectivo','Otro'];
+let empleado=null, items=[], firmaCtx=null, hayFirma=false;
+
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+document.getElementById('logoTop').src=LOGO_LPS;
+document.getElementById('fecha').value=new Date().toISOString().slice(0,10);
+
+async function buscar(){
+  const ced=(document.getElementById('cedula').value||'').trim();
+  if(!ced){ alert('Escriba la cédula'); return; }
+  const {data}=await sb.from('empleados').select('id,cedula,nombres,apellidos,talla_camisa,talla_pantalon,talla_botas,talla_chaqueta').eq('cedula',ced).limit(1);
+  if(!data||!data[0]){
+    // No está en la base: ofrecer registro manual
+    document.getElementById('empInfo').innerHTML='<div style="background:#FEF3C7;border:1px solid #E5B94A;border-radius:8px;padding:10px 12px;font-size:12px;color:#7A5A11;">Esta cédula no está en la base de personal. Puede registrar la entrega ingresando los datos manualmente:</div>'+
+      '<div class="grid2" style="margin-top:10px;">'+
+      '<div style="grid-column:1/3;"><label>Nombre completo <span class="req">*</span></label><input id="manNombre" placeholder="Nombre y apellidos"></div>'+
+      '<div><label>Cargo (opcional)</label><input id="manCargo" placeholder="Cargo"></div>'+
+      '<div><label>Empresa (opcional)</label><input id="manEmpresa" placeholder="Empresa"></div>'+
+      '</div>'+
+      '<button class="btn btn-p" style="margin-top:10px;" onclick="usarManual(\''+esc(ced)+'\')">Continuar con estos datos</button>';
+    document.getElementById('formEntrega').style.display='none';
+    return;
+  }
+  empleado=data[0];
+  mostrarFormEntrega(((empleado.nombres||'')+' '+(empleado.apellidos||'')).trim(), empleado.cedula, empleado);
+}
+function usarManual(ced){
+  const nombre=(document.getElementById('manNombre').value||'').trim();
+  if(!nombre){ alert('Escriba el nombre completo'); return; }
+  const cargo=(document.getElementById('manCargo')?document.getElementById('manCargo').value.trim():'');
+  const empresa=(document.getElementById('manEmpresa')?document.getElementById('manEmpresa').value.trim():'');
+  // Persona no registrada: empleado_id null, se guardan cédula y nombre manuales
+  empleado={id:null,cedula:ced,nombres:nombre,apellidos:'',manual:true,cargo,empresa};
+  document.getElementById('empInfo').innerHTML='<span style="color:var(--amber);">⚠ '+esc(nombre)+' — CC '+esc(ced)+' (no registrado en el sistema)</span>';
+  mostrarFormEntrega(nombre, ced, {});
+}
+function mostrarFormEntrega(nombre, cedula, emp){
+  document.getElementById('formEntrega').style.display='';
+  const tallas=[emp.talla_camisa,emp.talla_pantalon,emp.talla_botas,emp.talla_chaqueta].filter(Boolean).join(' / ');
+  document.getElementById('tallasInfo').textContent=tallas?('Tallas registradas: '+tallas):'';
+  document.getElementById('compromiso').textContent=textoCompromiso(nombre,cedula);
+  items=[{elemento:'',cantidad:1,talla:'',observacion:''}]; renderItems();
+  setTimeout(setupFirma,60);
+}
+function textoCompromiso(nombre,cedula){
+  return 'Yo, '+nombre+', identificado(a) con cédula '+cedula+', declaro que he recibido de LPS la dotación y/o los elementos de protección personal (EPP) aquí relacionados, suministrados de forma gratuita. Me comprometo a usarlos y conservarlos de manera adecuada conforme a los requerimientos legales vigentes (Ley 9 de 1979, Res. 2400 de 1979, Decreto 1072 de 2015 y demás normas de SST) y a los riesgos identificados en mi actividad, así como a reportar su deterioro o pérdida.';
+}
+function onTipo(){
+  const bono=document.getElementById('tipo').value==='BONO';
+  document.getElementById('bonoWrap').style.display=bono?'':'none';
+  document.getElementById('itemsWrap').style.display=bono?'none':'';
+}
+function addItem(){ items.push({elemento:'',cantidad:1,talla:'',observacion:''}); renderItems(); }
+function delItem(i){ items.splice(i,1); renderItems(); }
+function updItem(i,c,v){ if(items[i])items[i][c]=v; }
+function renderItems(){
+  const cont=document.getElementById('itemsList');
+  if(!items.length){ cont.innerHTML='<p style="font-size:12px;color:var(--slate);">Agregue al menos un elemento.</p>'; return; }
+  cont.innerHTML='<div style="overflow-x:auto;"><table><thead><tr><th>Elemento</th><th style="width:60px;">Cant.</th><th style="width:80px;">Talla</th><th>Observación</th><th></th></tr></thead><tbody>'+
+    items.map((it,i)=>'<tr>'+
+      '<td><input list="elemList" value="'+esc(it.elemento)+'" onchange="updItem('+i+',\'elemento\',this.value)" placeholder="Elemento"></td>'+
+      '<td><input type="number" min="1" value="'+(it.cantidad||1)+'" onchange="updItem('+i+',\'cantidad\',this.value)"></td>'+
+      '<td><input value="'+esc(it.talla||'')+'" onchange="updItem('+i+',\'talla\',this.value)" placeholder="Talla"></td>'+
+      '<td><input value="'+esc(it.observacion||'')+'" onchange="updItem('+i+',\'observacion\',this.value)" placeholder="Observación"></td>'+
+      '<td><button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delItem('+i+')">✕</button></td></tr>').join('')+
+    '</tbody></table></div><datalist id="elemList">'+DOT_ELEMENTOS.map(x=>'<option value="'+esc(x)+'">').join('')+'</datalist>';
+}
+function setupFirma(){
+  const c=document.getElementById('firma'); if(!c)return;
+  const rect=c.getBoundingClientRect(); c.width=rect.width; c.height=rect.height;
+  firmaCtx=c.getContext('2d'); firmaCtx.lineWidth=2; firmaCtx.lineCap='round'; firmaCtx.strokeStyle='#0A2540';
+  let dib=false;
+  function pos(e){ const r=c.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left,y:t.clientY-r.top}; }
+  function start(e){ dib=true; const p=pos(e); firmaCtx.beginPath(); firmaCtx.moveTo(p.x,p.y); e.preventDefault(); }
+  function move(e){ if(!dib)return; const p=pos(e); firmaCtx.lineTo(p.x,p.y); firmaCtx.stroke(); hayFirma=true; e.preventDefault(); }
+  function end(){ dib=false; }
+  c.onmousedown=start; c.onmousemove=move; c.onmouseup=end; c.onmouseleave=end;
+  c.ontouchstart=start; c.ontouchmove=move; c.ontouchend=end;
+}
+function limpiarFirma(){ const c=document.getElementById('firma'); if(firmaCtx&&c)firmaCtx.clearRect(0,0,c.width,c.height); hayFirma=false; }
+
+async function guardar(){
+  const err=document.getElementById('err'); err.textContent='';
+  if(!empleado){ alert('Busque un trabajador'); return; }
+  const tipo=document.getElementById('tipo').value;
+  const esBono=tipo==='BONO';
+  let its=[];
+  if(!esBono){ its=items.filter(it=>it.elemento&&it.elemento.trim()); if(!its.length){ err.textContent='Agregue al menos un elemento.'; return; } }
+  else { const v=parseFloat(document.getElementById('bonoValor').value); if(!v||v<=0){ err.textContent='Ingrese el valor del bono.'; return; } }
+  const firma=hayFirma?document.getElementById('firma').toDataURL('image/png'):null;
+  if(!firma){ if(!confirm('No hay firma del trabajador. ¿Guardar de todas formas?')) return; }
+  const nombre=((empleado.nombres||'')+' '+(empleado.apellidos||'')).trim();
+  const btn=document.getElementById('btnGuardar'); btn.disabled=true; btn.textContent='Guardando…';
+  try{
+    const {data:ent,error:e1}=await sb.from('dotacion_entrega').insert({
+      empleado_id:empleado.id||null, cedula:empleado.cedula, nombre,
+      fecha:document.getElementById('fecha').value||new Date().toISOString().slice(0,10),
+      gestor_contratista:document.getElementById('gestor').value.trim()||null,
+      entregado_por:document.getElementById('entregadoPor').value.trim()||null,
+      observaciones:(document.getElementById('obs').value.trim()||'')+(empleado.manual?(' [Persona no registrada'+(empleado.cargo?' · '+empleado.cargo:'')+(empleado.empresa?' · '+empleado.empresa:'')+']'):'')||null,
+      tipo_entrega:tipo,
+      bono_valor:esBono?parseFloat(document.getElementById('bonoValor').value):null,
+      firma, firmado:!!firma, fecha_firma:firma?new Date().toISOString():null
+    }).select();
+    if(e1)throw e1;
+    const entregaId=ent[0].id;
+    if(!esBono){
+      const filas=its.map(it=>({entrega_id:entregaId,elemento:it.elemento.trim(),cantidad:parseInt(it.cantidad)||1,talla:it.talla||null,observacion:it.observacion||null}));
+      const {error:e2}=await sb.from('dotacion_entrega_items').insert(filas);
+      if(e2)throw e2;
+    }
+    document.getElementById('formEntrega').style.display='none';
+    document.getElementById('resultado').innerHTML='<div class="msg ok">✅ Entrega registrada para <b>'+esc(nombre)+'</b>.<br>Gracias.</div><div style="text-align:center;margin-top:12px;"><button class="btn btn-p" onclick="reiniciarTodo()">Registrar otra entrega</button></div>';
+  }catch(e){ btn.disabled=false; btn.textContent='💾 Guardar entrega'; err.textContent='Error: '+e.message; }
+}
+function reiniciar(){ document.getElementById('formEntrega').style.display='none'; empleado=null; document.getElementById('empInfo').innerHTML=''; document.getElementById('cedula').value=''; }
+function reiniciarTodo(){ location.reload(); }
+onTipo();
+</script>
+</body>
+</html>
