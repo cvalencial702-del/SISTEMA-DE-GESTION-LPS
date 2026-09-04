@@ -151,12 +151,11 @@ function delItem(i){ regItems.splice(i,1); renderItems(); }
 function setItem(i,campo,val){ regItems[i][campo]=val; if(campo==='codigo'){ const c=catalogo.find(x=>x.codigo===val); regItems[i].descripcion=c?c.descripcion:''; renderItems(); } }
 function renderItems(){
   const el=document.getElementById('itemsList'); if(!el)return;
-  el.innerHTML='<div style="overflow-x:auto;"><table><thead><tr><th style="width:200px;">Código</th><th>Descripción</th><th style="width:90px;">Cantidad</th><th></th></tr></thead><tbody>'+
+  el.innerHTML='<div style="overflow-x:auto;"><table><thead><tr><th>Elemento</th><th style="width:110px;">Cantidad</th><th></th></tr></thead><tbody>'+
     (regItems.length?regItems.map((it,i)=>'<tr>'+
-      '<td><select onchange="setItem('+i+',\'codigo\',this.value)"><option value="">— Seleccione —</option>'+catalogo.map(c=>'<option value="'+esc(c.codigo)+'" '+(it.codigo===c.codigo?'selected':'')+'>'+esc(c.codigo)+'</option>').join('')+'</select></td>'+
-      '<td style="font-size:11px;color:var(--slate);">'+esc(it.descripcion||'—')+'</td>'+
+      '<td><select onchange="setItem('+i+',\'codigo\',this.value)"><option value="">— Seleccione —</option>'+catalogo.map(c=>'<option value="'+esc(c.codigo)+'" '+(it.codigo===c.codigo?'selected':'')+'>'+esc(c.descripcion)+'</option>').join('')+'</select></td>'+
       '<td><input type="number" min="1" value="'+(it.cantidad||1)+'" onchange="setItem('+i+',\'cantidad\',Number(this.value))"></td>'+
-      '<td><button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delItem('+i+')">✕</button></td></tr>').join(''):'<tr><td colspan="4" style="text-align:center;color:var(--slate);">Agregue elementos</td></tr>')+
+      '<td><button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delItem('+i+')">✕</button></td></tr>').join(''):'<tr><td colspan="3" style="text-align:center;color:var(--slate);">Agregue elementos</td></tr>')+
     '</tbody></table></div>';
 }
 function toggleDesmonte(){ const si=document.querySelector('input[name="r_desm"]:checked').value==='si'; document.getElementById('desmonteWrap').style.display=si?'':'none'; if(si&&!regDesmontes.length){ regDesmontes=[{codigo:'',descripcion:'',cantidad:1}]; renderDesm(); } }
@@ -165,12 +164,11 @@ function delDesmonte(i){ regDesmontes.splice(i,1); renderDesm(); }
 function setDesm(i,campo,val){ regDesmontes[i][campo]=val; if(campo==='codigo'){ const c=catalogo.find(x=>x.codigo===val); regDesmontes[i].descripcion=c?c.descripcion:''; renderDesm(); } }
 function renderDesm(){
   const el=document.getElementById('desmList'); if(!el)return;
-  el.innerHTML='<div style="overflow-x:auto;"><table><thead><tr><th style="width:200px;">Código</th><th>Descripción</th><th style="width:90px;">Cantidad</th><th></th></tr></thead><tbody>'+
+  el.innerHTML='<div style="overflow-x:auto;"><table><thead><tr><th>Elemento</th><th style="width:110px;">Cantidad</th><th></th></tr></thead><tbody>'+
     (regDesmontes.length?regDesmontes.map((it,i)=>'<tr>'+
-      '<td><select onchange="setDesm('+i+',\'codigo\',this.value)"><option value="">— Seleccione —</option>'+catalogo.map(c=>'<option value="'+esc(c.codigo)+'" '+(it.codigo===c.codigo?'selected':'')+'>'+esc(c.codigo)+'</option>').join('')+'</select></td>'+
-      '<td style="font-size:11px;color:var(--slate);">'+esc(it.descripcion||'—')+'</td>'+
+      '<td><select onchange="setDesm('+i+',\'codigo\',this.value)"><option value="">— Seleccione —</option>'+catalogo.map(c=>'<option value="'+esc(c.codigo)+'" '+(it.codigo===c.codigo?'selected':'')+'>'+esc(c.descripcion)+'</option>').join('')+'</select></td>'+
       '<td><input type="number" min="1" value="'+(it.cantidad||1)+'" onchange="setDesm('+i+',\'cantidad\',Number(this.value))"></td>'+
-      '<td><button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delDesmonte('+i+')">✕</button></td></tr>').join(''):'<tr><td colspan="4" style="text-align:center;color:var(--slate);">Agregue elementos desmontados</td></tr>')+
+      '<td><button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delDesmonte('+i+')">✕</button></td></tr>').join(''):'<tr><td colspan="3" style="text-align:center;color:var(--slate);">Agregue elementos desmontados</td></tr>')+
     '</tbody></table></div>';
 }
 function limpiarRegistro(){ RENDER.registro(); }
@@ -315,33 +313,37 @@ RENDER.catalogo=async function(){
   const c=document.getElementById('v-catalogo');
   const {data}=await sb.from('inv_catalogo').select('*').order('codigo');
   const cat=data||[];
-  c.innerHTML='<div class="sec-title">Catálogo (OT / Descripción)</div><div class="sec-sub">'+cat.length+' registro(s)</div>'+
-    '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;gap:8px;"><button class="btn btn-g" onclick="importarCatExcel()">⬆ Importar Excel</button><button class="btn btn-p" onclick="formCatalogo()">＋ Nuevo</button></div>'+
-    '<div class="card" style="padding:6px 14px 14px;overflow-x:auto;"><table><thead><tr><th>OT</th><th>Descripción</th><th></th></tr></thead><tbody>'+
-    (cat.length?cat.map(e=>'<tr><td style="font-family:ui-monospace,monospace;font-weight:600;">'+esc(e.codigo)+'</td><td>'+esc(e.descripcion)+'</td><td style="white-space:nowrap;"><button class="btn-sm" onclick="formCatalogo(\''+e.id+'\')">✏️</button> <button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delCatalogo(\''+e.id+'\')">🗑</button></td></tr>').join(''):'<tr><td colspan="3" style="text-align:center;color:var(--slate);padding:20px;">Catálogo vacío. Agregue registros.</td></tr>')+
+  c.innerHTML='<div class="sec-title">Catálogo (descripciones)</div><div class="sec-sub">'+cat.length+' registro(s)</div>'+
+    '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;gap:8px;"><button class="btn btn-g" onclick="importarCatExcel()">⬆ Importar Excel</button><button class="btn btn-p" onclick="formCatalogo()">＋ Nueva descripción</button></div>'+
+    '<div class="card" style="padding:6px 14px 14px;overflow-x:auto;"><table><thead><tr><th>Descripción</th><th></th></tr></thead><tbody>'+
+    (cat.length?cat.map(e=>'<tr><td>'+esc(e.descripcion)+'</td><td style="white-space:nowrap;text-align:right;"><button class="btn-sm" onclick="formCatalogo(\''+e.id+'\')">✏️</button> <button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delCatalogo(\''+e.id+'\')">🗑</button></td></tr>').join(''):'<tr><td colspan="2" style="text-align:center;color:var(--slate);padding:20px;">Catálogo vacío. Agregue descripciones.</td></tr>')+
     '</tbody></table></div>';
 };
 async function formCatalogo(id){
   let e={};
   if(id){ const {data}=await sb.from('inv_catalogo').select('*').eq('id',id).limit(1); e=data[0]||{}; }
-  abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:10px;">'+(id?'Editar':'Nuevo')+' registro de catálogo</div>'+
-    '<div><label>OT <span class="req">*</span></label><input id="cat_cod" value="'+esc(e.codigo||'')+'" '+(id?'readonly':'')+' placeholder="Número de OT"></div>'+
-    '<div style="margin-top:8px;"><label>Descripción <span class="req">*</span></label><input id="cat_desc" value="'+esc(e.descripcion||'')+'" placeholder="Descripción"></div>'+
+  abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:10px;">'+(id?'Editar':'Nueva')+' descripción de catálogo</div>'+
+    '<div><label>Descripción <span class="req">*</span></label><input id="cat_desc" value="'+esc(e.descripcion||'')+'" placeholder="Descripción del elemento"></div>'+
     '<div id="cat_err" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
     '<div style="display:flex;gap:8px;margin-top:14px;"><button class="btn btn-p" onclick="guardarCatalogo('+(id?"'"+id+"'":'null')+')">💾 Guardar</button><button class="btn btn-g" onclick="cerrarModal()">Cancelar</button></div>');
 }
 async function guardarCatalogo(id){
-  const cod=document.getElementById('cat_cod').value.trim(), desc=document.getElementById('cat_desc').value.trim();
-  if(!cod||!desc){ document.getElementById('cat_err').textContent='OT y descripción son obligatorios.'; return; }
-  const row={codigo:cod,descripcion:desc};
-  try{ if(id) await sb.from('inv_catalogo').update(row).eq('id',id); else await sb.from('inv_catalogo').insert(row);
-    cerrarModal(); const {data:cat}=await sb.from('inv_catalogo').select('*').eq('activo',true).order('codigo'); catalogo=cat||[]; RENDER.catalogo();
-  }catch(e){ document.getElementById('cat_err').textContent='Error: '+e.message+(e.message.includes('duplicate')?' (OT ya existe)':''); }
+  const desc=document.getElementById('cat_desc').value.trim();
+  if(!desc){ document.getElementById('cat_err').textContent='La descripción es obligatoria.'; return; }
+  try{
+    if(id){ await sb.from('inv_catalogo').update({descripcion:desc}).eq('id',id); }
+    else {
+      // Código interno automático (invisible): CAT-<timestamp>
+      const cod='CAT-'+Date.now().toString(36).toUpperCase();
+      await sb.from('inv_catalogo').insert({codigo:cod,descripcion:desc});
+    }
+    cerrarModal(); const {data:cat}=await sb.from('inv_catalogo').select('*').eq('activo',true).order('descripcion'); catalogo=cat||[]; RENDER.catalogo();
+  }catch(e){ document.getElementById('cat_err').textContent='Error: '+e.message; }
 }
 async function delCatalogo(id){ if(!confirm('¿Eliminar este elemento del catálogo?')) return; try{ await sb.from('inv_catalogo').update({activo:false}).eq('id',id); const {data:cat}=await sb.from('inv_catalogo').select('*').eq('activo',true).order('codigo'); catalogo=cat||[]; RENDER.catalogo(); }catch(e){ alert('Error: '+e.message); } }
 function importarCatExcel(){
   abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:8px;">Importar catálogo desde Excel</div>'+
-    '<div class="sec-sub">El archivo debe tener columnas: <b>codigo</b>, <b>descripcion</b>, y opcionalmente <b>unidad</b> y <b>stock_inicial</b> (primera fila = encabezados).</div>'+
+    '<div class="sec-sub">El archivo debe tener una columna <b>descripcion</b> (primera fila = encabezado). Cada fila se agrega como una descripción del catálogo.</div>'+
     '<input type="file" id="catFile" accept=".xlsx,.xls,.csv"><div id="impErr" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
     '<div style="display:flex;gap:8px;margin-top:12px;"><button class="btn btn-p" onclick="procesarCatExcel()">Importar</button><button class="btn btn-g" onclick="cerrarModal()">Cancelar</button></div>');
 }
@@ -350,11 +352,11 @@ async function procesarCatExcel(){
   try{
     const buf=await f.arrayBuffer(); const wb=XLSX.read(buf,{type:'array'}); const ws=wb.Sheets[wb.SheetNames[0]];
     const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); return {codigo:String(k.codigo||k['código']||'').trim(),descripcion:String(k.descripcion||k['descripción']||'').trim(),unidad:String(k.unidad||'Unidad').trim()||'Unidad',stock_inicial:Number(k.stock_inicial||k.stock||0)||0}; }).filter(x=>x.codigo&&x.descripcion);
-    if(!items.length){ document.getElementById('impErr').textContent='No se encontraron filas válidas (revise columnas codigo y descripcion).'; return; }
-    const {error}=await sb.from('inv_catalogo').upsert(items,{onConflict:'codigo'}); if(error)throw error;
-    cerrarModal(); const {data:cat}=await sb.from('inv_catalogo').select('*').eq('activo',true).order('codigo'); catalogo=cat||[]; RENDER.catalogo();
-    alert('✅ '+items.length+' elemento(s) importados/actualizados.');
+    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); const desc=String(k.descripcion||k['descripción']||k.descripcion_elemento||'').trim(); return desc?{codigo:'CAT-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase(),descripcion:desc}:null; }).filter(Boolean);
+    if(!items.length){ document.getElementById('impErr').textContent='No se encontraron descripciones (revise la columna descripcion).'; return; }
+    const {error}=await sb.from('inv_catalogo').insert(items); if(error)throw error;
+    cerrarModal(); const {data:cat}=await sb.from('inv_catalogo').select('*').eq('activo',true).order('descripcion'); catalogo=cat||[]; RENDER.catalogo();
+    alert('✅ '+items.length+' descripción(es) importadas.');
   }catch(e){ document.getElementById('impErr').textContent='Error: '+e.message; }
 }
 
