@@ -249,7 +249,6 @@ async function selectProcess(pid){
   // Pestaña BROWNFIELD: en el proceso SIG y en cualquier proceso del proyecto Claro
   const esClaro = pid==='sig' || /claro|brownfield/i.test((p.nombre||'')+' '+(p.descripcion||''));
   const tabBrownfield = esClaro ? '<button class="tab" onclick="switchTab(this,\'tab-brownfield\')">🚗 Proyecto Brownfield</button>' : '';
-  const tabAlturas = pid==='sig' ? '<a class="tab" href="equipos-alturas.html" style="text-decoration:none;">🧗 Equipos en Alturas</a>' : '';
   const tabPermiso = pid==='sig' ? '<a class="tab" href="permiso-alturas.html" style="text-decoration:none;">📋 Permiso de Alturas</a>' : '';
   const viewBrownfield = esClaro ? `<div class="tab-view" id="tab-brownfield">
     <div class="panel">
@@ -277,7 +276,6 @@ async function selectProcess(pid){
       <button class="tab" onclick="switchTab(this,'tab-risk')">🛡️ Riesgos</button>
       <button class="tab" onclick="switchTab(this,'tab-actions')">✅ Acciones de Mejora</button>
       ${tabBrownfield}
-      ${tabAlturas}
       ${tabPermiso}
     </div>
     <div class="tab-view active" id="tab-docs">${renderDocsTab(docs)}</div>
