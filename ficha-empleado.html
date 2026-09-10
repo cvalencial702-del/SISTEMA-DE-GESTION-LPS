@@ -127,30 +127,32 @@ input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 
     </div>
   </div>
 
-  <div class="section"><div class="section-bar">👨‍👩‍👧‍👦 GRUPO FAMILIAR</div>
+  <div class="section"><div class="section-bar">👨‍👩‍👧‍👦 GRUPO FAMILIAR *</div>
     <div class="section-inner c1">
       <div>
+        <div class="sub-label">Debe registrar al menos un integrante del grupo familiar.</div>
         <table class="fam-table"><thead><tr><th>Nombre completo</th><th>Documento</th><th>Parentesco</th><th>Teléfono</th><th></th></tr></thead><tbody id="familiaBody"><tr><td colspan="5" style="text-align:center;color:var(--slate);padding:12px;">Sin familiares registrados</td></tr></tbody></table>
         <div class="fam-row" style="grid-template-columns:1.3fr 1fr 1fr 0.7fr 1fr auto;">
-          <div><label>Nombre completo</label><input id="fam_nombre" placeholder="Nombre completo"></div>
-          <div><label>Documento</label><input id="fam_doc" placeholder="CC / TI / RC"></div>
-          <div><label>Parentesco</label><select id="fam_parentesco" onchange="toggleEdadHijo()"><option>Cónyuge</option><option>Hijo/a</option><option>Padre</option><option>Madre</option><option>Hermano/a</option><option>Otro</option></select></div>
+          <div><label>Nombre completo *</label><input id="fam_nombre" placeholder="Nombre completo" required></div>
+          <div><label>Documento *</label><input id="fam_doc" placeholder="CC / TI / RC" required></div>
+          <div><label>Parentesco *</label><select id="fam_parentesco" onchange="toggleEdadHijo()"><option>Cónyuge</option><option>Hijo/a</option><option>Padre</option><option>Madre</option><option>Hermano/a</option><option>Otro</option></select></div>
           <div id="fam_edad_wrap" style="display:none;"><label>Edad (años)</label><input type="number" id="fam_edad" min="0" max="120" placeholder="Años"></div>
-          <div><label>Teléfono</label><input id="fam_tel" placeholder="300 000 0000"></div>
+          <div><label>Teléfono *</label><input id="fam_tel" placeholder="300 000 0000" required></div>
           <button class="fam-btn" onclick="addFam()">＋</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="section"><div class="section-bar">🚨 CONTACTOS DE EMERGENCIA</div>
+  <div class="section"><div class="section-bar">🚨 CONTACTOS DE EMERGENCIA *</div>
     <div class="section-inner c1">
       <div>
+        <div class="sub-label">Debe registrar al menos un contacto de emergencia.</div>
         <table class="fam-table"><thead><tr><th>Nombre</th><th>Parentesco</th><th>Teléfono</th><th></th></tr></thead><tbody id="emergBody"><tr><td colspan="4" style="text-align:center;color:var(--slate);padding:12px;">Sin contactos</td></tr></tbody></table>
         <div class="fam-row" style="grid-template-columns:1.5fr 1fr 1fr auto;">
-          <div><label>Nombre</label><input id="emerg_nombre" placeholder="Nombre completo"></div>
-          <div><label>Parentesco</label><input id="emerg_parent" placeholder="Ej. Madre"></div>
-          <div><label>Teléfono</label><input id="emerg_tel" placeholder="300 000 0000"></div>
+          <div><label>Nombre *</label><input id="emerg_nombre" placeholder="Nombre completo" required></div>
+          <div><label>Parentesco *</label><input id="emerg_parent" placeholder="Ej. Madre" required></div>
+          <div><label>Teléfono *</label><input id="emerg_tel" placeholder="300 000 0000" required></div>
           <button class="fam-btn" onclick="addEmerg()">＋</button>
         </div>
       </div>
@@ -188,8 +190,10 @@ let emergencias = [];
 
 function addEmerg(){
   const n=document.getElementById('emerg_nombre').value.trim();
-  if(!n){alert('Ingrese nombre');return;}
-  emergencias.push({nombre:n, parentesco:document.getElementById('emerg_parent').value.trim()||'—', tel:document.getElementById('emerg_tel').value.trim()||'—'});
+  const parentesco=document.getElementById('emerg_parent').value.trim();
+  const tel=document.getElementById('emerg_tel').value.trim();
+  if(!n||!parentesco||!tel){alert('Para el contacto de emergencia, Nombre, Parentesco y Teléfono son obligatorios.');return;}
+  emergencias.push({nombre:n, parentesco, tel});
   document.getElementById('emerg_nombre').value='';document.getElementById('emerg_parent').value='';document.getElementById('emerg_tel').value='';
   renderEmerg();
 }
@@ -208,11 +212,13 @@ function toggleEdadHijo(){
 }
 function addFam(){
   const n=document.getElementById('fam_nombre').value.trim();
-  if(!n){alert('Ingrese nombre del familiar');return;}
+  const doc=document.getElementById('fam_doc').value.trim();
+  const tel=document.getElementById('fam_tel').value.trim();
   const parentesco=document.getElementById('fam_parentesco').value;
   const edadVal=document.getElementById('fam_edad').value.trim();
+  if(!n||!doc||!tel){alert('Para el grupo familiar, Nombre completo, Documento y Teléfono son obligatorios.');return;}
   if(parentesco==='Hijo/a' && edadVal===''){alert('Para Hijo/Hija indique la edad en años.');return;}
-  familiares.push({nombre:n, doc:document.getElementById('fam_doc').value.trim()||'—', parentesco, edad:parentesco==='Hijo/a'?(edadVal+' años'):'', tel:document.getElementById('fam_tel').value.trim()||'—'});
+  familiares.push({nombre:n, doc, parentesco, edad:parentesco==='Hijo/a'?(edadVal+' años'):'', tel});
   document.getElementById('fam_nombre').value='';document.getElementById('fam_doc').value='';document.getElementById('fam_tel').value='';document.getElementById('fam_edad').value='';
   toggleEdadHijo();
   renderFam();
@@ -254,6 +260,8 @@ async function enviarFicha(){
   if(!cedula||!apellidos||!nombres){alert('Cédula, apellidos y nombres son obligatorios');return;}
   if(!gv('f_direccion')||!gv('f_barrio')){alert('Dirección y Barrio son obligatorios');return;}
   if(!gv('f_ciudad')){alert('La Ciudad es obligatoria. Complétela para poder enviar la ficha.');return;}
+  if(familiares.length===0){alert('Debe registrar al menos un integrante del Grupo Familiar antes de enviar la ficha.');return;}
+  if(emergencias.length===0){alert('Debe registrar al menos un Contacto de Emergencia antes de enviar la ficha.');return;}
 
   const fechaExp = gv('f_fechaExp');
   const fechaNac = gv('f_nacimiento');
