@@ -299,7 +299,7 @@ function pasoItems(){
 }
 function renderItems(){
   const b=document.getElementById('itemsBody'); if(!b)return;
-  b.innerHTML=items.length?items.map((it,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(it.descripcion)+'</td><td style="font-size:11px;color:var(--slate);">'+esc(it.alcance||'')+'</td><td>'+esc(it.cantidad)+'</td><td>'+esc(it.unidad)+'</td><td>'+((it.adjuntos&&it.adjuntos.length)||0)+'</td><td style="white-space:nowrap;"><button class="btn-sm" onclick="formItem('+i+')">✏️</button> <button class="btn-sm" onclick="dupItem('+i+')">⧉</button> <button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delItem('+i+')">🗑</button></td></tr>').join(''):'<tr><td colspan="7" style="text-align:center;color:var(--slate);padding:16px;">Sin ítems. Agregue al menos uno.</td></tr>';
+  b.innerHTML=items.length?items.map((it,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(it.descripcion)+'</td><td style="font-size:11px;color:var(--slate);">'+esc(it.alcance||'')+'</td><td>'+esc(it.cantidad)+'</td><td>'+esc(it.unidad)+'</td><td style="font-size:11px;">'+((it.adjuntos&&it.adjuntos.length)?it.adjuntos.map(a=>'<a href="'+esc(a.url)+'" target="_blank" style="color:var(--blue-d);text-decoration:none;display:block;">📎 '+esc(a.nombre)+'</a>').join(''):'<span style="color:#94A3B8;">—</span>')+'</td><td style="white-space:nowrap;"><button class="btn-sm" onclick="formItem('+i+')">✏️</button> <button class="btn-sm" onclick="dupItem('+i+')">⧉</button> <button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delItem('+i+')">🗑</button></td></tr>').join(''):'<tr><td colspan="7" style="text-align:center;color:var(--slate);padding:16px;">Sin ítems. Agregue al menos uno.</td></tr>';
 }
 function formItem(i){
   const it=(i!=null)?items[i]:{descripcion:'',alcance:'',cantidad:1,unidad:'unidad',adjuntos:[]};
@@ -324,19 +324,22 @@ async function guardarItem(i){
   const btn=document.querySelector('#modalRoot .btn-p');
   if(adjInput&&adjInput.files.length){
     if(btn){ btn.disabled=true; btn.textContent='Subiendo archivos…'; }
-    let fallo=false;
+    let fallo=false, subidos=0;
     for(const f of adjInput.files){
       try{
+        // Validar tamaño (50MB)
+        if(f.size>50*1024*1024){ throw new Error('El archivo supera 50MB'); }
         const path='items/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'_'+f.name.replace(/[^\w.\-]/g,'_');
-        const {error}=await sb.storage.from('rfq-adjuntos').upload(path,f,{upsert:true});
+        const {error}=await sb.storage.from('rfq-adjuntos').upload(path,f,{upsert:true,contentType:f.type||'application/octet-stream'});
         if(error)throw error;
         const {data}=sb.storage.from('rfq-adjuntos').getPublicUrl(path);
         adjuntos.push({nombre:f.name,tipo:f.type||'archivo',tamano:f.size,url:data.publicUrl,path});
-      }catch(e){ fallo=true; alert('No se pudo subir "'+f.name+'": '+e.message+'\n\nRevise el tamaño (máx 50MB) o la conexión e intente de nuevo.'); }
+        subidos++;
+      }catch(e){ fallo=true; alert('No se pudo subir "'+f.name+'": '+(e.message||e)+'\n\nRevise el tamaño (máx 50MB) o la conexión e intente de nuevo.'); }
     }
     if(btn){ btn.disabled=false; btn.textContent='Guardar ítem'; }
-    // Si algún archivo falló, no cerramos el modal para que el usuario reintente
     if(fallo){ return; }
+    if(subidos){ /* subidos ok */ }
   }
   const obj={descripcion:desc,alcance:alc,cantidad:cant,unidad:uni,adjuntos};
   if(i!=null)items[i]=obj; else items.push(obj);
