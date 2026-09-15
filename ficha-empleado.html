@@ -170,7 +170,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 
 
   <div class="section"><div class="section-bar">🏦 INFORMACIÓN BANCARIA</div>
     <div class="section-inner c3">
-      <div><label>Institución bancaria</label><input id="f_banco" placeholder="Ej. Bancolombia"></div>
+      <div><label>Institución bancaria</label><input id="f_banco" placeholder="Ej. Bancolombia" onblur="validarBanco(this)"><div id="f_banco_err" style="display:none;color:#D14343;font-size:11px;margin-top:4px;">Debe indicar una entidad bancaria. NEQUI, DAVIPLATA, LLAVE(S) y BRE-B no son entidades bancarias.</div></div>
       <div><label>Tipo de cuenta</label><select id="f_tipoCuenta"><option>Cuenta de ahorros</option><option>Cuenta corriente</option></select></div>
       <div><label>Número de cuenta</label><input id="f_numCuenta" placeholder="Número"></div>
     </div>
@@ -246,10 +246,40 @@ function renderEstudios(){
 
 function gv(id){const el=document.getElementById(id);return el?el.value.trim():'';}
 
+// ===== VALIDACIÓN INSTITUCIÓN BANCARIA (no billeteras / no llaves interoperables) =====
+const ENTIDADES_NO_VALIDAS = ['NEQUI','DAVIPLATA','LLAVE','LLAVES','BREB','BRE B','BRE-B'];
+function normalizarTexto(s){
+  return (s||'')
+    .toUpperCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'') // quita tildes
+    .replace(/[^A-Z0-9]/g,''); // quita espacios, guiones, puntos, etc.
+}
+function esEntidadNoValida(valor){
+  const norm = normalizarTexto(valor);
+  if(!norm) return false;
+  return ENTIDADES_NO_VALIDAS.some(e=>{
+    const en = normalizarTexto(e);
+    return norm===en || norm.includes(en);
+  });
+}
+function validarBanco(input){
+  const err=document.getElementById('f_banco_err');
+  if(esEntidadNoValida(input.value)){
+    err.style.display='block';
+    input.style.borderColor='#D14343';
+    return false;
+  }
+  err.style.display='none';
+  input.style.borderColor='';
+  return true;
+}
+
 function resetForm(){
   document.querySelectorAll('input').forEach(i=>{if(i.type==='number')i.value='0';else if(i.type!=='date')i.value='';else i.value='';});
   document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
   document.getElementById('f_transporteOtro').style.display='none';
+  document.getElementById('f_banco_err').style.display='none';
+  document.getElementById('f_banco').style.borderColor='';
   familiares=[];renderFam();
   emergencias=[];renderEmerg();
   estudios=[];renderEstudios();
@@ -262,6 +292,11 @@ async function enviarFicha(){
   if(!gv('f_ciudad')){alert('La Ciudad es obligatoria. Complétela para poder enviar la ficha.');return;}
   if(familiares.length===0){alert('Debe registrar al menos un integrante del Grupo Familiar antes de enviar la ficha.');return;}
   if(emergencias.length===0){alert('Debe registrar al menos un Contacto de Emergencia antes de enviar la ficha.');return;}
+  if(!validarBanco(document.getElementById('f_banco'))){
+    alert('El campo Institución bancaria debe indicar una entidad bancaria real. NEQUI, DAVIPLATA, LLAVE(S) o BRE-B no son entidades bancarias.');
+    document.getElementById('f_banco').focus();
+    return;
+  }
 
   const fechaExp = gv('f_fechaExp');
   const fechaNac = gv('f_nacimiento');
