@@ -865,19 +865,40 @@ RENDER.cecos=async function(){
 };
 async function cargarCecosExcel(){
   const f=document.getElementById('cecoFile').files[0];
-  if(!f){ document.getElementById('cecoErr').textContent='Seleccione un archivo Excel'; return; }
+  const errBox=document.getElementById('cecoErr'); errBox.style.color='var(--danger)'; errBox.textContent='';
+  if(!f){ errBox.textContent='Seleccione un archivo Excel'; return; }
   if(!confirm('Esto REEMPLAZARÁ todos los CeCos actuales por los del Excel. ¿Continuar?')) return;
   try{
     const buf=await f.arrayBuffer(); const wb=XLSX.read(buf,{type:'array'});
     const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
-    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); const ceco=String(k.ceco||k['centro de costo']||k['centro de costos']||'').trim(); return ceco?{ceco,nombre_proyecto:String(k['nombre proyecto']||k.nombre_proyecto||k.proyecto||k['nombre del proyecto']||'').trim()||null}:null; }).filter(Boolean);
-    if(!items.length){ document.getElementById('cecoErr').textContent='No se encontraron CeCos (revise la columna ceco).'; return; }
-    // Vaciar y cargar
-    await sb.from('rfq_cecos').delete().neq('id','00000000-0000-0000-0000-000000000000');
-    for(let i=0;i<items.length;i+=500){ await sb.from('rfq_cecos').insert(items.slice(i,i+500)); }
+    if(!rows.length){ errBox.textContent='El Excel está vacío o no tiene filas de datos.'; return; }
+    // Normalizar encabezados: minúsculas, sin espacios extra, sin tildes
+    const norm=t=>String(t).toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const items=rows.map(r=>{
+      const k={}; Object.keys(r).forEach(kk=>k[norm(kk)]=r[kk]);
+      const ceco=String(k['ceco']||k['centro de costo']||k['centro de costos']||k['ceco ']||'').trim();
+      const proy=String(k['nombre proyecto']||k['nombre_proyecto']||k['proyecto']||k['nombre del proyecto']||'').trim();
+      return ceco?{ceco,nombre_proyecto:proy||null}:null;
+    }).filter(Boolean);
+    if(!items.length){
+      const enc=Object.keys(rows[0]).join(', ');
+      errBox.textContent='No se encontró la columna "CeCo". Encabezados detectados en su Excel: ['+enc+']. Asegúrese de que exista una columna llamada CeCo.';
+      return;
+    }
+    // Vaciar
+    const {error:eDel}=await sb.from('rfq_cecos').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    if(eDel) throw new Error('Al vaciar: '+eDel.message);
+    // Insertar por lotes, capturando errores
+    let insertados=0;
+    for(let i=0;i<items.length;i+=500){
+      const {error:eIns}=await sb.from('rfq_cecos').insert(items.slice(i,i+500));
+      if(eIns) throw new Error('Al insertar: '+eIns.message);
+      insertados+=Math.min(500,items.length-i);
+    }
     await cargarCecosMateriales();
-    RENDER.cecos(); alert('✅ '+items.length+' CeCos cargados (reemplazando los anteriores).');
-  }catch(e){ document.getElementById('cecoErr').textContent='Error: '+e.message; }
+    RENDER.cecos();
+    setTimeout(()=>alert('✅ '+insertados+' CeCos cargados (reemplazando los anteriores).'),100);
+  }catch(e){ errBox.textContent='Error: '+(e.message||e); }
 }
 async function vaciarCecos(){
   if(!confirm('¿Vaciar TODOS los CeCos? Esta acción no se puede deshacer.')) return;
@@ -899,18 +920,37 @@ RENDER.materiales=async function(){
 };
 async function cargarMaterialesExcel(){
   const f=document.getElementById('matFile').files[0];
-  if(!f){ document.getElementById('matErr').textContent='Seleccione un archivo Excel'; return; }
+  const errBox=document.getElementById('matErr'); errBox.style.color='var(--danger)'; errBox.textContent='';
+  if(!f){ errBox.textContent='Seleccione un archivo Excel'; return; }
   if(!confirm('Esto REEMPLAZARÁ todos los materiales actuales por los del Excel. ¿Continuar?')) return;
   try{
     const buf=await f.arrayBuffer(); const wb=XLSX.read(buf,{type:'array'});
     const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
-    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); const codigo=String(k.codigo||k['codigo material']||k['código material']||k['codigo de material']||k['código de material']||'').trim(); return codigo?{codigo,nombre_actividad:String(k['nombre de actividad']||k.nombre_actividad||k.actividad||k['nombre de la actividad']||'').trim()||null}:null; }).filter(Boolean);
-    if(!items.length){ document.getElementById('matErr').textContent='No se encontraron materiales (revise la columna codigo).'; return; }
-    await sb.from('rfq_materiales').delete().neq('id','00000000-0000-0000-0000-000000000000');
-    for(let i=0;i<items.length;i+=500){ await sb.from('rfq_materiales').insert(items.slice(i,i+500)); }
+    if(!rows.length){ errBox.textContent='El Excel está vacío o no tiene filas de datos.'; return; }
+    const norm=t=>String(t).toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const items=rows.map(r=>{
+      const k={}; Object.keys(r).forEach(kk=>k[norm(kk)]=r[kk]);
+      const codigo=String(k['codigo material']||k['codigo']||k['codigo de material']||k['cod material']||k['material']||'').trim();
+      const act=String(k['nombre de actividad']||k['nombre actividad']||k['nombre_actividad']||k['actividad']||k['nombre de la actividad']||'').trim();
+      return codigo?{codigo,nombre_actividad:act||null}:null;
+    }).filter(Boolean);
+    if(!items.length){
+      const enc=Object.keys(rows[0]).join(', ');
+      errBox.textContent='No se encontró la columna "Código Material". Encabezados detectados: ['+enc+']. Asegúrese de que exista una columna llamada Código Material.';
+      return;
+    }
+    const {error:eDel}=await sb.from('rfq_materiales').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    if(eDel) throw new Error('Al vaciar: '+eDel.message);
+    let insertados=0;
+    for(let i=0;i<items.length;i+=500){
+      const {error:eIns}=await sb.from('rfq_materiales').insert(items.slice(i,i+500));
+      if(eIns) throw new Error('Al insertar: '+eIns.message);
+      insertados+=Math.min(500,items.length-i);
+    }
     await cargarCecosMateriales();
-    RENDER.materiales(); alert('✅ '+items.length+' materiales cargados (reemplazando los anteriores).');
-  }catch(e){ document.getElementById('matErr').textContent='Error: '+e.message; }
+    RENDER.materiales();
+    setTimeout(()=>alert('✅ '+insertados+' materiales cargados (reemplazando los anteriores).'),100);
+  }catch(e){ errBox.textContent='Error: '+(e.message||e); }
 }
 async function vaciarMateriales(){
   if(!confirm('¿Vaciar TODOS los materiales? Esta acción no se puede deshacer.')) return;
