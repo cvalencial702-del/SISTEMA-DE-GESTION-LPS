@@ -68,6 +68,8 @@
     <div class="view" id="v-mis"></div>
     <div class="view" id="v-aprob"></div>
     <div class="view" id="v-admin"></div>
+    <div class="view" id="v-cecos"></div>
+    <div class="view" id="v-materiales"></div>
     <div class="view" id="v-config"></div>
   </div>
 </div>
@@ -75,6 +77,7 @@
 <div id="modalRoot"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const SUPABASE_URL='https://kssoegcjwngsnfwdvjne.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzc29lZ2Nqd25nc25md2R2am5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjE3OTMsImV4cCI6MjA5OTAzNzc5M30.rtvKepiLyKEMkJPxTHw336E6UEoPyAkEX_5jU7WgGM4';
@@ -101,6 +104,8 @@ const TABS=[
   {id:'nueva',label:'Nueva RFQ',admin:false},
   {id:'mis',label:'Solicitudes',admin:false},
   {id:'admin',label:'Administración',admin:true},
+  {id:'cecos',label:'CeCos',admin:true},
+  {id:'materiales',label:'Materiales',admin:true},
   {id:'config',label:'Configuración',admin:true},
 ];
 
@@ -285,7 +290,7 @@ function guardarPaso2(){
 // ---- Paso 3: Ítems y adjuntos ----
 function pasoItems(){
   return '<div class="field-sec"><h3>Ítems solicitados</h3>'+
-    '<table><thead><tr><th>#</th><th>Descripción</th><th>Alcance</th><th>Cant.</th><th>Unidad</th><th>Adj.</th><th></th></tr></thead><tbody id="itemsBody"></tbody></table>'+
+    '<table><thead><tr><th>#</th><th>Descripción</th><th>Alcance</th><th>Cant.</th><th>Unidad</th><th>CeCo</th><th>Material</th><th></th></tr></thead><tbody id="itemsBody"></tbody></table>'+
     '<button class="btn btn-g" style="margin-top:10px;" onclick="formItem()">＋ Agregar ítem</button></div>'+
     '<div class="field-sec"><h3>Adjuntos generales de la RFQ</h3>'+
     '<div id="adjGenList" style="font-size:11.5px;color:var(--slate);margin-bottom:8px;"></div>'+
@@ -299,19 +304,55 @@ function pasoItems(){
 }
 function renderItems(){
   const b=document.getElementById('itemsBody'); if(!b)return;
-  b.innerHTML=items.length?items.map((it,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(it.descripcion)+'</td><td style="font-size:11px;color:var(--slate);">'+esc(it.alcance||'')+'</td><td>'+esc(it.cantidad)+'</td><td>'+esc(it.unidad)+'</td><td style="font-size:11px;">'+((it.adjuntos&&it.adjuntos.length)?it.adjuntos.map(a=>'<a href="'+esc(a.url)+'" target="_blank" style="color:var(--blue-d);text-decoration:none;display:block;">📎 '+esc(a.nombre)+'</a>').join(''):'<span style="color:#94A3B8;">—</span>')+'</td><td style="white-space:nowrap;"><button class="btn-sm" onclick="formItem('+i+')">✏️</button> <button class="btn-sm" onclick="dupItem('+i+')">⧉</button> <button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delItem('+i+')">🗑</button></td></tr>').join(''):'<tr><td colspan="7" style="text-align:center;color:var(--slate);padding:16px;">Sin ítems. Agregue al menos uno.</td></tr>';
+  b.innerHTML=items.length?items.map((it,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(it.descripcion)+'</td><td style="font-size:11px;color:var(--slate);">'+esc(it.alcance||'')+'</td><td>'+esc(it.cantidad)+'</td><td>'+esc(it.unidad)+'</td><td style="font-size:11px;">'+esc(it.ceco||'—')+(it.ceco_proyecto?'<br><span style="color:var(--slate);font-size:9.5px;">'+esc(it.ceco_proyecto)+'</span>':'')+'</td><td style="font-size:11px;">'+esc(it.codigo_material||'—')+(it.material_actividad?'<br><span style="color:var(--slate);font-size:9.5px;">'+esc(it.material_actividad)+'</span>':'')+'</td><td style="white-space:nowrap;"><button class="btn-sm" onclick="formItem('+i+')">✏️</button> <button class="btn-sm" onclick="dupItem('+i+')">⧉</button> <button class="btn-sm" style="background:#FEE2E2;color:#991B1B;" onclick="delItem('+i+')">🗑</button></td></tr>').join(''):'<tr><td colspan="8" style="text-align:center;color:var(--slate);padding:16px;">Sin ítems. Agregue al menos uno.</td></tr>';
 }
 function formItem(i){
-  const it=(i!=null)?items[i]:{descripcion:'',alcance:'',cantidad:1,unidad:'unidad',adjuntos:[]};
+  const it=(i!=null)?items[i]:{descripcion:'',alcance:'',cantidad:1,unidad:'unidad'};
   const optsU=UNIDADES.map(u=>'<option'+(it.unidad===u?' selected':'')+'>'+u+'</option>').join('');
+  const cecos=window._rfqCecos||[];
+  const mats=window._rfqMateriales||[];
+  const optsCeco='<option value="">— Seleccione CeCo —</option>'+cecos.map(c=>'<option value="'+esc(c.ceco)+'" data-proy="'+esc(c.nombre_proyecto||'')+'" '+(it.ceco===c.ceco?'selected':'')+'>'+esc(c.ceco)+(c.nombre_proyecto?' · '+esc(c.nombre_proyecto):'')+'</option>').join('');
+  const optsMat='<option value="">— Seleccione código —</option>'+mats.map(m=>'<option value="'+esc(m.codigo)+'" data-act="'+esc(m.nombre_actividad||'')+'" '+(it.codigo_material===m.codigo?'selected':'')+'>'+esc(m.codigo)+(m.nombre_actividad?' · '+esc(m.nombre_actividad):'')+'</option>').join('');
   abrirModal('<div style="font-size:15px;font-weight:600;margin-bottom:12px;">'+(i!=null?'Editar':'Nuevo')+' ítem</div>'+
     '<div><label>Descripción <span class="req">*</span></label><input id="it_desc" value="'+esc(it.descripcion)+'"></div>'+
     '<div style="margin-top:10px;"><label>Alcance <span class="req">*</span></label><textarea id="it_alc" rows="2">'+esc(it.alcance||'')+'</textarea></div>'+
     '<div class="grid2" style="margin-top:10px;"><div><label>Cantidad <span class="req">*</span></label><input type="number" id="it_cant" min="0.01" step="any" value="'+esc(it.cantidad)+'"></div><div><label>Unidad</label><select id="it_uni">'+optsU+'</select></div></div>'+
-    '<div style="margin-top:10px;"><label>Adjuntos del ítem</label><input type="file" id="it_adj" multiple style="font-size:11px;"><div style="font-size:9.5px;color:#94A3B8;margin-top:3px;">'+((it.adjuntos&&it.adjuntos.length)?'Ya cargados: '+it.adjuntos.map(a=>esc(a.nombre)).join(', '):'')+'</div></div>'+
+    '<div class="grid2" style="margin-top:10px;"><div><label>CeCo <span class="req">*</span></label><select id="it_ceco" onchange="mostrarProyectoCeco()">'+optsCeco+'</select><div id="it_ceco_proy" style="font-size:10px;color:var(--slate);margin-top:3px;"></div></div>'+
+    '<div><label>Código de Material <span class="req">*</span></label><select id="it_mat" onchange="mostrarActividadMat()">'+optsMat+'</select><div id="it_mat_act" style="font-size:10px;color:var(--slate);margin-top:3px;"></div></div></div>'+
     '<div style="display:flex;gap:8px;margin-top:16px;"><button class="btn btn-p" onclick="guardarItem('+(i!=null?i:'null')+')">Guardar ítem</button><button class="btn btn-g" onclick="cerrarModal()">Cancelar</button></div>');
+  mostrarProyectoCeco(); mostrarActividadMat();
+}
+function mostrarProyectoCeco(){
+  const sel=document.getElementById('it_ceco'); if(!sel)return;
+  const p=sel.selectedOptions[0]?sel.selectedOptions[0].getAttribute('data-proy'):'';
+  const box=document.getElementById('it_ceco_proy'); if(box)box.textContent=p?('Proyecto: '+p):'';
+}
+function mostrarActividadMat(){
+  const sel=document.getElementById('it_mat'); if(!sel)return;
+  const a=sel.selectedOptions[0]?sel.selectedOptions[0].getAttribute('data-act'):'';
+  const box=document.getElementById('it_mat_act'); if(box)box.textContent=a?('Actividad: '+a):'';
 }
 async function guardarItem(i){
+  const desc=document.getElementById('it_desc').value.trim();
+  const alc=document.getElementById('it_alc').value.trim();
+  const cant=Number(document.getElementById('it_cant').value);
+  const uni=document.getElementById('it_uni').value;
+  const selCeco=document.getElementById('it_ceco');
+  const ceco=selCeco.value;
+  const ceco_proyecto=selCeco.selectedOptions[0]?selCeco.selectedOptions[0].getAttribute('data-proy'):'';
+  const selMat=document.getElementById('it_mat');
+  const codigo_material=selMat.value;
+  const material_actividad=selMat.selectedOptions[0]?selMat.selectedOptions[0].getAttribute('data-act'):'';
+  if(!desc){ alert('La descripción es obligatoria'); return; }
+  if(!alc){ alert('El alcance es obligatorio'); return; }
+  if(!(cant>0)){ alert('La cantidad debe ser mayor que cero'); return; }
+  if(!ceco){ alert('El CeCo es obligatorio'); return; }
+  if(!codigo_material){ alert('El código de material es obligatorio'); return; }
+  const nuevoItem={descripcion:desc,alcance:alc,cantidad:cant,unidad:uni,ceco,ceco_proyecto,codigo_material,material_actividad};
+  if(i!=null){ items[i]=nuevoItem; } else { items.push(nuevoItem); }
+  cerrarModal(); renderItems();
+}
+async function guardarItemVIEJO(i){
   const desc=document.getElementById('it_desc').value.trim();
   const alc=document.getElementById('it_alc').value.trim();
   const cant=Number(document.getElementById('it_cant').value);
@@ -386,7 +427,7 @@ async function persistir(){
   else { const {data,error}=await sb.from('rfq_solicitudes').insert(rowRFQ()).select(); if(error)throw error; id=data[0].id; rfqActual.id=id; rfqActual.fecha_solicitud=data[0].fecha_solicitud; }
   // Reemplazar ítems
   await sb.from('rfq_items').delete().eq('rfq_id',id);
-  if(items.length){ await sb.from('rfq_items').insert(items.map((it,idx)=>({rfq_id:id,orden:idx+1,descripcion:it.descripcion,alcance:it.alcance,cantidad:it.cantidad,unidad:it.unidad,adjuntos:it.adjuntos||[]}))); }
+  if(items.length){ await sb.from('rfq_items').insert(items.map((it,idx)=>({rfq_id:id,orden:idx+1,descripcion:it.descripcion,alcance:it.alcance,cantidad:it.cantidad,unidad:it.unidad,ceco:it.ceco||null,ceco_proyecto:it.ceco_proyecto||null,codigo_material:it.codigo_material||null,material_actividad:it.material_actividad||null}))); }
   return id;
 }
 async function guardarBorrador(){
@@ -809,6 +850,73 @@ function exportarAdmin(){
 }
 
 // ===================== CONFIGURACIÓN =====================
+// ===================== CeCos (admin) =====================
+RENDER.cecos=async function(){
+  const c=document.getElementById('v-cecos');
+  const {data}=await sb.from('rfq_cecos').select('*').order('ceco');
+  const rows=data||[];
+  c.innerHTML='<div style="font-size:16px;font-weight:700;margin-bottom:4px;">CeCos (Centros de Costo)</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px;">'+rows.length+' registro(s). Al cargar un Excel se REEMPLAZAN todos los anteriores.</div>'+
+    '<div class="card" style="padding:16px;margin-bottom:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Cargar Excel de CeCos</div>'+
+    '<div style="font-size:11px;color:var(--slate);margin-bottom:8px;">Columnas: <b>ceco</b> y <b>nombre_proyecto</b> (primera fila = encabezados). <b>La carga reemplaza los datos anteriores.</b></div>'+
+    '<input type="file" id="cecoFile" accept=".xlsx,.xls"><div id="cecoErr" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;"><button class="btn btn-p" onclick="cargarCecosExcel()">⬆ Vaciar y cargar</button><button class="btn btn-g" style="background:#FEE2E2;color:#991B1B;" onclick="vaciarCecos()">🗑 Vaciar todo</button></div></div>'+
+    '<div class="card" style="padding:6px 16px 14px;"><table><thead><tr><th>CeCo</th><th>Nombre del proyecto</th></tr></thead><tbody>'+
+    (rows.length?rows.map(r=>'<tr><td style="font-weight:600;">'+esc(r.ceco)+'</td><td>'+esc(r.nombre_proyecto||'—')+'</td></tr>').join(''):'<tr><td colspan="2" style="text-align:center;color:var(--slate);padding:16px;">Sin CeCos cargados</td></tr>')+'</tbody></table></div>';
+};
+async function cargarCecosExcel(){
+  const f=document.getElementById('cecoFile').files[0];
+  if(!f){ document.getElementById('cecoErr').textContent='Seleccione un archivo Excel'; return; }
+  if(!confirm('Esto REEMPLAZARÁ todos los CeCos actuales por los del Excel. ¿Continuar?')) return;
+  try{
+    const buf=await f.arrayBuffer(); const wb=XLSX.read(buf,{type:'array'});
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); const ceco=String(k.ceco||k['centro de costo']||'').trim(); return ceco?{ceco,nombre_proyecto:String(k.nombre_proyecto||k.proyecto||k['nombre del proyecto']||'').trim()||null}:null; }).filter(Boolean);
+    if(!items.length){ document.getElementById('cecoErr').textContent='No se encontraron CeCos (revise la columna ceco).'; return; }
+    // Vaciar y cargar
+    await sb.from('rfq_cecos').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    for(let i=0;i<items.length;i+=500){ await sb.from('rfq_cecos').insert(items.slice(i,i+500)); }
+    await cargarCecosMateriales();
+    RENDER.cecos(); alert('✅ '+items.length+' CeCos cargados (reemplazando los anteriores).');
+  }catch(e){ document.getElementById('cecoErr').textContent='Error: '+e.message; }
+}
+async function vaciarCecos(){
+  if(!confirm('¿Vaciar TODOS los CeCos? Esta acción no se puede deshacer.')) return;
+  try{ await sb.from('rfq_cecos').delete().neq('id','00000000-0000-0000-0000-000000000000'); await cargarCecosMateriales(); RENDER.cecos(); alert('✅ CeCos vaciados.'); }catch(e){ alert('Error: '+e.message); }
+}
+
+// ===================== Materiales (admin) =====================
+RENDER.materiales=async function(){
+  const c=document.getElementById('v-materiales');
+  const {data}=await sb.from('rfq_materiales').select('*').order('codigo');
+  const rows=data||[];
+  c.innerHTML='<div style="font-size:16px;font-weight:700;margin-bottom:4px;">Materiales</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px;">'+rows.length+' registro(s). Al cargar un Excel se REEMPLAZAN todos los anteriores.</div>'+
+    '<div class="card" style="padding:16px;margin-bottom:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Cargar Excel de Materiales</div>'+
+    '<div style="font-size:11px;color:var(--slate);margin-bottom:8px;">Columnas: <b>codigo</b> y <b>nombre_actividad</b> (primera fila = encabezados). <b>La carga reemplaza los datos anteriores.</b></div>'+
+    '<input type="file" id="matFile" accept=".xlsx,.xls"><div id="matErr" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;"><button class="btn btn-p" onclick="cargarMaterialesExcel()">⬆ Vaciar y cargar</button><button class="btn btn-g" style="background:#FEE2E2;color:#991B1B;" onclick="vaciarMateriales()">🗑 Vaciar todo</button></div></div>'+
+    '<div class="card" style="padding:6px 16px 14px;"><table><thead><tr><th>Código</th><th>Nombre de la actividad</th></tr></thead><tbody>'+
+    (rows.length?rows.map(r=>'<tr><td style="font-weight:600;font-family:ui-monospace,monospace;">'+esc(r.codigo)+'</td><td>'+esc(r.nombre_actividad||'—')+'</td></tr>').join(''):'<tr><td colspan="2" style="text-align:center;color:var(--slate);padding:16px;">Sin materiales cargados</td></tr>')+'</tbody></table></div>';
+};
+async function cargarMaterialesExcel(){
+  const f=document.getElementById('matFile').files[0];
+  if(!f){ document.getElementById('matErr').textContent='Seleccione un archivo Excel'; return; }
+  if(!confirm('Esto REEMPLAZARÁ todos los materiales actuales por los del Excel. ¿Continuar?')) return;
+  try{
+    const buf=await f.arrayBuffer(); const wb=XLSX.read(buf,{type:'array'});
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); const codigo=String(k.codigo||k['codigo de material']||k['código de material']||'').trim(); return codigo?{codigo,nombre_actividad:String(k.nombre_actividad||k.actividad||k['nombre de la actividad']||'').trim()||null}:null; }).filter(Boolean);
+    if(!items.length){ document.getElementById('matErr').textContent='No se encontraron materiales (revise la columna codigo).'; return; }
+    await sb.from('rfq_materiales').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    for(let i=0;i<items.length;i+=500){ await sb.from('rfq_materiales').insert(items.slice(i,i+500)); }
+    await cargarCecosMateriales();
+    RENDER.materiales(); alert('✅ '+items.length+' materiales cargados (reemplazando los anteriores).');
+  }catch(e){ document.getElementById('matErr').textContent='Error: '+e.message; }
+}
+async function vaciarMateriales(){
+  if(!confirm('¿Vaciar TODOS los materiales? Esta acción no se puede deshacer.')) return;
+  try{ await sb.from('rfq_materiales').delete().neq('id','00000000-0000-0000-0000-000000000000'); await cargarCecosMateriales(); RENDER.materiales(); alert('✅ Materiales vaciados.'); }catch(e){ alert('Error: '+e.message); }
+}
+
 RENDER.config=async function(){
   if(!esAdmin){ document.getElementById('v-config').innerHTML='<div class="card">Solo el administrador.</div>'; return; }
   await cargarConfig();
@@ -848,6 +956,11 @@ async function guardarConfig(){
 document.getElementById('logoTop').src=LOGO_LPS;
 pintarAdminBtn();
 construirTabs();
+cargarCecosMateriales();
+async function cargarCecosMateriales(){
+  try{ const {data:cc}=await sb.from('rfq_cecos').select('*').order('ceco'); window._rfqCecos=cc||[]; }catch(e){ window._rfqCecos=[]; }
+  try{ const {data:mm}=await sb.from('rfq_materiales').select('*').order('codigo'); window._rfqMateriales=mm||[]; }catch(e){ window._rfqMateriales=[]; }
+}
 </script>
 </body>
 </html>
