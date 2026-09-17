@@ -857,7 +857,7 @@ RENDER.cecos=async function(){
   const rows=data||[];
   c.innerHTML='<div style="font-size:16px;font-weight:700;margin-bottom:4px;">CeCos (Centros de Costo)</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px;">'+rows.length+' registro(s). Al cargar un Excel se REEMPLAZAN todos los anteriores.</div>'+
     '<div class="card" style="padding:16px;margin-bottom:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Cargar Excel de CeCos</div>'+
-    '<div style="font-size:11px;color:var(--slate);margin-bottom:8px;">Columnas: <b>ceco</b> y <b>nombre_proyecto</b> (primera fila = encabezados). <b>La carga reemplaza los datos anteriores.</b></div>'+
+    '<div style="font-size:11px;color:var(--slate);margin-bottom:8px;">Columnas: <b>CeCo</b> y <b>Nombre Proyecto</b> (primera fila = encabezados). <b>La carga reemplaza los datos anteriores.</b></div>'+
     '<input type="file" id="cecoFile" accept=".xlsx,.xls"><div id="cecoErr" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
     '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;"><button class="btn btn-p" onclick="cargarCecosExcel()">⬆ Vaciar y cargar</button><button class="btn btn-g" style="background:#FEE2E2;color:#991B1B;" onclick="vaciarCecos()">🗑 Vaciar todo</button></div></div>'+
     '<div class="card" style="padding:6px 16px 14px;"><table><thead><tr><th>CeCo</th><th>Nombre del proyecto</th></tr></thead><tbody>'+
@@ -870,7 +870,7 @@ async function cargarCecosExcel(){
   try{
     const buf=await f.arrayBuffer(); const wb=XLSX.read(buf,{type:'array'});
     const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
-    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); const ceco=String(k.ceco||k['centro de costo']||'').trim(); return ceco?{ceco,nombre_proyecto:String(k.nombre_proyecto||k.proyecto||k['nombre del proyecto']||'').trim()||null}:null; }).filter(Boolean);
+    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); const ceco=String(k.ceco||k['centro de costo']||k['centro de costos']||'').trim(); return ceco?{ceco,nombre_proyecto:String(k['nombre proyecto']||k.nombre_proyecto||k.proyecto||k['nombre del proyecto']||'').trim()||null}:null; }).filter(Boolean);
     if(!items.length){ document.getElementById('cecoErr').textContent='No se encontraron CeCos (revise la columna ceco).'; return; }
     // Vaciar y cargar
     await sb.from('rfq_cecos').delete().neq('id','00000000-0000-0000-0000-000000000000');
@@ -891,7 +891,7 @@ RENDER.materiales=async function(){
   const rows=data||[];
   c.innerHTML='<div style="font-size:16px;font-weight:700;margin-bottom:4px;">Materiales</div><div style="font-size:12px;color:var(--slate);margin-bottom:14px;">'+rows.length+' registro(s). Al cargar un Excel se REEMPLAZAN todos los anteriores.</div>'+
     '<div class="card" style="padding:16px;margin-bottom:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Cargar Excel de Materiales</div>'+
-    '<div style="font-size:11px;color:var(--slate);margin-bottom:8px;">Columnas: <b>codigo</b> y <b>nombre_actividad</b> (primera fila = encabezados). <b>La carga reemplaza los datos anteriores.</b></div>'+
+    '<div style="font-size:11px;color:var(--slate);margin-bottom:8px;">Columnas: <b>Código Material</b> y <b>Nombre de Actividad</b> (primera fila = encabezados). <b>La carga reemplaza los datos anteriores.</b></div>'+
     '<input type="file" id="matFile" accept=".xlsx,.xls"><div id="matErr" style="color:var(--danger);font-size:11px;margin-top:8px;"></div>'+
     '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;"><button class="btn btn-p" onclick="cargarMaterialesExcel()">⬆ Vaciar y cargar</button><button class="btn btn-g" style="background:#FEE2E2;color:#991B1B;" onclick="vaciarMateriales()">🗑 Vaciar todo</button></div></div>'+
     '<div class="card" style="padding:6px 16px 14px;"><table><thead><tr><th>Código</th><th>Nombre de la actividad</th></tr></thead><tbody>'+
@@ -904,7 +904,7 @@ async function cargarMaterialesExcel(){
   try{
     const buf=await f.arrayBuffer(); const wb=XLSX.read(buf,{type:'array'});
     const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
-    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); const codigo=String(k.codigo||k['codigo de material']||k['código de material']||'').trim(); return codigo?{codigo,nombre_actividad:String(k.nombre_actividad||k.actividad||k['nombre de la actividad']||'').trim()||null}:null; }).filter(Boolean);
+    const items=rows.map(r=>{ const k={}; Object.keys(r).forEach(kk=>k[kk.toString().toLowerCase().trim()]=r[kk]); const codigo=String(k.codigo||k['codigo material']||k['código material']||k['codigo de material']||k['código de material']||'').trim(); return codigo?{codigo,nombre_actividad:String(k['nombre de actividad']||k.nombre_actividad||k.actividad||k['nombre de la actividad']||'').trim()||null}:null; }).filter(Boolean);
     if(!items.length){ document.getElementById('matErr').textContent='No se encontraron materiales (revise la columna codigo).'; return; }
     await sb.from('rfq_materiales').delete().neq('id','00000000-0000-0000-0000-000000000000');
     for(let i=0;i<items.length;i+=500){ await sb.from('rfq_materiales').insert(items.slice(i,i+500)); }
