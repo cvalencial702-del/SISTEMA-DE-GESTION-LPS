@@ -1148,18 +1148,29 @@ async function exportarExcel(){
   }
   const cols = incluirSalarial ? {...EXCEL_COLS, ...EXCEL_COLS_SALARIAL} : EXCEL_COLS;
   // Cargar todos los familiares y agruparlos por empleado
-  let famPorEmp={}; let maxFam=0;
+  let famPorEmp={}; let maxFam=0; let totalFams=0;
   try{
     if(sb){
-      const {data:fams}=await sb.from('familiares').select('*');
-      (fams||[]).forEach(f=>{ if(!famPorEmp[f.empleado_id])famPorEmp[f.empleado_id]=[]; famPorEmp[f.empleado_id].push(f); });
+      // Traer todos los familiares paginando (por si son muchos)
+      let todos=[], desde=0, lote=1000;
+      while(true){
+        const {data:fams,error}=await sb.from('familiares').select('*').range(desde,desde+lote-1);
+        if(error){ console.error(error); break; }
+        todos=todos.concat(fams||[]);
+        if(!fams||fams.length<lote) break;
+        desde+=lote;
+      }
+      totalFams=todos.length;
+      todos.forEach(f=>{ const key=String(f.empleado_id); if(!famPorEmp[key])famPorEmp[key]=[]; famPorEmp[key].push(f); });
       Object.values(famPorEmp).forEach(arr=>{ if(arr.length>maxFam)maxFam=arr.length; });
     }
   }catch(e){ console.log('No se pudieron cargar familiares:',e.message); }
   const filas=empleados.map(emp=>{
     const row={};
     Object.entries(cols).forEach(([titulo,campo])=>{ row[titulo]=emp[campo]!==undefined&&emp[campo]!==null?emp[campo]:''; });
-    const fams=famPorEmp[emp._dbId]||[];
+    // Asociar por _dbId o por id (lo que exista)
+    const key=String(emp._dbId||emp.id||emp._id||'');
+    const fams=famPorEmp[key]||[];
     for(let n=0;n<maxFam;n++){
       const f=fams[n]||{};
       row['Familiar '+(n+1)+' nombre']=f.nombre||'';
@@ -1173,6 +1184,10 @@ async function exportarExcel(){
   const headerFam=[];
   for(let n=0;n<maxFam;n++){ headerFam.push('Familiar '+(n+1)+' nombre','Familiar '+(n+1)+' parentesco','Familiar '+(n+1)+' documento','Familiar '+(n+1)+' edad','Familiar '+(n+1)+' teléfono'); }
   const header=[...Object.keys(cols),...headerFam];
+  // Diagnóstico: informar si no se asociaron familiares
+  if(totalFams>0 && maxFam===0){
+    alert('⚠ Se encontraron '+totalFams+' familiares en la base, pero no se pudieron asociar a los empleados de la lista. El Excel se descargará sin la columna de familiares.\n\nRecargue la página (Ctrl+Shift+R) y vuelva a intentar.');
+  }
   const ws=XLSX.utils.json_to_sheet(filas,{header});
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Empleados');
