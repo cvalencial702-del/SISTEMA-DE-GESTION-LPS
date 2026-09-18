@@ -1135,7 +1135,7 @@ function pedirClaveExcel(){
   return true;
 }
 
-function exportarExcel(){
+async function exportarExcel(){
   if(!pedirClaveExcel()) return;
   if(typeof XLSX==='undefined'){ alert('No se pudo cargar la librería de Excel. Verifique su conexión.'); return; }
   // Preguntar si se incluyen los datos salariales (segunda clave)
@@ -1147,12 +1147,33 @@ function exportarExcel(){
     else { alert('⚠️ Clave salarial incorrecta. Se exportará SIN datos salariales.'); }
   }
   const cols = incluirSalarial ? {...EXCEL_COLS, ...EXCEL_COLS_SALARIAL} : EXCEL_COLS;
+  // Cargar todos los familiares y agruparlos por empleado
+  let famPorEmp={}; let maxFam=0;
+  try{
+    if(sb){
+      const {data:fams}=await sb.from('familiares').select('*');
+      (fams||[]).forEach(f=>{ if(!famPorEmp[f.empleado_id])famPorEmp[f.empleado_id]=[]; famPorEmp[f.empleado_id].push(f); });
+      Object.values(famPorEmp).forEach(arr=>{ if(arr.length>maxFam)maxFam=arr.length; });
+    }
+  }catch(e){ console.log('No se pudieron cargar familiares:',e.message); }
   const filas=empleados.map(emp=>{
     const row={};
     Object.entries(cols).forEach(([titulo,campo])=>{ row[titulo]=emp[campo]!==undefined&&emp[campo]!==null?emp[campo]:''; });
+    const fams=famPorEmp[emp._dbId]||[];
+    for(let n=0;n<maxFam;n++){
+      const f=fams[n]||{};
+      row['Familiar '+(n+1)+' nombre']=f.nombre||'';
+      row['Familiar '+(n+1)+' parentesco']=f.parentesco||'';
+      row['Familiar '+(n+1)+' documento']=f.documento||'';
+      row['Familiar '+(n+1)+' edad']=(f.edad!=null?f.edad:'');
+      row['Familiar '+(n+1)+' teléfono']=f.telefono||'';
+    }
     return row;
   });
-  const ws=XLSX.utils.json_to_sheet(filas,{header:Object.keys(cols)});
+  const headerFam=[];
+  for(let n=0;n<maxFam;n++){ headerFam.push('Familiar '+(n+1)+' nombre','Familiar '+(n+1)+' parentesco','Familiar '+(n+1)+' documento','Familiar '+(n+1)+' edad','Familiar '+(n+1)+' teléfono'); }
+  const header=[...Object.keys(cols),...headerFam];
+  const ws=XLSX.utils.json_to_sheet(filas,{header});
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Empleados');
   XLSX.writeFile(wb,'Base_Personal_LPS_'+(incluirSalarial?'con_salarios_':'')+new Date().toISOString().slice(0,10)+'.xlsx');
